@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.1" xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
+  <persistence-unit name="FlightReservationSystem-ejbPU" transaction-type="JTA">
+    <jta-data-source>jdbc/flightReservationSystem</jta-data-source>
+    <class>entity.AircraftConfigurationEntity</class>
+    <class>entity.AircraftTypeEntity</class>
+    <class>entity.AirportEntity</class>
+    <class>entity.CabinConfigurationEntity</class>
+    <class>entity.CreditCardEntity</class>
+    <class>entity.CustomerEntity</class>
+    <class>entity.EmployeeEntity</class>
+    <class>entity.FareEntity</class>
+    <class>entity.FlightEntity</class>
+    <class>entity.FlightReservationEntity</class>
+    <class>entity.FlightRouteEntity</class>
+    <class>entity.FlightScheduleEntity</class>
+    <class>entity.FlightSchedulePlanEntity</class>
+    <class>entity.PartnerEntity</class>
+    <class>entity.PassengerEntity</class>
+    <class>entity.SeatEntity</class>
+    <class>entity.UserEntity</class>
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+    <properties>
+      <property name="javax.persistence.schema-generation.database.action" value="create"/>
+    </properties>
+  </persistence-unit>
+</persistence>
