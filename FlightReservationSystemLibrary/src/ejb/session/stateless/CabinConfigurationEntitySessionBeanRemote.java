@@ -18,11 +18,11 @@ import util.exception.CreateNewCabinConfigurationException;
  */
 @Remote
 public interface CabinConfigurationEntitySessionBeanRemote {
-    
-    public Long createNewCabinConfiguration(CabinConfigurationEntity cabinConfiguration, AircraftConfigurationEntity aircraftConfiguration) throws CreateNewCabinConfigurationException;
+
+    public void createNewCabinConfiguration(CabinConfigurationEntity cabinConfiguration, AircraftConfigurationEntity aircraftConfiguration) throws CreateNewCabinConfigurationException;
 
     public List<CabinConfigurationEntity> retrieveAllCabinConfiguration();
 
     public CabinConfigurationEntity retrieveCabinConfigurationById(Long cabinConfigurationId) throws CabinConfigurationNotFoundException;
-    
+
 }

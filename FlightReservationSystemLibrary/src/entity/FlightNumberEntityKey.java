@@ -16,6 +16,7 @@ import javax.validation.constraints.Size;
  * @author Li Xin
  */
 //@Embeddable
+// UNUSED
 public class FlightNumberEntityKey implements Serializable {
 
     private static final long serialVersionUID = 1L;

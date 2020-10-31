@@ -65,10 +65,7 @@ public class FlightSchedulePlanEntity implements Serializable {
 
     @ManyToOne
     @NotNull
-    @JoinColumns(value = {
-        @JoinColumn(name = "iataAirlineCode", referencedColumnName = "iataAirlineCode", nullable = false),
-        @JoinColumn(name = "lightNumber", referencedColumnName = "flightNumber", nullable = false)}
-    )
+    @JoinColumn(name = "flightNumber", nullable = false)
     private FlightEntity flight;
 
     public FlightSchedulePlanEntity() {

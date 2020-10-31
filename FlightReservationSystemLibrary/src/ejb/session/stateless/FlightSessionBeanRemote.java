@@ -26,10 +26,10 @@ public interface FlightSessionBeanRemote {
 
     public List<FlightEntity> retrieveAllFlights();
 
-    public String updateFlight(FlightEntity updateFlightEntity) throws UpdateFlightFailedException;
+    public String updateFlight(FlightEntity updateFlightEntity) throws UpdateFlightFailedException, FlightNotFoundException;
 
-    public FlightEntity retrieveFlightById(String iataCode, String flightNumber) throws FlightNotFoundException;
+    public FlightEntity retrieveFlightByFlightNumber(String flightNumber) throws FlightNotFoundException;
 
-    public void deleteFlightById(String iataCode, String flightNumber) throws FlightNotFoundException, FlightInUseException;
+    public void deleteFlightByFlightNumber(String flightNumber) throws FlightNotFoundException, FlightInUseException;
 
 }

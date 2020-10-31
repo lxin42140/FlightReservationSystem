@@ -10,11 +10,14 @@ import ejb.session.stateless.AircraftTypeSessionBeanLocal;
 import ejb.session.stateless.AirportEntitySessionBeanLocal;
 import ejb.session.stateless.CabinConfigurationEntitySessionBeanLocal;
 import ejb.session.stateless.FlightRouteSessionBeanLocal;
+import ejb.session.stateless.FlightSessionBeanLocal;
 import entity.AircraftConfigurationEntity;
 import entity.CabinConfigurationEntity;
 import java.util.ArrayList;
 import entity.AirportEntity;
 import entity.CabinConfigurationEntity;
+import entity.FlightEntity;
+import entity.FlightNumberEntityKey;
 import entity.FlightRouteEntity;
 import java.util.List;
 import java.util.logging.Level;
@@ -32,8 +35,12 @@ import util.exception.CreateNewAircraftConfigurationException;
 import util.exception.CreateNewCabinConfigurationException;
 import util.exception.AircraftConfigurationNotFoundException;
 import util.exception.CabinConfigurationNotFoundException;
+import util.exception.CreateNewFlightException;
 import util.exception.CreateNewFlightRouteException;
+import util.exception.FlightNotFoundException;
+import util.exception.FlightRouteNotFoundException;
 import util.exception.InvalidInputException;
+import util.exception.UpdateFlightFailedException;
 
 /**
  *
@@ -44,6 +51,9 @@ import util.exception.InvalidInputException;
 @Startup
 @DependsOn({"AircraftTypeInitSessionBean", "AirportInitSessionBean", "EmployeeInitSessionBean", "PartnerInitSessionBean", "AircraftConfigurationInitSessionBean"})
 public class TestSessionBean {
+
+    @EJB
+    private FlightSessionBeanLocal flightSessionBean;
 
     @EJB
     private CabinConfigurationEntitySessionBeanLocal cabinConfigurationEntitySessionBean;
@@ -62,20 +72,24 @@ public class TestSessionBean {
 
     @EJB
     private AircraftConfigurationSessionBeanLocal aircraftConfigurationSessionBeanLocal;
+
     @EJB
     private CabinConfigurationEntitySessionBeanLocal cabinConfigurationEntitySessionBeanLocal;
 
     @PostConstruct
     public void postConstruct() {
 
-        createFlightRoute();
         System.out.println("-----------------------TEST------------------------------\n");
         try {
-
+            //createFlightRoute();
+            //createFlight();
+            //flightSessionBean.deleteFlightByFlightNumber("ML001");
+            //updateFlight();
+            //retrieveAllFlight();
         } catch (Exception ex) {
             System.out.println(ex);
         }
-        
+
         createAircraftConfig();
     }
 
@@ -89,8 +103,52 @@ public class TestSessionBean {
         }
     }
 
+    private void updateFlight() {
+        FlightEntity flightEntity;
+        try {
+            flightEntity = flightSessionBean.retrieveFlightByFlightNumber("ML001");
+            //FlightRouteEntity flightRouteEntity = flightRouteSessionBean.retrieveFlightRouteById(2l);
+            //flightEntity.setFlightRoute(flightRouteEntity);
+            AircraftConfigurationEntity aircraftConfigurationEntity = aircraftConfigurationSessionBean.retrieveAircraftConfigurationById(2L);
+            flightEntity.setAircraftConfiguration(aircraftConfigurationEntity);
+            flightSessionBean.updateFlight(flightEntity);
+        } catch (FlightNotFoundException ex) {
+            Logger.getLogger(TestSessionBean.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (UpdateFlightFailedException ex) {
+            Logger.getLogger(TestSessionBean.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (AircraftConfigurationNotFoundException ex) {
+            Logger.getLogger(TestSessionBean.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
-        //TESTED AND SUCCEEDED
+    }
+
+    private void retrieveAllFlight() {
+        List<FlightEntity> list = flightSessionBean.retrieveAllFlights();
+        for (FlightEntity flightEntity : list) {
+            System.out.println(flightEntity.getFlightNumber());
+        }
+    }
+
+    private void createFlight() {
+        FlightEntity flightEntity = new FlightEntity("ML001");
+        FlightEntity flightEntity1 = new FlightEntity("ML003");
+        FlightEntity flightEntity2 = new FlightEntity("ML005");
+
+        try {
+           // flightSessionBean.createNewFlight(flightEntity, 2l, 1l, Boolean.TRUE, "ML002");
+            flightSessionBean.createNewFlight(flightEntity1, 2l, 1l, Boolean.TRUE, "ML004");
+            flightSessionBean.createNewFlight(flightEntity2, 2l, 1l, Boolean.FALSE, "ML006");
+            
+        } catch (CreateNewFlightException ex) {
+            Logger.getLogger(TestSessionBean.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (FlightRouteNotFoundException ex) {
+            Logger.getLogger(TestSessionBean.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (AircraftConfigurationNotFoundException ex) {
+            Logger.getLogger(TestSessionBean.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    //TESTED AND SUCCEEDED
     private void createAircraftConfig() {
         List<AircraftConfigurationEntity> configs = aircraftConfigurationSessionBeanLocal.retrieveAllAircraftConfiguration();
         //should print 2

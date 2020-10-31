@@ -10,8 +10,8 @@ import entity.CabinConfigurationEntity;
 import java.util.List;
 import javax.ejb.Local;
 import util.exception.AircraftConfigurationNotFoundException;
+import util.exception.AircraftTypeNotFoundException;
 import util.exception.CreateNewAircraftConfigurationException;
-import util.exception.InvalidInputException;
 
 /**
  *
@@ -19,9 +19,9 @@ import util.exception.InvalidInputException;
  */
 @Local
 public interface AircraftConfigurationSessionBeanLocal {
-    
-    public Long createNewAircraftConfiguration(AircraftConfigurationEntity aircraftConfiguration, List<CabinConfigurationEntity> cabinConfigurations, Long airportTypeId) throws CreateNewAircraftConfigurationException;
-    
+
+    public Long createNewAircraftConfiguration(AircraftConfigurationEntity aircraftConfiguration, List<CabinConfigurationEntity> cabinConfigurations, Long aircraftTypeId) throws CreateNewAircraftConfigurationException, AircraftTypeNotFoundException;
+
     public List<AircraftConfigurationEntity> retrieveAllAircraftConfiguration();
 
     public AircraftConfigurationEntity retrieveAircraftConfigurationById(Long aircraftConfigurationId) throws AircraftConfigurationNotFoundException;

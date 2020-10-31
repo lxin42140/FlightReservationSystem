@@ -11,6 +11,7 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
@@ -18,7 +19,6 @@ import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -27,17 +27,22 @@ import javax.validation.constraints.Size;
  * @author Li Xin
  */
 @Entity
-@IdClass(FlightNumberEntityKey.class)
+//@IdClass(FlightNumberEntityKey.class)
 public class FlightEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @Id
-    @NotNull
-    @Size(min = 1, max = 10)
-    @Column(nullable = false, length = 10)
-    private String iataAirlineCode;
-
+//    @Id
+//    @NotNull
+//    @Size(min = 1, max = 10)
+//    @Column(nullable = false, length = 10)
+//    private String iataAirlineCode;
+//
+//    @Id
+//    @NotNull
+//    @Size(min = 1, max = 10)
+//    @Column(nullable = false, length = 10)
+//    private String flightNumber;
     @Id
     @NotNull
     @Size(min = 1, max = 10)
@@ -48,11 +53,12 @@ public class FlightEntity implements Serializable {
 
     private boolean isReturnFlight;
 
-    @OneToOne(optional = true, cascade = {CascadeType.PERSIST}, orphanRemoval = true)
-    @JoinColumns(value = {
-        @JoinColumn(name = "returnIataAirlineCode", referencedColumnName = "iataAirlineCode"),
-        @JoinColumn(name = "returnFlightNumber", referencedColumnName = "flightNumber")}
-    )
+    @OneToOne(optional = true, cascade = {CascadeType.PERSIST}, orphanRemoval = true, fetch = FetchType.EAGER)
+//    @JoinColumns(value = {
+//        @JoinColumn(name = "returnIataAirlineCode", referencedColumnName = "iataAirlineCode"),
+//        @JoinColumn(name = "returnFlightNumber", referencedColumnName = "flightNumber")}
+//    )
+    @JoinColumn(name = "returnFlightNumber")
     private FlightEntity returnFlight;
 
     @OneToOne(optional = false, cascade = {CascadeType.PERSIST})
@@ -60,37 +66,51 @@ public class FlightEntity implements Serializable {
     @NotNull
     private AircraftConfigurationEntity aircraftConfiguration;
 
-    @ManyToOne(optional = false, cascade = {CascadeType.PERSIST})
+    @ManyToOne(optional = false, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "flightRouteId", nullable = false)
     @NotNull
     private FlightRouteEntity flightRoute;
 
-    @OneToMany(mappedBy = "flight", cascade = {CascadeType.PERSIST})
+    @OneToMany(mappedBy = "flight", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<FlightSchedulePlanEntity> flightSchedulePlans;
 
     public FlightEntity() {
         this.flightSchedulePlans = new ArrayList<>();
     }
 
-    public FlightEntity(String iataAirlineCode, String flightNumber, AircraftConfigurationEntity aircraftConfiguration, FlightRouteEntity flightRoute) {
-        this.iataAirlineCode = iataAirlineCode;
+    public FlightEntity(String flightNumber) {
+        this();
+        this.flightNumber = flightNumber;
+    }
+
+    public FlightEntity(String flightNumber, AircraftConfigurationEntity aircraftConfiguration, FlightRouteEntity flightRoute) {
+        this();
         this.flightNumber = flightNumber;
         this.aircraftConfiguration = aircraftConfiguration;
         this.flightRoute = flightRoute;
     }
 
+//    public FlightEntity(String iataAirlineCode, String flightNumber) {
+//        this.iataAirlineCode = iataAirlineCode;
+//        this.flightNumber = flightNumber;
+//    }
+//    public FlightEntity(String iataAirlineCode, String flightNumber, AircraftConfigurationEntity aircraftConfiguration, FlightRouteEntity flightRoute) {
+//        this.iataAirlineCode = iataAirlineCode;
+//        this.flightNumber = flightNumber;
+//        this.aircraftConfiguration = aircraftConfiguration;
+//        this.flightRoute = flightRoute;
+//    }
     public boolean isIsDisabled() {
         return isDisabled;
     }
 
-    public String getIataAirlineCode() {
-        return iataAirlineCode;
-    }
-
-    public void setIataAirlineCode(String iataAirlineCode) {
-        this.iataAirlineCode = iataAirlineCode;
-    }
-
+//    public String getIataAirlineCode() {
+//        return iataAirlineCode;
+//    }
+//
+//    public void setIataAirlineCode(String iataAirlineCode) {
+//        this.iataAirlineCode = iataAirlineCode;
+//    }
     public String getFlightNumber() {
         return flightNumber;
     }

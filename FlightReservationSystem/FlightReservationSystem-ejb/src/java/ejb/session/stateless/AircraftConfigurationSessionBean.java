@@ -21,6 +21,7 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import util.exception.AircraftConfigurationNotFoundException;
+import util.exception.AircraftTypeNotFoundException;
 import util.exception.CreateNewAircraftConfigurationException;
 import util.exception.CreateNewCabinConfigurationException;
 import util.exception.InvalidInputException;
@@ -34,29 +35,30 @@ public class AircraftConfigurationSessionBean implements AircraftConfigurationSe
 
     @PersistenceContext(unitName = "FlightReservationSystem-ejbPU")
     private EntityManager em;
+
     @EJB
     private CabinConfigurationEntitySessionBeanLocal cabinConfigurationEntitySessionBeanLocal;
 
-    public Long createNewAircraftConfiguration(AircraftConfigurationEntity aircraftConfiguration, List<CabinConfigurationEntity> cabinConfigurations, Long aircraftTypeId) throws CreateNewAircraftConfigurationException {
-        
-        AircraftTypeEntity aircraftType = em.find(AircraftTypeEntity.class, aircraftTypeId);
+    @EJB
+    private AircraftTypeSessionBeanLocal aircraftTypeSessionBeanLocal;
+
+    @Override
+    public Long createNewAircraftConfiguration(AircraftConfigurationEntity aircraftConfiguration, List<CabinConfigurationEntity> cabinConfigurations, Long aircraftTypeId) throws CreateNewAircraftConfigurationException, AircraftTypeNotFoundException {
+
+        AircraftTypeEntity aircraftType = aircraftTypeSessionBeanLocal.retrieveAircraftTypeById(aircraftTypeId);
+
         aircraftConfiguration.setAircraftType(aircraftType);
-        
-//        cabinConfigurationEntitySessionBeanLocal.createNewCabinConfiguration(cabinConfiguration, aircraftConfiguration);
-        
+
         Long totalSeatingCapacity = 0L;
+
         for (CabinConfigurationEntity cabinConfiguration : cabinConfigurations) {
-//            totalSeatingCapacity += cabinConfiguration.getNumberOfSeatsAbreast() * cabinConfiguration.getNumberOfRows();
-//            if (totalSeatingCapacity > aircraftType.getMaximumAircraftSeatCapacity()) {
-//                throw new CreateNewAircraftConfigurationException("Exceed maximum seat capacity for aircraft configuration!");
-//            }
             try {
                 cabinConfigurationEntitySessionBeanLocal.createNewCabinConfiguration(cabinConfiguration, aircraftConfiguration);
-            } catch(CreateNewCabinConfigurationException ex) {
+            } catch (CreateNewCabinConfigurationException ex) {
                 throw new CreateNewAircraftConfigurationException(ex.getMessage());
             }
         }
-        
+
         validateFields(aircraftConfiguration);
 
         try {

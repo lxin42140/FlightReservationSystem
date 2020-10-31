@@ -7,7 +7,6 @@ package ejb.session.stateless;
 
 import entity.AircraftConfigurationEntity;
 import entity.FlightEntity;
-import entity.FlightNumberEntityKey;
 import entity.FlightRouteEntity;
 import java.util.List;
 import java.util.Set;
@@ -15,6 +14,7 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -44,7 +44,7 @@ public class FlightSessionBean implements FlightSessionBeanRemote, FlightSession
     @Override
     public String createNewFlight(FlightEntity newFlightEntity, Long flightRouteId, Long aircraftConfigurationId, Boolean doCreateReturnFlight, String returnFlightNumber) throws CreateNewFlightException, FlightRouteNotFoundException, AircraftConfigurationNotFoundException {
         FlightRouteEntity flightRouteEntity = flightRouteSessionBeanLocal.retrieveFlightRouteById(flightRouteId);
-        AircraftConfigurationEntity aircraftConfigurationEntity = aircraftConfigurationSessionBeanLocal.retrieveAircraftTypeById(aircraftConfigurationId);
+        AircraftConfigurationEntity aircraftConfigurationEntity = aircraftConfigurationSessionBeanLocal.retrieveAircraftConfigurationById(aircraftConfigurationId);
 
         newFlightEntity.setAircraftConfiguration(aircraftConfigurationEntity); // associate flight with aircraft config
         newFlightEntity.setFlightRoute(flightRouteEntity); // associate flight with flight route
@@ -59,17 +59,23 @@ public class FlightSessionBean implements FlightSessionBeanRemote, FlightSession
         }
     }
 
-    private String createNewFlightWithoutReturnFlight(FlightEntity newFlightEntity) {
-
-        em.persist(newFlightEntity);
-        em.flush();
-
-        return newFlightEntity.getIataAirlineCode() + newFlightEntity.getFlightNumber();
+    private String createNewFlightWithoutReturnFlight(FlightEntity newFlightEntity) throws CreateNewFlightException {
+        try {
+            em.persist(newFlightEntity);
+            em.flush();
+            return newFlightEntity.getFlightNumber();
+        } catch (PersistenceException ex) {
+            if (isSQLIntegrityConstraintViolationException(ex)) {
+                throw new CreateNewFlightException("CreateNewFlightException: Flight with same flight number already exists!");
+            } else {
+                throw new CreateNewFlightException("CreateNewFlightException: " + ex.getMessage());
+            }
+        }
     }
 
     private String createNewFlightWithReturnFlight(FlightEntity newFlightEntity, String returnFlightNumber) throws CreateNewFlightException {
-        // create return flight with same IATA code, new return flight number, and the return flight route
-        FlightEntity returnFlightEntity = new FlightEntity(newFlightEntity.getIataAirlineCode(), returnFlightNumber, newFlightEntity.getAircraftConfiguration(), newFlightEntity.getFlightRoute().getReturnFlightRoute());
+        // create return flight with new return flight number, and the return flight route
+        FlightEntity returnFlightEntity = new FlightEntity(returnFlightNumber, newFlightEntity.getAircraftConfiguration(), newFlightEntity.getFlightRoute().getReturnFlightRoute());
         returnFlightEntity.setIsReturnFlight(true);
 
         // associate the return flight route with the return flight 
@@ -78,10 +84,22 @@ public class FlightSessionBean implements FlightSessionBeanRemote, FlightSession
         validate(returnFlightEntity);
 
         newFlightEntity.setReturnFlight(returnFlightEntity);
-        em.persist(newFlightEntity);
-        em.flush();
 
-        return newFlightEntity.getIataAirlineCode() + newFlightEntity.getFlightNumber();
+        try {
+            em.persist(newFlightEntity);
+            em.flush();
+            return newFlightEntity.getFlightNumber();
+        } catch (PersistenceException ex) {
+            if (isSQLIntegrityConstraintViolationException(ex)) {
+                throw new CreateNewFlightException("CreateNewFlightException: Flight with same flight number already exists!");
+            } else {
+                throw new CreateNewFlightException("CreateNewFlightException: " + ex.getMessage());
+            }
+        }
+    }
+
+    private boolean isSQLIntegrityConstraintViolationException(PersistenceException ex) {
+        return ex.getCause() != null && ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getSimpleName().equals("SQLIntegrityConstraintViolationException");
     }
 
     private void validate(FlightEntity flightEntity) throws CreateNewFlightException {
@@ -101,22 +119,23 @@ public class FlightSessionBean implements FlightSessionBeanRemote, FlightSession
 
     @Override
     public List<FlightEntity> retrieveAllFlights() {
-        Query query = em.createQuery("SELECT f from FlightEntity f ORDER BY f.iataAirlineCode, f.flightNumber ASC");
+        Query query = em.createQuery("SELECT f from FlightEntity f WHERE f.isReturnFlight = FALSE ORDER BY f.flightNumber ASC");
         List<FlightEntity> flightEntities = query.getResultList();
         return flightEntities;
     }
 
     @Override
-    public FlightEntity retrieveFlightById(String iataCode, String flightNumber) throws FlightNotFoundException {
-        FlightEntity flightEntity = em.find(FlightEntity.class, new FlightNumberEntityKey(iataCode, flightNumber));
+    public FlightEntity retrieveFlightByFlightNumber(String flightNumber) throws FlightNotFoundException {
+        FlightEntity flightEntity = em.find(FlightEntity.class, flightNumber);
+
         if (flightEntity == null) {
-            throw new FlightNotFoundException("FlightNotFoundException: Flight with numer " + iataCode + flightNumber + " does not exist!");
+            throw new FlightNotFoundException("FlightNotFoundException: Flight with numer " + flightNumber + " does not exist!");
         }
         return flightEntity;
     }
 
     @Override
-    public String updateFlight(FlightEntity updateFlightEntity) throws UpdateFlightFailedException {
+    public String updateFlight(FlightEntity updateFlightEntity) throws UpdateFlightFailedException, FlightNotFoundException {
 
         try {
             validate(updateFlightEntity);
@@ -124,20 +143,27 @@ public class FlightSessionBean implements FlightSessionBeanRemote, FlightSession
             throw new UpdateFlightFailedException("UpdateFlightFailedException: " + ex);
         }
 
-        FlightEntity flightEntityToUpdate = em.find(FlightEntity.class, new FlightNumberEntityKey(updateFlightEntity.getIataAirlineCode(), updateFlightEntity.getFlightNumber()));
-        em.merge(updateFlightEntity);
+        FlightEntity flightEntity = this.retrieveFlightByFlightNumber(updateFlightEntity.getFlightNumber());
 
+        flightEntity.setFlightNumber(updateFlightEntity.getFlightNumber()); // update flight number
+        flightEntity.setReturnFlight(updateFlightEntity.getReturnFlight()); // update return flight
+        flightEntity.setFlightRoute(updateFlightEntity.getFlightRoute()); // update flight route
+        flightEntity.setAircraftConfiguration(updateFlightEntity.getAircraftConfiguration()); // update aircraft configuration
+        flightEntity.setFlightSchedulePlans(updateFlightEntity.getFlightSchedulePlans()); // update flightscheduleplan
+        //flightEntity.setIsDisabled(updateFlightEntity.isIsDisabled()); // update disable status ?
+
+        em.merge(updateFlightEntity);
         em.flush();
 
-        return updateFlightEntity.getIataAirlineCode() + updateFlightEntity.getFlightNumber();
+        return updateFlightEntity.getFlightNumber();
     }
 
     @Override
-    public void deleteFlightById(String iataCode, String flightNumber) throws FlightNotFoundException, FlightInUseException {
-        FlightEntity flightEntity = em.find(FlightEntity.class, new FlightNumberEntityKey(iataCode, flightNumber));
+    public void deleteFlightByFlightNumber(String flightNumber) throws FlightNotFoundException, FlightInUseException {
+        FlightEntity flightEntity = em.find(FlightEntity.class, flightNumber);
 
         if (flightEntity == null) {
-            throw new FlightNotFoundException("FlightNotFoundException: Flight with numer " + iataCode + flightNumber + " does not exist!");
+            throw new FlightNotFoundException("FlightNotFoundException: Flight with numer " + flightNumber + " does not exist!");
         }
 
         if (flightEntity.getIsReturnFlight()) {
@@ -151,7 +177,7 @@ public class FlightSessionBean implements FlightSessionBeanRemote, FlightSession
                 flightEntity.getReturnFlight().setIsDisabled(true);
             }
             em.flush();
-            throw new FlightInUseException("FlightInUseException: Flight with numer " + iataCode + flightNumber + " is in use!" + "\nFlight is now disabled!");
+            throw new FlightInUseException("FlightInUseException: Flight with numer " + flightNumber + " is in use!" + "\nFlight is now disabled!");
         }
         em.remove(flightEntity);
     }
@@ -167,7 +193,7 @@ public class FlightSessionBean implements FlightSessionBeanRemote, FlightSession
         if (!returnFlightEntity.getFlightSchedulePlans().isEmpty()) {
             // flights associated with the return flight
             returnFlightEntity.setIsDisabled(true); // set disabled
-            throw new FlightInUseException("FlightInUseException: Flight with numer " + returnFlightEntity.getIataAirlineCode() + returnFlightEntity.getFlightNumber() + " is in use!" + "\nFlight is now disabled!");
+            throw new FlightInUseException("FlightInUseException: Flight with numer " + returnFlightEntity.getFlightNumber() + " is in use!" + "\nFlight is now disabled!");
         }
 
         em.remove(returnFlightEntity);

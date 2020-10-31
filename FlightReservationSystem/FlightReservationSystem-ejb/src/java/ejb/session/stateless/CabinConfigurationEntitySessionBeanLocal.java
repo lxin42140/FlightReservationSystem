@@ -19,7 +19,7 @@ import util.exception.CreateNewCabinConfigurationException;
 @Local
 public interface CabinConfigurationEntitySessionBeanLocal {
 
-    public Long createNewCabinConfiguration(CabinConfigurationEntity cabinConfiguration, AircraftConfigurationEntity aircraftConfiguration) throws CreateNewCabinConfigurationException;
+    public void createNewCabinConfiguration(CabinConfigurationEntity cabinConfiguration, AircraftConfigurationEntity aircraftConfiguration) throws CreateNewCabinConfigurationException;
 
     public List<CabinConfigurationEntity> retrieveAllCabinConfiguration();
 
