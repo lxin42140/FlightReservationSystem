@@ -84,11 +84,11 @@ public class AircraftConfigurationSessionBean implements AircraftConfigurationSe
         String errorMessage = "";
 
         for (ConstraintViolation error : errors) {
-            errorMessage += error.getPropertyPath() + ": " + error.getInvalidValue() + " - " + error.getMessage() + "\n";
+            errorMessage += "\n\t" + error.getPropertyPath() + " - " + error.getInvalidValue() + "; " + error.getMessage();
         }
 
         if (errorMessage.length() > 0) {
-            throw new CreateNewAircraftConfigurationException("CreateNewAircraftConfigurationException: " + errorMessage);
+            throw new CreateNewAircraftConfigurationException("CreateNewAircraftConfigurationException: Invalid inputs!\n" + errorMessage);
         }
     }
 

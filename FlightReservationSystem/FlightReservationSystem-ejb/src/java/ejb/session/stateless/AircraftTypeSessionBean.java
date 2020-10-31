@@ -59,7 +59,7 @@ public class AircraftTypeSessionBean implements AircraftTypeSessionBeanRemote, A
         String errorMessage = "";
 
         for (ConstraintViolation error : errors) {
-            errorMessage += error.getPropertyPath() + ": " + error.getInvalidValue() + " - " + error.getMessage() + "\n";
+            errorMessage += "\n\t" + error.getPropertyPath() + " - " + error.getInvalidValue() + "; " + error.getMessage();
         }
         if (errorMessage.length() > 0) {
             throw new CreateNewAircraftTypeException("CreateNewAircraftTypeException: Invalid inputs!\n" + errorMessage);
