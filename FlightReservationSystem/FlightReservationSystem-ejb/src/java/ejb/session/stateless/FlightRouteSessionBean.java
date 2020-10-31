@@ -18,7 +18,6 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import util.exception.AirportNotFoundException;
 import util.exception.CreateNewFlightRouteException;
-import util.exception.DeleteFlightRouteException;
 import util.exception.FlightRouteInUseException;
 import util.exception.FlightRouteNotFoundException;
 

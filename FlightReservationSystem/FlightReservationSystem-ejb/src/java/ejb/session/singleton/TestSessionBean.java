@@ -31,6 +31,7 @@ import util.exception.FlightRouteNotFoundException;
 @Singleton
 @LocalBean
 @Startup
+@DependsOn({ "AircraftTypeInitSessionBean", "AirportInitSessionBean", "EmployeeInitSessionBean", "PartnerInitSessionBean" })
 public class TestSessionBean {
 
     @EJB
@@ -62,6 +63,10 @@ public class TestSessionBean {
         } catch (AirportNotFoundException ex) {
             Logger.getLogger(TestSessionBean.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    
+    private void createFlight() {
+        
     }
    
 
