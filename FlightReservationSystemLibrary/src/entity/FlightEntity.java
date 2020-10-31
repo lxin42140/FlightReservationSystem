@@ -67,6 +67,13 @@ public class FlightEntity implements Serializable {
         this.flightSchedulePlans = new ArrayList<>();
     }
 
+    public FlightEntity(String iataAirlineCode, String flightNumber, AircraftConfigurationEntity aircraftConfiguration, FlightRouteEntity flightRoute) {
+        this.iataAirlineCode = iataAirlineCode;
+        this.flightNumber = flightNumber;
+        this.aircraftConfiguration = aircraftConfiguration;
+        this.flightRoute = flightRoute;
+    }
+
     public boolean isIsDisabled() {
         return isDisabled;
     }

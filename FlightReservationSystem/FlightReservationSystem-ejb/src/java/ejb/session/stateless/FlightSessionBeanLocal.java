@@ -5,7 +5,11 @@
  */
 package ejb.session.stateless;
 
+import entity.FlightEntity;
 import javax.ejb.Local;
+import util.exception.AircraftConfigurationNotFoundException;
+import util.exception.CreateNewFlightException;
+import util.exception.FlightRouteNotFoundException;
 
 /**
  *
@@ -13,5 +17,7 @@ import javax.ejb.Local;
  */
 @Local
 public interface FlightSessionBeanLocal {
+
+    public String createNewFlight(FlightEntity newFlightEntity, Long flightRouteId, Long aircraftConfigurationId, Boolean doCreateReturnFlight, String returnFlightNumber) throws CreateNewFlightException, FlightRouteNotFoundException, AircraftConfigurationNotFoundException;
     
 }

@@ -31,6 +31,7 @@ public class FlightRouteSessionBean implements FlightRouteSessionBeanRemote, Fli
     @PersistenceContext(unitName = "FlightReservationSystem-ejbPU")
     private EntityManager em;
 
+    @Override
     public Long createNewFlightRoute(FlightRouteEntity newFlightRouteEntity, Long originAirportId, Long destinationAirportId, Boolean doCreateReturnFlight) throws CreateNewFlightRouteException, AirportNotFoundException {
         AirportEntity originAirport = em.find(AirportEntity.class, originAirportId);
 
@@ -106,7 +107,7 @@ public class FlightRouteSessionBean implements FlightRouteSessionBeanRemote, Fli
         }
 
         try {
-            Query query = em.createQuery("SELECT f FROM FlightRouteEntity f WHERE f.originAirport = :inputOriginAirport AND f.destinationAirport = :inputDestinationAirport");
+            Query query = em.createQuery("SELECT f FROM FlightRouteEntity f WHERE f.originAirport = :inputOriginAirport AND f.destinationAirport = :inputDestinationAirport AND f.isDisabled = FALSE");
             query.setParameter("inputOriginAirport", flightRouteEntity.getDestinationAirport());
             query.setParameter("inputDestinationAirport", flightRouteEntity.getDestinationAirport());
             return false;
