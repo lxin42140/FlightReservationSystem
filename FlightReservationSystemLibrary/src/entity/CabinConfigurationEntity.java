@@ -67,6 +67,18 @@ public class CabinConfigurationEntity implements Serializable {
     @ManyToOne(optional = false)
     @JoinColumn(name = "aircraftConfigurationId", nullable = false)
     private AircraftConfigurationEntity aircraftConfiguration;
+    
+    public CabinConfigurationEntity() {
+    }
+    
+    public CabinConfigurationEntity(Long numAisles, Long numAbreast, Long numRows, Long maxSeat, String seatingConfig, CabinClassEnum cabinClass) {
+        numberOfAisles = numAisles;
+        numberOfSeatsAbreast = numAbreast;
+        numberOfRows = numRows;
+        maximumCabinSeatCapacity = maxSeat;
+        seatingConfiguration = seatingConfig;
+        this.cabinClass = cabinClass;
+    }
 
     public Long getCabinConfigurationId() {
         return cabinConfigurationId;

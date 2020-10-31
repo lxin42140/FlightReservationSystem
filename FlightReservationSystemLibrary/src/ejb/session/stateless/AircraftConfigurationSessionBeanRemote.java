@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.AircraftConfigurationEntity;
+import entity.CabinConfigurationEntity;
 import java.util.List;
 import javax.ejb.Remote;
 import util.exception.AircraftConfigurationNotFoundException;
@@ -19,9 +20,10 @@ import util.exception.InvalidInputException;
 @Remote
 public interface AircraftConfigurationSessionBeanRemote {
     
-    public Long createNewAircraftConfiguration(AircraftConfigurationEntity aircraftConfiguration, List<Long> cabinConfigurations) throws CreateNewAircraftConfigurationException, InvalidInputException;
-
+    public Long createNewAircraftConfiguration(AircraftConfigurationEntity aircraftConfiguration, List<CabinConfigurationEntity> cabinConfigurations, Long airportTypeId) throws CreateNewAircraftConfigurationException;
+    
     public List<AircraftConfigurationEntity> retrieveAllAircraftConfiguration();
 
-    public AircraftConfigurationEntity retrieveAircraftTypeById(Long aircraftConfigurationId) throws AircraftConfigurationNotFoundException;
+    public AircraftConfigurationEntity retrieveAircraftConfigurationById(Long aircraftConfigurationId) throws AircraftConfigurationNotFoundException;
+
 }

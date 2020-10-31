@@ -66,6 +66,13 @@ public class AircraftConfigurationEntity implements Serializable {
     public AircraftConfigurationEntity() {
         this.cabinConfigurations = new ArrayList<>();
     }
+    
+    public AircraftConfigurationEntity(String aircraftConfigurationName) {
+        this.maximumConfigurationSeatCapacity = 0L;
+        this.numberOfCabins = 0L;
+        this.aircraftConfigurationName = aircraftConfigurationName;
+        this.cabinConfigurations = new ArrayList<>();
+    }
 
     public Long getAircraftConfigurationId() {
         return aircraftConfigurationId;

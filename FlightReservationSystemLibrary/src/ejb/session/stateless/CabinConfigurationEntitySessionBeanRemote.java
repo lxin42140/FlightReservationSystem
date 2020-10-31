@@ -5,12 +5,12 @@
  */
 package ejb.session.stateless;
 
+import entity.AircraftConfigurationEntity;
 import entity.CabinConfigurationEntity;
 import java.util.List;
 import javax.ejb.Remote;
 import util.exception.CabinConfigurationNotFoundException;
 import util.exception.CreateNewCabinConfigurationException;
-import util.exception.InvalidInputException;
 
 /**
  *
@@ -19,7 +19,7 @@ import util.exception.InvalidInputException;
 @Remote
 public interface CabinConfigurationEntitySessionBeanRemote {
     
-    public Long createNewCabinConfiguration(CabinConfigurationEntity cabinConfiguration) throws CreateNewCabinConfigurationException, InvalidInputException;
+    public Long createNewCabinConfiguration(CabinConfigurationEntity cabinConfiguration, AircraftConfigurationEntity aircraftConfiguration) throws CreateNewCabinConfigurationException;
 
     public List<CabinConfigurationEntity> retrieveAllCabinConfiguration();
 

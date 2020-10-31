@@ -5,6 +5,7 @@
  */
 package ejb.session.stateless;
 
+import entity.AircraftConfigurationEntity;
 import entity.CabinConfigurationEntity;
 import java.util.List;
 import java.util.Set;
@@ -31,48 +32,48 @@ public class CabinConfigurationEntitySessionBean implements CabinConfigurationEn
     @PersistenceContext(unitName = "FlightReservationSystem-ejbPU")
     private EntityManager em;
 
-    public Long createNewCabinConfiguration(CabinConfigurationEntity cabinConfiguration) throws CreateNewCabinConfigurationException, InvalidInputException {
+    public Long createNewCabinConfiguration(CabinConfigurationEntity cabinConfiguration, AircraftConfigurationEntity aircraftConfiguration) throws CreateNewCabinConfigurationException {
 
-        String errorMessage = validateFields(cabinConfiguration);
-        if (errorMessage != null) {
-            throw new InvalidInputException(errorMessage);
-        }
-        
         //calculate total number of seats for cabin
-        cabinConfiguration.setMaximumCabinSeatCapacity(
-                cabinConfiguration.getNumberOfSeatsAbreast() * cabinConfiguration.getNumberOfRows());
+        Long seatCapacity = cabinConfiguration.getNumberOfSeatsAbreast() * cabinConfiguration.getNumberOfRows();
+        cabinConfiguration.setMaximumCabinSeatCapacity(seatCapacity);
+                
+//        AircraftConfigurationEntity aircraftConfiguration = em.find(AircraftConfigurationEntity.class, aircraftConfigurationId);
         
-        try {
-            em.persist(cabinConfiguration);
-            em.flush();
-            return cabinConfiguration.getCabinConfigurationId();
-        } catch (PersistenceException ex) {
-            if (isSQLIntegrityConstraintViolationException(ex)) {
-                throw new CreateNewCabinConfigurationException("CreateNewCabinConfigurationException: Aircraft configuration with same name already exists!");
-            } else {
-                throw new CreateNewCabinConfigurationException("CreateNewCabinConfigurationException: " + ex.getMessage());
-            }
+        //check if adding the cabin will exceed the maximum AIRCRAFT seat capacity
+        Long aircraftTypeMaxCapacity = aircraftConfiguration.getAircraftType().getMaximumAircraftSeatCapacity();
+        if (aircraftConfiguration.getMaximumConfigurationSeatCapacity() + seatCapacity > aircraftTypeMaxCapacity) {
+            throw new CreateNewCabinConfigurationException("Exceed maximum seat capacity for aircraft configuration!");
         }
+        
+        //Set bidirectional relationship
+        aircraftConfiguration.getCabinConfigurations().add(cabinConfiguration);
+        cabinConfiguration.setAircraftConfiguration(aircraftConfiguration);
+        //increase number of cabins by 1
+        aircraftConfiguration.setNumberOfCabins(aircraftConfiguration.getNumberOfCabins() + 1);
+        aircraftConfiguration.setMaximumConfigurationSeatCapacity(aircraftConfiguration.getMaximumConfigurationSeatCapacity() + seatCapacity);
+        
+        validateFields(cabinConfiguration);
+
+//        em.persist(cabinConfiguration);
+//        em.flush();
+        return cabinConfiguration.getCabinConfigurationId();
     }
 
-    private boolean isSQLIntegrityConstraintViolationException(PersistenceException ex) {
-        return ex.getCause() != null && ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getSimpleName().equals("SQLIntegrityConstraintViolationException");
-    }
-
-    private String validateFields(CabinConfigurationEntity aircraftConfiguration) {
+    private void validateFields(CabinConfigurationEntity aircraftConfiguration) throws CreateNewCabinConfigurationException {
         ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
         Validator validator = validatorFactory.getValidator();
         Set<ConstraintViolation<CabinConfigurationEntity>> errors = validator.validate(aircraftConfiguration);
 
         String errorMessage = "";
 
-        if (errors.isEmpty()) {
-            return null;
-        }
         for (ConstraintViolation error : errors) {
             errorMessage += error.getPropertyPath() + ": " + error.getInvalidValue() + " - " + error.getMessage() + "\n";
         }
-        return errorMessage;
+        
+        if (errorMessage.length() > 0) {
+            throw new CreateNewCabinConfigurationException(errorMessage);
+        }
     }
 
     public List<CabinConfigurationEntity> retrieveAllCabinConfiguration() {
