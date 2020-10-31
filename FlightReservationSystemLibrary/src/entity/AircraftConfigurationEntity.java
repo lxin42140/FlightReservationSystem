@@ -43,11 +43,13 @@ public class AircraftConfigurationEntity implements Serializable {
 
     @Positive
     @Max(value = 1000)
+    @NotNull
     @Column(nullable = false)
     private Long maximumConfigurationSeatCapacity;
 
     @Positive
     @Max(value = 4)
+    @NotNull
     @Column(nullable = false)
     private Long numberOfCabins;
 
@@ -57,6 +59,7 @@ public class AircraftConfigurationEntity implements Serializable {
     private AircraftTypeEntity aircraftType;
 
     @Size(max = 4)
+    @NotEmpty
     @OneToMany(mappedBy = "aircraftConfiguration", orphanRemoval = true, cascade = {CascadeType.PERSIST})
     private List<CabinConfigurationEntity> cabinConfigurations;
 

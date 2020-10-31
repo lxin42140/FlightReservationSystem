@@ -6,10 +6,13 @@
 package ejb.session.singleton;
 
 import ejb.session.stateless.AircraftConfigurationSessionBeanLocal;
+import ejb.session.stateless.AircraftTypeSessionBeanLocal;
 import ejb.session.stateless.AirportEntitySessionBeanLocal;
+import ejb.session.stateless.CabinConfigurationEntitySessionBeanLocal;
 import ejb.session.stateless.FlightRouteSessionBeanLocal;
-import entity.AirportEntity;
-import entity.FlightRouteEntity;
+import entity.AircraftConfigurationEntity;
+import entity.CabinConfigurationEntity;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -19,10 +22,13 @@ import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.LocalBean;
 import javax.ejb.Startup;
+import util.enumeration.CabinClassEnum;
+import util.exception.AircraftTypeNotFoundException;
 import util.exception.AirportNotFoundException;
+import util.exception.CreateNewAircraftConfigurationException;
+import util.exception.CreateNewCabinConfigurationException;
 import util.exception.CreateNewFlightRouteException;
-import util.exception.FlightRouteInUseException;
-import util.exception.FlightRouteNotFoundException;
+import util.exception.InvalidInputException;
 
 /**
  *
@@ -31,8 +37,14 @@ import util.exception.FlightRouteNotFoundException;
 @Singleton
 @LocalBean
 @Startup
-@DependsOn({ "AircraftTypeInitSessionBean", "AirportInitSessionBean", "EmployeeInitSessionBean", "PartnerInitSessionBean" })
+@DependsOn({"AircraftTypeInitSessionBean", "AirportInitSessionBean", "EmployeeInitSessionBean", "PartnerInitSessionBean"})
 public class TestSessionBean {
+
+    @EJB
+    private CabinConfigurationEntitySessionBeanLocal cabinConfigurationEntitySessionBean;
+
+    @EJB
+    private AircraftTypeSessionBeanLocal aircraftTypeSessionBean;
 
     @EJB
     private AircraftConfigurationSessionBeanLocal aircraftConfigurationSessionBean;
@@ -43,10 +55,9 @@ public class TestSessionBean {
     @EJB
     private FlightRouteSessionBeanLocal flightRouteSessionBean;
 
-    
     @PostConstruct
     public void postConstruct() {
-        //createFlightRoute();
+        createFlightRoute();
         System.out.println("-----------------------TEST------------------------------\n");
         try {
 
@@ -64,10 +75,5 @@ public class TestSessionBean {
             Logger.getLogger(TestSessionBean.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    private void createFlight() {
-        
-    }
-   
 
 }
