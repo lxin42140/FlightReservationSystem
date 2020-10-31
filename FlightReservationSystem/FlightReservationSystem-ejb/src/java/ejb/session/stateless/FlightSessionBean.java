@@ -88,7 +88,7 @@ public class FlightSessionBean implements FlightSessionBeanRemote, FlightSession
         javax.validation.Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
         Set<ConstraintViolation<FlightEntity>> errors = validator.validate(flightEntity);
 
-        String errorMessage = "Input data validation error!\n";
+        String errorMessage = "";
 
         for (ConstraintViolation error : errors) {
             errorMessage += "\n\t" + error.getPropertyPath() + " - " + error.getInvalidValue() + "; " + error.getMessage();

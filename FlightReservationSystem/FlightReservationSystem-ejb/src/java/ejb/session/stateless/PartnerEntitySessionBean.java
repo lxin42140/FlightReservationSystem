@@ -58,12 +58,12 @@ public class PartnerEntitySessionBean implements PartnerEntitySessionBeanRemote,
         javax.validation.Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
         Set<ConstraintViolation<PartnerEntity>> errors = validator.validate(partnerEntity);
 
-        String errorMessage = "Input data validation error!\n";
+        String errorMessage = "";
 
         for (ConstraintViolation error : errors) {
             errorMessage += "\n\t" + error.getPropertyPath() + " - " + error.getInvalidValue() + "; " + error.getMessage();
         }
-        
+
         if (errorMessage.length() > 0) {
             throw new CreateNewPartnerException("CreateNewPartnerException: Invalid inputs!\n" + errorMessage);
         }

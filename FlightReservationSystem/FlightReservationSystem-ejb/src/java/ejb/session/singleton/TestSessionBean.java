@@ -46,7 +46,7 @@ public class TestSessionBean {
     
     @PostConstruct
     public void postConstruct() {
-        createFlightRoute();
+        //createFlightRoute();
         System.out.println("-----------------------TEST------------------------------\n");
         try {
 
@@ -57,7 +57,7 @@ public class TestSessionBean {
 
     private void createFlightRoute() {
         try {
-            flightRouteSessionBean.createNewFlightRoute(1l, 2l, Boolean.TRUE);
+            flightRouteSessionBean.createNewFlightRoute(1l, 2l, true);
         } catch (CreateNewFlightRouteException ex) {
             Logger.getLogger(TestSessionBean.class.getName()).log(Level.SEVERE, null, ex);
         } catch (AirportNotFoundException ex) {

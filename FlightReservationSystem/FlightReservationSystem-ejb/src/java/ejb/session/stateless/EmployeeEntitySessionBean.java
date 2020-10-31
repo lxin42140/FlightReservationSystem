@@ -57,7 +57,7 @@ public class EmployeeEntitySessionBean implements EmployeeEntitySessionBeanRemot
         javax.validation.Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
         Set<ConstraintViolation<EmployeeEntity>> errors = validator.validate(employeeEntity);
 
-        String errorMessage = "Input data validation error!\n";
+        String errorMessage = "";
 
         for (ConstraintViolation error : errors) {
             errorMessage += "\n\t" + error.getPropertyPath() + " - " + error.getInvalidValue() + "; " + error.getMessage();
