@@ -57,10 +57,10 @@ public class AirportEntitySessionBean implements AirportEntitySessionBeanRemote,
         javax.validation.Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
         Set<ConstraintViolation<AirportEntity>> errors = validator.validate(airportEntity);
 
-        String errorMessage = "";
+        String errorMessage = "Input data validation error!\n";
 
         for (ConstraintViolation error : errors) {
-            errorMessage += error.getPropertyPath() + ": " + error.getInvalidValue() + " - " + error.getMessage() + "\n";
+            errorMessage += "\n\t" + error.getPropertyPath() + " - " + error.getInvalidValue() + "; " + error.getMessage();
         }
         if (errorMessage.length() > 0) {
 
