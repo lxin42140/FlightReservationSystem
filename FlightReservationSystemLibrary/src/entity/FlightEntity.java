@@ -20,6 +20,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 /**
  *
@@ -32,11 +33,15 @@ public class FlightEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @NotBlank
+    @NotNull
+    @Size(min = 1, max = 10)
+    @Column(nullable = false, length = 10)
     private String iataAirlineCode;
 
     @Id
-    @NotBlank
+    @NotNull
+    @Size(min = 1, max = 10)
+    @Column(nullable = false, length = 10)
     private String flightNumber;
 
     private boolean isDisabled;

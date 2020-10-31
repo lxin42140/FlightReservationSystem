@@ -6,10 +6,14 @@
 package ejb.session.stateless;
 
 import entity.FlightEntity;
+import java.util.List;
 import javax.ejb.Remote;
 import util.exception.AircraftConfigurationNotFoundException;
 import util.exception.CreateNewFlightException;
+import util.exception.FlightInUseException;
+import util.exception.FlightNotFoundException;
 import util.exception.FlightRouteNotFoundException;
+import util.exception.UpdateFlightFailedException;
 
 /**
  *
@@ -19,5 +23,13 @@ import util.exception.FlightRouteNotFoundException;
 public interface FlightSessionBeanRemote {
 
     public String createNewFlight(FlightEntity newFlightEntity, Long flightRouteId, Long aircraftConfigurationId, Boolean doCreateReturnFlight, String returnFlightNumber) throws CreateNewFlightException, FlightRouteNotFoundException, AircraftConfigurationNotFoundException;
+
+    public List<FlightEntity> retrieveAllFlights();
+
+    public String updateFlight(FlightEntity updateFlightEntity) throws UpdateFlightFailedException;
+
+    public FlightEntity retrieveFlightById(String iataCode, String flightNumber) throws FlightNotFoundException;
+
+    public void deleteFlightById(String iataCode, String flightNumber) throws FlightNotFoundException, FlightInUseException;
 
 }

@@ -15,7 +15,8 @@ import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.LocalBean;
 import javax.ejb.Startup;
-import util.exception.CreateNewFlightRouteException;
+import util.exception.FlightRouteInUseException;
+import util.exception.FlightRouteNotFoundException;
 
 /**
  *
@@ -26,26 +27,21 @@ import util.exception.CreateNewFlightRouteException;
 @Startup
 public class TestSessionBean {
 
-//    @EJB
-//    private AirportEntitySessionBeanLocal airportEntitySessionBean;
-//
-//    @EJB
-//    private FlightRouteSessionBeanLocal flightRouteSessionBean;
+    @EJB
+    private AirportEntitySessionBeanLocal airportEntitySessionBean;
 
-    // Add business logic below. (Right-click in editor and choose
-    // "Insert Code > Add Business Method")
+    @EJB
+    private FlightRouteSessionBeanLocal flightRouteSessionBean;
+
     @PostConstruct
     public void postConstruct() {
-//        System.out.println("---------------TEST flightRouteSessionBean.createNewFlightRoute-----------------");
-//        List<AirportEntity> airports = airportEntitySessionBean.retrieveAllAirports();
-//        try {
-//            flightRouteSessionBean.createNewFlightRouteWithReturnFlight(new FlightRouteEntity(airports.get(1), airports.get(2)));
-//        } catch (CreateNewFlightRouteException ex) {
-//            System.out.println(ex);
-//        }
-//        
-//        List<FlightRouteEntity> flightRoutes = flightRouteSessionBean.retrieveAllFlightRoutes();
-//        System.out.println(flightRoutes);
+        System.out.println("-----------------------TEST------------------------------\n");
+        try {
+
+        } catch (Exception ex) {
+            System.out.println(ex);
+        }
+
     }
 
 }

@@ -57,7 +57,6 @@ public class AircraftConfigurationEntity implements Serializable {
     private AircraftTypeEntity aircraftType;
 
     @Size(max = 4)
-    @NotEmpty
     @OneToMany(mappedBy = "aircraftConfiguration", orphanRemoval = true, cascade = {CascadeType.PERSIST})
     private List<CabinConfigurationEntity> cabinConfigurations;
 

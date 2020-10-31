@@ -26,6 +26,6 @@ public interface FlightRouteSessionBeanRemote {
 
     public void deleteFlightRouteById(Long flightRouteId) throws FlightRouteNotFoundException, FlightRouteInUseException;
 
-    public Long createNewFlightRoute(FlightRouteEntity newFlightRouteEntity, Long originAirportId, Long destinationAirportId, Boolean doCreateReturnFlight) throws CreateNewFlightRouteException, AirportNotFoundException;
+    public Long createNewFlightRoute(Long originAirportId, Long destinationAirportId, Boolean doCreateReturnFlight) throws CreateNewFlightRouteException, AirportNotFoundException;
 
 }

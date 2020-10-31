@@ -18,6 +18,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import util.exception.AirportNotFoundException;
 import util.exception.CreateNewFlightRouteException;
+import util.exception.DeleteFlightRouteException;
 import util.exception.FlightRouteInUseException;
 import util.exception.FlightRouteNotFoundException;
 
@@ -32,7 +33,7 @@ public class FlightRouteSessionBean implements FlightRouteSessionBeanRemote, Fli
     private EntityManager em;
 
     @Override
-    public Long createNewFlightRoute(FlightRouteEntity newFlightRouteEntity, Long originAirportId, Long destinationAirportId, Boolean doCreateReturnFlight) throws CreateNewFlightRouteException, AirportNotFoundException {
+    public Long createNewFlightRoute(Long originAirportId, Long destinationAirportId, Boolean doCreateReturnFlight) throws CreateNewFlightRouteException, AirportNotFoundException {
         AirportEntity originAirport = em.find(AirportEntity.class, originAirportId);
 
         if (originAirport == null) {
@@ -44,6 +45,8 @@ public class FlightRouteSessionBean implements FlightRouteSessionBeanRemote, Fli
         if (destinationAirport == null) {
             throw new AirportNotFoundException("AirportNotFoundException: Destination airport with ID " + destinationAirportId + " does not exist!");
         }
+
+        FlightRouteEntity newFlightRouteEntity = new FlightRouteEntity();
 
         newFlightRouteEntity.setOriginAirport(originAirport);
         newFlightRouteEntity.setDestinationAirport(destinationAirport);
@@ -131,7 +134,7 @@ public class FlightRouteSessionBean implements FlightRouteSessionBeanRemote, Fli
     @Override
     public List<FlightRouteEntity> retrieveAllFlightRoutes() {
         // order by origin aiport 
-        Query query = em.createQuery("SELECT f FROM FlightRouteEntity f ORDER BY f.originAirport.airportName");
+        Query query = em.createQuery("SELECT f FROM FlightRouteEntity f WHERE f.isReturnFlightRoute = FALSE ORDER BY f.originAirport.airportName ASC");
         List<FlightRouteEntity> flightRoutes = (List<FlightRouteEntity>) query.getResultList();
 
         return flightRoutes;
@@ -145,11 +148,38 @@ public class FlightRouteSessionBean implements FlightRouteSessionBeanRemote, Fli
             throw new FlightRouteNotFoundException("FlightRouteNotFoundException: Flight route with ID " + flightRouteId + " does not exist!");
         }
 
-        if (!flightRouteEntity.getFlights().isEmpty()) {
+        if (flightRouteEntity.getIsReturnRlight()) {
+            deleteReturnFlightRoute(flightRouteEntity);
+            return;
+        }
+
+        if (!flightRouteEntity.getFlights().isEmpty()) { // flight route in use
+            flightRouteEntity.setIsDisabled(true); // set flight to disabled
+            if (flightRouteEntity.getReturnFlightRoute() != null) {
+                flightRouteEntity.getReturnFlightRoute().setIsDisabled(true); // set return flight route to disabled
+            }
+            em.flush();
             throw new FlightRouteInUseException("FlightRouteInUseException: Flight route with ID " + flightRouteId + " is in use! " + "\nFlight route is now disabled!");
         }
 
         em.remove(flightRouteEntity);
+    }
+
+    private void deleteReturnFlightRoute(FlightRouteEntity returnFlightRouteEntity) throws FlightRouteInUseException {
+        Query query = em.createQuery("SELECT f FROM FlightRouteEntity f WHERE f.returnFlightRoute = :inReturnFlightRoute"); // find parent flight
+        query.setParameter("inReturnFlightRoute", returnFlightRouteEntity);
+        FlightRouteEntity parentFlightRouteEntity = (FlightRouteEntity) query.getSingleResult();
+
+        parentFlightRouteEntity.setReturnFlightRoute(null); // remove association from parent to return flight route
+        em.merge(parentFlightRouteEntity); // update parent
+
+        if (!returnFlightRouteEntity.getFlights().isEmpty()) {
+            // flights associated with the return flight
+            returnFlightRouteEntity.setIsDisabled(true); // set disabled
+            throw new FlightRouteInUseException("FlightRouteInUseException: Flight route with ID " + returnFlightRouteEntity.getFlightRouteId() + " is in use! " + "\nFlight route is now disabled!");
+        }
+
+        em.remove(returnFlightRouteEntity);
     }
 
 }
