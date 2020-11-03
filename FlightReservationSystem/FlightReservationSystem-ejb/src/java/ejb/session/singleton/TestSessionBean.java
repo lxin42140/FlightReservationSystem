@@ -90,7 +90,7 @@ public class TestSessionBean {
             System.out.println(ex);
         }
 
-        createAircraftConfig();
+        //createAircraftConfig();
     }
 
     private void createFlightRoute() {
@@ -149,27 +149,27 @@ public class TestSessionBean {
     }
 
     //TESTED AND SUCCEEDED
-    private void createAircraftConfig() {
-        List<AircraftConfigurationEntity> configs = aircraftConfigurationSessionBeanLocal.retrieveAllAircraftConfiguration();
-        //should print 2
-        System.out.println("aircraft config list size = " + configs.size());
-        try {
-            AircraftConfigurationEntity result = aircraftConfigurationSessionBeanLocal.retrieveAircraftConfigurationById(12L);
-            //should print 20
-            System.out.println("aircraft config seating capacity = " + result.getMaximumConfigurationSeatCapacity());
-        } catch (AircraftConfigurationNotFoundException ex) {
-            System.out.println(ex.getMessage());
-        }
-
-        List<CabinConfigurationEntity> cabinConfigs = cabinConfigurationEntitySessionBeanLocal.retrieveAllCabinConfiguration();
-        //should print 3
-        System.out.println("cabin config list size = " + cabinConfigs.size());
-        try {
-            CabinConfigurationEntity result = cabinConfigurationEntitySessionBeanLocal.retrieveCabinConfigurationById(11L);
-            //should print 80
-            System.out.println("cabin config seating capacity = " + result.getMaximumCabinSeatCapacity());
-        } catch (CabinConfigurationNotFoundException ex) {
-            System.out.println(ex.getMessage());
-        }
-    }
+//    private void createAircraftConfig() {
+//        List<AircraftConfigurationEntity> configs = aircraftConfigurationSessionBeanLocal.retrieveAllAircraftConfiguration();
+//        //should print 2
+//        System.out.println("aircraft config list size = " + configs.size());
+//        try {
+//            AircraftConfigurationEntity result = aircraftConfigurationSessionBeanLocal.retrieveAircraftConfigurationById(12L);
+//            //should print 20
+//            System.out.println("aircraft config seating capacity = " + result.getMaximumConfigurationSeatCapacity());
+//        } catch (AircraftConfigurationNotFoundException ex) {
+//            System.out.println(ex.getMessage());
+//        }
+//
+//        List<CabinConfigurationEntity> cabinConfigs = cabinConfigurationEntitySessionBeanLocal.retrieveAllCabinConfiguration();
+//        //should print 3
+//        System.out.println("cabin config list size = " + cabinConfigs.size());
+//        try {
+//            CabinConfigurationEntity result = cabinConfigurationEntitySessionBeanLocal.retrieveCabinConfigurationById(11L);
+//            //should print 80
+//            System.out.println("cabin config seating capacity = " + result.getMaximumCabinSeatCapacity());
+//        } catch (CabinConfigurationNotFoundException ex) {
+//            System.out.println(ex.getMessage());
+//        }
+//    }
 }
