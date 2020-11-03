@@ -21,6 +21,12 @@ import javax.validation.ValidatorFactory;
 import util.exception.CreateNewFlightScheduleException;
 import util.exception.CreateNewSeatInventoryException;
 
+/*
+recurrent flight schedule plan will auto generate the flight schedule
+
+single and multiple flight schedules are generatd manually by user
+
+ */
 /**
  *
  * @author Li Xin
@@ -35,7 +41,7 @@ public class FlightScheduleSessionBean implements FlightScheduleSessionBeanRemot
     private EntityManager em;
 
     @Override
-    public void createNewFlightScheduleForFlightSchedulePlan(FlightScheduleEntity flightScheduleEntity, FlightSchedulePlanEntity flightSchedulePlanEntity, FlightEntity flightEntity) throws CreateNewFlightScheduleException {
+    public void createNewFlightSchedule(FlightScheduleEntity flightScheduleEntity, FlightSchedulePlanEntity flightSchedulePlanEntity, FlightEntity flightEntity) throws CreateNewFlightScheduleException {
         if (flightSchedulePlanEntity == null) {
             throw new CreateNewFlightScheduleException("CreateNewFlightScheduleException: Invalid flight schedule plan!");
         }

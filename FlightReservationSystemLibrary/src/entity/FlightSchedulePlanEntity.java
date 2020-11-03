@@ -23,6 +23,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import util.enumeration.FlightScheduleTypeEnum;
@@ -44,10 +45,10 @@ public class FlightSchedulePlanEntity implements Serializable {
     @Column(nullable = false)
     private FlightScheduleTypeEnum flightSchedulePlanType;
 
-    @NotNull
-    @Column(nullable = false)
+    private Integer recurrentDay;
+
     @Temporal(TemporalType.DATE)
-    private Date endDate;
+    private Date recurrentEndDate;
 
     private boolean isDisabled;
 
@@ -93,15 +94,23 @@ public class FlightSchedulePlanEntity implements Serializable {
         this.flightSchedulePlanType = flightSchedulePlanType;
     }
 
-    public Date getEndDate() {
-        return endDate;
+    public Integer getRecurrentDay() {
+        return recurrentDay;
     }
 
-    public void setEndDate(Date endDate) {
-        this.endDate = endDate;
+    public void setRecurrentDay(Integer recurrentDay) {
+        this.recurrentDay = recurrentDay;
     }
 
-    public boolean isIsDisabled() {
+    public Date getRecurrentEndDate() {
+        return recurrentEndDate;
+    }
+
+    public void setRecurrentEndDate(Date recurrentEndDate) {
+        this.recurrentEndDate = recurrentEndDate;
+    }
+
+    public boolean getIsDisabled() {
         return isDisabled;
     }
 

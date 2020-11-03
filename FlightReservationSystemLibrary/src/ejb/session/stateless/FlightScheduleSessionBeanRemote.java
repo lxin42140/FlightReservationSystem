@@ -18,6 +18,6 @@ import util.exception.CreateNewFlightScheduleException;
 @Remote
 public interface FlightScheduleSessionBeanRemote {
 
-    public void createNewFlightScheduleForFlightSchedulePlan(FlightScheduleEntity flightScheduleEntity, FlightSchedulePlanEntity flightSchedulePlanEntity, FlightEntity flightEntity) throws CreateNewFlightScheduleException;
+    public void createNewFlightSchedule(FlightScheduleEntity flightScheduleEntity, FlightSchedulePlanEntity flightSchedulePlanEntity, FlightEntity flightEntity) throws CreateNewFlightScheduleException;
 
 }
