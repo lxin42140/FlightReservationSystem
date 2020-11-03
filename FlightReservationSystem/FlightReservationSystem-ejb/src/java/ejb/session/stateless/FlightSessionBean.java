@@ -131,6 +131,9 @@ public class FlightSessionBean implements FlightSessionBeanRemote, FlightSession
         if (flightEntity == null) {
             throw new FlightNotFoundException("FlightNotFoundException: Flight with numer " + flightNumber + " does not exist!");
         }
+        
+        flightEntity.getFlightSchedulePlans().size();
+        
         return flightEntity;
     }
 

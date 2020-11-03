@@ -54,12 +54,17 @@ public class FareEntity implements Serializable {
     public FareEntity() {
     }
 
-    public FareEntity(String fareBasisCode, BigDecimal fareAmount, FlightSchedulePlanEntity flightSchedulePlan) {
+    public FareEntity(String fareBasisCode, BigDecimal fareAmount, CabinClassEnum cabinClass) {
         this.fareBasisCode = fareBasisCode;
         this.fareAmount = fareAmount;
-        this.flightSchedulePlan = flightSchedulePlan;
+        this.cabinClass = cabinClass;
     }
 
+//    public FareEntity(String fareBasisCode, BigDecimal fareAmount, FlightSchedulePlanEntity flightSchedulePlan) {
+//        this.fareBasisCode = fareBasisCode;
+//        this.fareAmount = fareAmount;
+//        this.flightSchedulePlan = flightSchedulePlan;
+//    }
     public Long getFareId() {
         return fareId;
     }

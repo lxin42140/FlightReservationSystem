@@ -5,7 +5,10 @@
  */
 package ejb.session.stateless;
 
+import entity.FareEntity;
+import entity.FlightSchedulePlanEntity;
 import javax.ejb.Remote;
+import util.exception.CreateNewFareException;
 
 /**
  *
@@ -13,5 +16,7 @@ import javax.ejb.Remote;
  */
 @Remote
 public interface FareEntitySessionBeanRemote {
-    
+
+    public void createFareForFlightSchedulePlan(FareEntity fare, FlightSchedulePlanEntity flightSchedulePlanEntity) throws CreateNewFareException;
+
 }

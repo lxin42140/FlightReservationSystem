@@ -5,7 +5,10 @@
  */
 package ejb.session.stateless;
 
+import entity.FareEntity;
+import entity.FlightSchedulePlanEntity;
 import javax.ejb.Local;
+import util.exception.CreateNewFareException;
 
 /**
  *
@@ -13,5 +16,7 @@ import javax.ejb.Local;
  */
 @Local
 public interface FareEntitySessionBeanLocal {
+
+    public void createFareForFlightSchedulePlan(FareEntity fare, FlightSchedulePlanEntity flightSchedulePlanEntity) throws CreateNewFareException;
     
 }

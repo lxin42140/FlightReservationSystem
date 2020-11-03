@@ -8,6 +8,7 @@ package entity;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -20,7 +21,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.validation.constraints.Min;
+import javax.validation.constraints.Max;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
@@ -44,10 +45,11 @@ public class FlightScheduleEntity implements Serializable {
     private Date departureDate;
 
     @Positive
-    @Column(nullable = false)
-    private Long estimatedFlightDuration;
+    @Max(24)
+    @Column(nullable = false, precision = 2)
+    private Integer estimatedFlightDuration;
 
-    @OneToMany(mappedBy = "flightSchedule", cascade = {CascadeType.PERSIST}, orphanRemoval = true)
+    @OneToMany(mappedBy = "flightSchedule", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
     @NotEmpty
     private List<SeatEntity> seatInventory;
 
@@ -56,12 +58,15 @@ public class FlightScheduleEntity implements Serializable {
     @NotNull
     private FlightSchedulePlanEntity flightSchedulePlan;
 
-//    @ManyToMany(cascade = {CascadeType.PERSIST})
-//    private List<FlightReservationEntity> flightReservations;
-    
     public FlightScheduleEntity() {
         this.seatInventory = new ArrayList<>();
-        //this.flightReservations = new ArrayList<>();
+    }
+
+    public FlightScheduleEntity(Date departureDate, Integer estimatedFlightDuration, FlightSchedulePlanEntity flightSchedulePlan) {
+        this();
+        this.departureDate = departureDate;
+        this.estimatedFlightDuration = estimatedFlightDuration;
+        this.flightSchedulePlan = flightSchedulePlan;
     }
 
     public Long getFlightScheduleId() {
@@ -76,11 +81,11 @@ public class FlightScheduleEntity implements Serializable {
         this.departureDate = departureDate;
     }
 
-    public Long getEstimatedFlightDuration() {
+    public Integer getEstimatedFlightDuration() {
         return estimatedFlightDuration;
     }
 
-    public void setEstimatedFlightDuration(Long estimatedFlightDuration) {
+    public void setEstimatedFlightDuration(Integer estimatedFlightDuration) {
         this.estimatedFlightDuration = estimatedFlightDuration;
     }
 
@@ -92,19 +97,20 @@ public class FlightScheduleEntity implements Serializable {
         this.flightSchedulePlan = flightSchedulePlan;
     }
 
-//    public List<FlightReservationEntity> getFlightReservations() {
-//        return flightReservations;
-//    }
-//
-//    public void setFlightReservations(List<FlightReservationEntity> flightReservations) {
-//        this.flightReservations = flightReservations;
-//    }
     public List<SeatEntity> getSeatInventory() {
         return seatInventory;
     }
 
     public void setSeatInventory(List<SeatEntity> seatInventory) {
         this.seatInventory = seatInventory;
+    }
+
+    public Date getArrivalDateTime() {
+        GregorianCalendar departureDateTimeCalender = new GregorianCalendar();
+        departureDateTimeCalender.setTime(this.departureDate);
+        departureDateTimeCalender.add(GregorianCalendar.HOUR_OF_DAY, this.estimatedFlightDuration);
+        Date arrivalDateTime = departureDateTimeCalender.getTime();
+        return arrivalDateTime;
     }
 
     @Override

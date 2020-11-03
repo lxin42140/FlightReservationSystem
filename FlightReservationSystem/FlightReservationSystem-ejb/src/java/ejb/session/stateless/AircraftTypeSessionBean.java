@@ -17,7 +17,6 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import util.exception.AircraftTypeNotFoundException;
 import util.exception.CreateNewAircraftTypeException;
-import util.exception.InvalidInputException;
 
 /**
  *

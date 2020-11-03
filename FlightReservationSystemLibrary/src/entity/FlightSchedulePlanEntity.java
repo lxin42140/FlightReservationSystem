@@ -51,15 +51,15 @@ public class FlightSchedulePlanEntity implements Serializable {
 
     private boolean isDisabled;
 
-    @OneToOne(optional = true, cascade = {CascadeType.PERSIST}, orphanRemoval = true)
+    @OneToOne(optional = true, cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
     @JoinColumn(name = "returnFlightSchedulePlanId")
     private FlightSchedulePlanEntity returnFlightSchedulePlan;
 
-    @OneToMany(mappedBy = "flightSchedulePlan", cascade = {CascadeType.PERSIST})
+    @OneToMany(mappedBy = "flightSchedulePlan", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
     @NotEmpty
     private List<FlightScheduleEntity> flightSchedules;
 
-    @OneToMany(mappedBy = "flightSchedulePlan", cascade = {CascadeType.PERSIST}, orphanRemoval = true)
+    @OneToMany(mappedBy = "flightSchedulePlan", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
     @NotEmpty
     private List<FareEntity> fares;
 

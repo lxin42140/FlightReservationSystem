@@ -5,18 +5,14 @@
  */
 package ejb.session.stateless;
 
-import entity.CabinConfigurationEntity;
 import entity.FareEntity;
+import entity.FlightSchedulePlanEntity;
 import java.util.Set;
 import javax.ejb.Stateless;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceException;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
-import util.exception.CreateNewCabinConfigurationException;
 import util.exception.CreateNewFareException;
 
 /**
@@ -26,34 +22,15 @@ import util.exception.CreateNewFareException;
 @Stateless
 public class FareEntitySessionBean implements FareEntitySessionBeanRemote, FareEntitySessionBeanLocal {
 
-    @PersistenceContext(unitName = "FlightReservationSystem-ejbPU")
-    private EntityManager em;
-
-    public Long createNewFare(FareEntity fare, Long flightSchedulePlanId) throws CreateNewFareException {
-
-        //set bidirectional relationship between fare and flight schedule plan
-        //uncomment when flightscheduleplan is created.
-//        FlightSchedulePlan flightSchedulePlan = em.find(FlightSchedulePlan.class, flightSchedulePlanId);
-//        flightSchedulePlan.getFares().add(fare);
-//        fare.setFlightSchedulePlan(flightSchedulePlan);
+    @Override
+    public void createFareForFlightSchedulePlan(FareEntity fare, FlightSchedulePlanEntity flightSchedulePlanEntity) throws CreateNewFareException {
+        // associate fare with flight schedule plan
+        fare.setFlightSchedulePlan(flightSchedulePlanEntity);
 
         validateFields(fare);
 
-        try {
-            em.persist(fare);
-            em.flush();
-            return fare.getFareId();
-        } catch (PersistenceException ex) {
-            if (isSQLIntegrityConstraintViolationException(ex)) {
-                throw new CreateNewFareException("CreateNewFareException: Fare with same fare basis code already exists!");
-            } else {
-                throw new CreateNewFareException("CreateNewFareException: " + ex.getMessage());
-            }
-        }
-    }
-
-    private boolean isSQLIntegrityConstraintViolationException(PersistenceException ex) {
-        return ex.getCause() != null && ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getSimpleName().equals("SQLIntegrityConstraintViolationException");
+        // associate flight schedule plan with fare
+        flightSchedulePlanEntity.getFares().add(fare);
     }
 
     private void validateFields(FareEntity fare) throws CreateNewFareException {
@@ -71,6 +48,5 @@ public class FareEntitySessionBean implements FareEntitySessionBeanRemote, FareE
             throw new CreateNewFareException("CreateFareException: Invalid inputs!\n" + errorMessage);
         }
     }
-    
-    
+
 }

@@ -24,7 +24,6 @@ import util.exception.AircraftConfigurationNotFoundException;
 import util.exception.AircraftTypeNotFoundException;
 import util.exception.CreateNewAircraftConfigurationException;
 import util.exception.CreateNewCabinConfigurationException;
-import util.exception.InvalidInputException;
 
 /**
  *
@@ -44,22 +43,22 @@ public class AircraftConfigurationSessionBean implements AircraftConfigurationSe
 
     @Override
     public Long createNewAircraftConfiguration(AircraftConfigurationEntity aircraftConfiguration, List<CabinConfigurationEntity> cabinConfigurations, Long aircraftTypeId) throws CreateNewAircraftConfigurationException, AircraftTypeNotFoundException {
+        validateNumberOfCabinConfigurations(cabinConfigurations);
 
         AircraftTypeEntity aircraftType = aircraftTypeSessionBeanLocal.retrieveAircraftTypeById(aircraftTypeId);
 
+        // set unidirectional relationship
         aircraftConfiguration.setAircraftType(aircraftType);
-
-        Long totalSeatingCapacity = 0L;
 
         for (CabinConfigurationEntity cabinConfiguration : cabinConfigurations) {
             try {
-                cabinConfigurationEntitySessionBeanLocal.createNewCabinConfiguration(cabinConfiguration, aircraftConfiguration);
+                cabinConfigurationEntitySessionBeanLocal.createNewCabinConfigurationForAircraftConfiguration(cabinConfiguration, aircraftConfiguration);
             } catch (CreateNewCabinConfigurationException ex) {
                 throw new CreateNewAircraftConfigurationException(ex.getMessage());
             }
         }
 
-        validateFields(aircraftConfiguration);
+        validateAircraftConfiguration(aircraftConfiguration);
 
         try {
             em.persist(aircraftConfiguration);
@@ -78,7 +77,15 @@ public class AircraftConfigurationSessionBean implements AircraftConfigurationSe
         return ex.getCause() != null && ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getSimpleName().equals("SQLIntegrityConstraintViolationException");
     }
 
-    private void validateFields(AircraftConfigurationEntity aircraftConfiguration) throws CreateNewAircraftConfigurationException {
+    private void validateNumberOfCabinConfigurations(List<CabinConfigurationEntity> cabinConfigurations) throws CreateNewAircraftConfigurationException {
+        if (cabinConfigurations.isEmpty()) {
+            throw new CreateNewAircraftConfigurationException("CreateNewAircraftConfigurationException: Please provide at least one cabin configuration!");
+        } else if (cabinConfigurations.size() > 4) {
+            throw new CreateNewAircraftConfigurationException("CreateNewAircraftConfigurationException: Please provide at most 4 cabin configuration!");
+        }
+    }
+
+    private void validateAircraftConfiguration(AircraftConfigurationEntity aircraftConfiguration) throws CreateNewAircraftConfigurationException {
         ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
         Validator validator = validatorFactory.getValidator();
         Set<ConstraintViolation<AircraftConfigurationEntity>> errors = validator.validate(aircraftConfiguration);
@@ -95,8 +102,10 @@ public class AircraftConfigurationSessionBean implements AircraftConfigurationSe
     }
 
     public List<AircraftConfigurationEntity> retrieveAllAircraftConfiguration() {
-        Query query = em.createQuery("SELECT a FROM AircraftConfigurationEntity a");
+        Query query = em.createQuery("SELECT a FROM AircraftConfigurationEntity a ORDER BY a.aircraftType, a.aircraftConfigurationName");
+
         List<AircraftConfigurationEntity> aircraftConfigurations = (List<AircraftConfigurationEntity>) query.getResultList();
+
         return aircraftConfigurations;
     }
 
@@ -106,10 +115,12 @@ public class AircraftConfigurationSessionBean implements AircraftConfigurationSe
         }
 
         AircraftConfigurationEntity aircraftConfigurationEntity = em.find(AircraftConfigurationEntity.class, aircraftConfigurationId);
+
         if (aircraftConfigurationEntity == null) {
             throw new AircraftConfigurationNotFoundException("AircraftConfigurationNotFoundException: aircraft configuration with ID " + aircraftConfigurationId + " does not exist!");
         }
-        aircraftConfigurationEntity.getCabinConfigurations().size();
+
+        //aircraftConfigurationEntity.getCabinConfigurations().size();
         return aircraftConfigurationEntity;
     }
 }

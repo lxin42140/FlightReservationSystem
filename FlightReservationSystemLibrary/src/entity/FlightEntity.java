@@ -13,9 +13,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -27,22 +25,10 @@ import javax.validation.constraints.Size;
  * @author Li Xin
  */
 @Entity
-//@IdClass(FlightNumberEntityKey.class)
 public class FlightEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-//    @Id
-//    @NotNull
-//    @Size(min = 1, max = 10)
-//    @Column(nullable = false, length = 10)
-//    private String iataAirlineCode;
-//
-//    @Id
-//    @NotNull
-//    @Size(min = 1, max = 10)
-//    @Column(nullable = false, length = 10)
-//    private String flightNumber;
     @Id
     @NotNull
     @Size(min = 1, max = 10)
@@ -54,10 +40,6 @@ public class FlightEntity implements Serializable {
     private boolean isReturnFlight;
 
     @OneToOne(optional = true, cascade = {CascadeType.PERSIST}, orphanRemoval = true, fetch = FetchType.EAGER)
-//    @JoinColumns(value = {
-//        @JoinColumn(name = "returnIataAirlineCode", referencedColumnName = "iataAirlineCode"),
-//        @JoinColumn(name = "returnFlightNumber", referencedColumnName = "flightNumber")}
-//    )
     @JoinColumn(name = "returnFlightNumber")
     private FlightEntity returnFlight;
 
