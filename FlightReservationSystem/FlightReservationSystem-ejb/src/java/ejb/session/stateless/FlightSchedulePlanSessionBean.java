@@ -47,7 +47,6 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
     private EntityManager em;
 
     public Long createNewNonRecurrentFlightSchedulePlan(List<FlightScheduleEntity> flightSchedules, List<FareEntity> fares, String flightNumber, Boolean doCreateReturnFlightSchedule) throws CreateNewFlightSchedulePlanException, FlightNotFoundException {
-        // retrieve flight
         FlightEntity flightEntity = flightSessionBeanLocal.retrieveFlightByFlightNumber(flightNumber);
 
         FlightSchedulePlanEntity newFlightSchedulePlanEntity = new FlightSchedulePlanEntity();
@@ -72,13 +71,24 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
         return newFlightSchedulePlanEntity.getFlightSchedulePlanId();
     }
 
+    public Long createRecurrentFlightSchedulePlan(Date endDate, Integer recurrentFrequency, FlightScheduleEntity baseFlightSchedule, List<FareEntity> fares, String flightNumber) throws FlightNotFoundException {
+        FlightEntity flightEntity = flightSessionBeanLocal.retrieveFlightByFlightNumber(flightNumber);
+
+        FlightSchedulePlanEntity newFlightSchedulePlanEntity = new FlightSchedulePlanEntity();
+        newFlightSchedulePlanEntity.setFlight(flightEntity); //associate flight schedule with flight
+
+        
+        return newFlightSchedulePlanEntity.getFlightSchedulePlanId();
+    }
+
     private FlightSchedulePlanEntity createReturnFlightSchedulePlan(FlightSchedulePlanEntity newFlightSchedulePlanEntity) throws CreateNewFlightSchedulePlanException {
-        FlightSchedulePlanEntity returnFlightSchedulePlanEntity = new FlightSchedulePlanEntity();
+        FlightSchedulePlanEntity returnFlightSchedulePlanEntity = new FlightSchedulePlanEntity(); // create return flight schedule plan
         returnFlightSchedulePlanEntity.setFlight(newFlightSchedulePlanEntity.getFlight()); //associate flight schedule with flight
-        returnFlightSchedulePlanEntity.setIsReturnFlightSchedulePlan(true);
+        returnFlightSchedulePlanEntity.setIsReturnFlightSchedulePlan(true); // set return flight schedule plan as true
 
         List<FlightScheduleEntity> returnFlightSchedules = new ArrayList<>();
-        for (FlightScheduleEntity flightSchedule : newFlightSchedulePlanEntity.getFlightSchedules()) {
+        //TODO: date time for arrival and departure not accounting time zone
+        for (FlightScheduleEntity flightSchedule : newFlightSchedulePlanEntity.getFlightSchedules()) { // create return flight schedule for each flight schedule
             Date arrivalDateTime = flightSchedule.getArrivalDateTime();
             GregorianCalendar returnDepartureDateTimeCalender = new GregorianCalendar();
             returnDepartureDateTimeCalender.setTime(arrivalDateTime);
@@ -90,10 +100,10 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
         }
 
         List<FareEntity> returnFares = new ArrayList<>();
-        for (FareEntity fare : newFlightSchedulePlanEntity.getFares()) {
+        for (FareEntity fare : newFlightSchedulePlanEntity.getFares()) { // create new fare for return flight schedule plan
             returnFares.add(new FareEntity(fare.getFareBasisCode(), fare.getFareAmount(), fare.getCabinClass(), returnFlightSchedulePlanEntity));
         }
-        
+
         try {
             flightScheduleSessionBeanLocal.createNewFlightSchedules(returnFlightSchedulePlanEntity, returnFlightSchedules);
             fareEntitySessionBeanLocal.createNewFares(returnFares, returnFlightSchedulePlanEntity);

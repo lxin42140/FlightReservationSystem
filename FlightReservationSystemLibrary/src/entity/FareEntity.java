@@ -33,7 +33,6 @@ public class FareEntity implements Serializable {
     private Long fareId;
 
     @Size(min = 3, max = 7)
-    //@Column(length = 7, unique = true, nullable = false)
     @Column(length = 7, nullable = false)
     @NotNull
     private String fareBasisCode;
@@ -68,11 +67,6 @@ public class FareEntity implements Serializable {
         this.flightSchedulePlan = flightSchedulePlan;
     }
 
-//    public FareEntity(String fareBasisCode, BigDecimal fareAmount, FlightSchedulePlanEntity flightSchedulePlan) {
-//        this.fareBasisCode = fareBasisCode;
-//        this.fareAmount = fareAmount;
-//        this.flightSchedulePlan = flightSchedulePlan;
-//    }
     public Long getFareId() {
         return fareId;
     }

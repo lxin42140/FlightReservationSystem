@@ -40,7 +40,7 @@ public class FlightScheduleSessionBean implements FlightScheduleSessionBeanRemot
         // check whether the new flight schedule conflict with any of existing flight schedules for flight
         checkFlightSchedules(flightScheduleEntity, flightSchedulePlanEntity.getFlight());
 
-        //bi directional association
+        //bidirectional association
         flightScheduleEntity.setFlightSchedulePlan(flightSchedulePlanEntity);
         flightSchedulePlanEntity.getFlightSchedules().add(flightScheduleEntity);
 

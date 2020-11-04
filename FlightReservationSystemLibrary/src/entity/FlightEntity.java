@@ -39,7 +39,7 @@ public class FlightEntity implements Serializable {
 
     private boolean isReturnFlight;
 
-    @OneToOne(optional = true, cascade = {CascadeType.PERSIST}, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToOne(optional = true, cascade = {CascadeType.PERSIST}, orphanRemoval = true)
     @JoinColumn(name = "returnFlightNumber")
     private FlightEntity returnFlight;
 
@@ -48,12 +48,12 @@ public class FlightEntity implements Serializable {
     @NotNull
     private AircraftConfigurationEntity aircraftConfiguration;
 
-    @ManyToOne(optional = false, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToOne(optional = false, cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
     @JoinColumn(name = "flightRouteId", nullable = false)
     @NotNull
     private FlightRouteEntity flightRoute;
 
-    @OneToMany(mappedBy = "flight", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @OneToMany(mappedBy = "flight", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
     private List<FlightSchedulePlanEntity> flightSchedulePlans;
 
     public FlightEntity() {

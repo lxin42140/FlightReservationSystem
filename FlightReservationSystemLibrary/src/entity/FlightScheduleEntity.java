@@ -106,6 +106,9 @@ public class FlightScheduleEntity implements Serializable {
     }
 
     public Date getArrivalDateTime() {
+        AirportEntity origin = this.flightSchedulePlan.getFlight().getFlightRoute().getOriginAirport();
+        AirportEntity destination = this.flightSchedulePlan.getFlight().getFlightRoute().getDestinationAirport();
+        
         GregorianCalendar departureDateTimeCalender = new GregorianCalendar();
         departureDateTimeCalender.setTime(this.departureDate);
         departureDateTimeCalender.add(GregorianCalendar.HOUR_OF_DAY, this.estimatedFlightDuration);
