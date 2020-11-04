@@ -43,7 +43,7 @@ public class FlightEntity implements Serializable {
     @JoinColumn(name = "returnFlightNumber")
     private FlightEntity returnFlight;
 
-    @OneToOne(optional = false, cascade = {CascadeType.PERSIST})
+    @OneToOne(optional = false, cascade = {CascadeType.PERSIST}, fetch = FetchType.EAGER)
     @JoinColumn(name = "aircraftConfigurationId", nullable = false)
     @NotNull
     private AircraftConfigurationEntity aircraftConfiguration;

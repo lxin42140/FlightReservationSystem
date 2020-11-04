@@ -6,9 +6,12 @@
 package ejb.session.stateless;
 
 import entity.FareEntity;
+import entity.FlightEntity;
 import entity.FlightSchedulePlanEntity;
+import java.util.List;
 import javax.ejb.Local;
 import util.exception.CreateNewFareException;
+import util.exception.InvalidFareException;
 
 /**
  *
@@ -17,6 +20,9 @@ import util.exception.CreateNewFareException;
 @Local
 public interface FareEntitySessionBeanLocal {
 
-    public void createFareForFlightSchedulePlan(FareEntity fare, FlightSchedulePlanEntity flightSchedulePlanEntity) throws CreateNewFareException;
-    
+    public void createNewFare(FareEntity fare, FlightSchedulePlanEntity flightSchedulePlanEntity) throws CreateNewFareException;
+
+    public void createNewFares(List<FareEntity> fares, FlightSchedulePlanEntity flightSchedulePlanEntity) throws CreateNewFareException;
+
+
 }

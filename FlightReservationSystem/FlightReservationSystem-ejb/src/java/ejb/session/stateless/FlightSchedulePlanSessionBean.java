@@ -5,16 +5,15 @@
  */
 package ejb.session.stateless;
 
-import entity.CabinConfigurationEntity;
 import entity.FareEntity;
 import entity.FlightEntity;
 import entity.FlightScheduleEntity;
 import entity.FlightSchedulePlanEntity;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -23,8 +22,6 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
-import util.enumeration.CabinClassEnum;
-import util.enumeration.FlightScheduleTypeEnum;
 import util.exception.CreateNewFareException;
 import util.exception.CreateNewFlightScheduleException;
 import util.exception.CreateNewFlightSchedulePlanException;
@@ -49,104 +46,62 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
     @PersistenceContext(unitName = "FlightReservationSystem-ejbPU")
     private EntityManager em;
 
- 
-    public FlightScheduleEntity createFlightSchedulePlanForSingleSchedule(FlightScheduleEntity flightScheduleEntity, List<FareEntity> fares, String flightNumber) throws CreateNewFlightSchedulePlanException, FlightNotFoundException {
-        // retrieve flight entity
-        FlightEntity flightEntity = flightSessionBeanLocal.retrieveFlightByFlightNumber(flightNumber);
-
-        // ensure at least one fare for each cabin class
-        validateFares(fares, flightEntity);
-
-        // create new flight schedule plan record
-        FlightSchedulePlanEntity newFlightSchedulePlanEntity = new FlightSchedulePlanEntity();
-        // set schedule type to single
-        newFlightSchedulePlanEntity.setFlightSchedulePlanType(FlightScheduleTypeEnum.SINGLE);
-        //associate flight schedule with flight
-        newFlightSchedulePlanEntity.setFlight(flightEntity);
-
-        try {
-            flightScheduleSessionBeanLocal.createNewFlightSchedule(flightScheduleEntity, newFlightSchedulePlanEntity, flightEntity);
-        } catch (CreateNewFlightScheduleException ex) {
-            throw new CreateNewFlightSchedulePlanException(ex.toString());
-        }
-
-        createFares(newFlightSchedulePlanEntity, fares);
-
-        em.persist(newFlightSchedulePlanEntity);
-        em.flush();
-
-        return flightScheduleEntity;
-    }
-
-    public FlightSchedulePlanEntity createFlightSchedulePlanForMultipleSchedules(List<FlightScheduleEntity> flightSchedules, List<FareEntity> fares, String flightNumber) throws CreateNewFlightSchedulePlanException, FlightNotFoundException {
+    public Long createNewNonRecurrentFlightSchedulePlan(List<FlightScheduleEntity> flightSchedules, List<FareEntity> fares, String flightNumber, Boolean doCreateReturnFlightSchedule) throws CreateNewFlightSchedulePlanException, FlightNotFoundException {
         // retrieve flight
         FlightEntity flightEntity = flightSessionBeanLocal.retrieveFlightByFlightNumber(flightNumber);
 
-        validateFares(fares, flightEntity);
-
         FlightSchedulePlanEntity newFlightSchedulePlanEntity = new FlightSchedulePlanEntity();
-        // set schedule type to multiple
-        newFlightSchedulePlanEntity.setFlightSchedulePlanType(FlightScheduleTypeEnum.MULTIPLE);
-        //associate flight schedule with flight
-        newFlightSchedulePlanEntity.setFlight(flightEntity);
+        newFlightSchedulePlanEntity.setFlight(flightEntity); //associate flight schedule with flight
 
-        // create multiple flight schedules
-        createFlightSchedules(flightEntity, newFlightSchedulePlanEntity, flightSchedules);
-
-        // add fares
-        createFares(newFlightSchedulePlanEntity, fares);
+        try {
+            fareEntitySessionBeanLocal.createNewFares(fares, newFlightSchedulePlanEntity);
+            flightScheduleSessionBeanLocal.createNewFlightSchedules(newFlightSchedulePlanEntity, flightSchedules);
+        } catch (CreateNewFareException | CreateNewFlightScheduleException ex) {
+            throw new CreateNewFlightSchedulePlanException(ex.toString());
+        }
 
         validateFlightSchedulePlan(newFlightSchedulePlanEntity);
+
+        if (doCreateReturnFlightSchedule) {
+            newFlightSchedulePlanEntity.setReturnFlightSchedulePlan(createReturnFlightSchedulePlan(newFlightSchedulePlanEntity));
+        }
 
         em.persist(newFlightSchedulePlanEntity);
         em.flush();
 
-        return newFlightSchedulePlanEntity;
-    }
-    
-    private void createFlightSchedules(FlightEntity flightEntity, FlightSchedulePlanEntity newFlightSchedulePlanEntity, List<FlightScheduleEntity> flightSchedules) throws CreateNewFlightSchedulePlanException {
-        if (flightSchedules.isEmpty()) {
-            throw new CreateNewFlightSchedulePlanException("CreateNewFlightSchedulePlanException: Please provide at least one flight schedule!");
-        }
-
-        // create flight schedule
-        for (FlightScheduleEntity flightScheduleEntity : flightSchedules) {
-            try {
-                flightScheduleSessionBeanLocal.createNewFlightSchedule(flightScheduleEntity, newFlightSchedulePlanEntity, flightEntity);
-            } catch (CreateNewFlightScheduleException ex) {
-                throw new CreateNewFlightSchedulePlanException(ex.toString());
-            }
-        }
+        return newFlightSchedulePlanEntity.getFlightSchedulePlanId();
     }
 
-    private void createFares(FlightSchedulePlanEntity newFlightSchedulePlanEntity, List<FareEntity> fares) throws CreateNewFlightSchedulePlanException {
-        if (fares.isEmpty()) {
-            throw new CreateNewFlightSchedulePlanException("CreateNewFlightSchedulePlanException: Please provide at least one fare!");
+    private FlightSchedulePlanEntity createReturnFlightSchedulePlan(FlightSchedulePlanEntity newFlightSchedulePlanEntity) throws CreateNewFlightSchedulePlanException {
+        FlightSchedulePlanEntity returnFlightSchedulePlanEntity = new FlightSchedulePlanEntity();
+        returnFlightSchedulePlanEntity.setFlight(newFlightSchedulePlanEntity.getFlight()); //associate flight schedule with flight
+        returnFlightSchedulePlanEntity.setIsReturnFlightSchedulePlan(true);
+
+        List<FlightScheduleEntity> returnFlightSchedules = new ArrayList<>();
+        for (FlightScheduleEntity flightSchedule : newFlightSchedulePlanEntity.getFlightSchedules()) {
+            Date arrivalDateTime = flightSchedule.getArrivalDateTime();
+            GregorianCalendar returnDepartureDateTimeCalender = new GregorianCalendar();
+            returnDepartureDateTimeCalender.setTime(arrivalDateTime);
+            returnDepartureDateTimeCalender.add(GregorianCalendar.HOUR_OF_DAY, 8); // lay over of 8 hours
+            Date returnDepartureDateTime = returnDepartureDateTimeCalender.getTime();
+
+            FlightScheduleEntity returnFlightSchedule = new FlightScheduleEntity(returnDepartureDateTime, flightSchedule.getEstimatedFlightDuration(), returnFlightSchedulePlanEntity);
+            returnFlightSchedules.add(returnFlightSchedule);
         }
 
-        for (FareEntity fareEntity : fares) {
-            try {
-                fareEntitySessionBeanLocal.createFareForFlightSchedulePlan(fareEntity, newFlightSchedulePlanEntity);
-            } catch (CreateNewFareException ex) {
-                throw new CreateNewFlightSchedulePlanException(ex.toString());
-            }
+        List<FareEntity> returnFares = new ArrayList<>();
+        for (FareEntity fare : newFlightSchedulePlanEntity.getFares()) {
+            returnFares.add(new FareEntity(fare.getFareBasisCode(), fare.getFareAmount(), fare.getCabinClass(), returnFlightSchedulePlanEntity));
         }
-    }
-
-    private void validateFares(List<FareEntity> fares, FlightEntity flightEntity) throws CreateNewFlightSchedulePlanException {
-        HashSet<CabinClassEnum> availableCabins = new HashSet<>();
-
-        for (CabinConfigurationEntity cabinConfigurationEntity : flightEntity.getAircraftConfiguration().getCabinConfigurations()) {
-            availableCabins.add(cabinConfigurationEntity.getCabinClass());
+        
+        try {
+            flightScheduleSessionBeanLocal.createNewFlightSchedules(returnFlightSchedulePlanEntity, returnFlightSchedules);
+            fareEntitySessionBeanLocal.createNewFares(returnFares, returnFlightSchedulePlanEntity);
+        } catch (CreateNewFareException | CreateNewFlightScheduleException ex) {
+            throw new CreateNewFlightSchedulePlanException(ex.toString());
         }
 
-        for (FareEntity fareEntity : fares) {
-            availableCabins.remove(fareEntity.getCabinClass());
-        }
-
-        if (!availableCabins.isEmpty()) {
-            throw new CreateNewFlightSchedulePlanException("CreateNewFlightSchedulePlanException: Please provide at least one fare for all available cabins!");
-        }
+        return returnFlightSchedulePlanEntity;
     }
 
     private void validateFlightSchedulePlan(FlightSchedulePlanEntity newFlightSchedulePlanEntity) throws CreateNewFlightSchedulePlanException {

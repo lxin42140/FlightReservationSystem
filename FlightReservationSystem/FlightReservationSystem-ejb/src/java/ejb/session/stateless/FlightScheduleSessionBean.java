@@ -21,12 +21,6 @@ import javax.validation.ValidatorFactory;
 import util.exception.CreateNewFlightScheduleException;
 import util.exception.CreateNewSeatInventoryException;
 
-/*
-recurrent flight schedule plan will auto generate the flight schedule
-
-single and multiple flight schedules are generatd manually by user
-
- */
 /**
  *
  * @author Li Xin
@@ -41,32 +35,35 @@ public class FlightScheduleSessionBean implements FlightScheduleSessionBeanRemot
     private EntityManager em;
 
     @Override
-    public void createNewFlightSchedule(FlightScheduleEntity flightScheduleEntity, FlightSchedulePlanEntity flightSchedulePlanEntity, FlightEntity flightEntity) throws CreateNewFlightScheduleException {
-        if (flightSchedulePlanEntity == null) {
-            throw new CreateNewFlightScheduleException("CreateNewFlightScheduleException: Invalid flight schedule plan!");
-        }
-
-        if (flightEntity == null) {
-            throw new CreateNewFlightScheduleException("CreateNewFlightScheduleException: Invalid flight!");
-        }
+    public void createNewFlightSchedule(FlightScheduleEntity flightScheduleEntity, FlightSchedulePlanEntity flightSchedulePlanEntity) throws CreateNewFlightScheduleException {
 
         // check whether the new flight schedule conflict with any of existing flight schedules for flight
-        checkFlightSchedules(flightScheduleEntity, flightEntity);
+        checkFlightSchedules(flightScheduleEntity, flightSchedulePlanEntity.getFlight());
 
-        // associate flight schedule with flight schedule plan
+        //bi directional association
         flightScheduleEntity.setFlightSchedulePlan(flightSchedulePlanEntity);
+        flightSchedulePlanEntity.getFlightSchedules().add(flightScheduleEntity);
 
         // create seat inventory for the flight schedule
         try {
-            seatInventorySessionBeanLocal.createSeatInventoryForFlightSchedule(flightScheduleEntity, flightEntity.getAircraftConfiguration());
+            seatInventorySessionBeanLocal.createSeatInventoryForFlightSchedule(flightScheduleEntity, flightSchedulePlanEntity.getFlight().getAircraftConfiguration());
         } catch (CreateNewSeatInventoryException ex) {
             throw new CreateNewFlightScheduleException(ex.toString());
         }
 
         validateFlightSchedule(flightScheduleEntity);
+    }
 
-        // associate flight schedule plan with flight schedule
-        flightSchedulePlanEntity.getFlightSchedules().add(flightScheduleEntity);
+    @Override
+    public void createNewFlightSchedules(FlightSchedulePlanEntity flightSchedulePlanEntity, List<FlightScheduleEntity> flightSchedules) throws CreateNewFlightScheduleException {
+        if (flightSchedules.isEmpty()) {
+            throw new CreateNewFlightScheduleException("CreateNewFlightScheduleException: Please provide at least one flight schedule!");
+        }
+
+        // create new flight schedule for every flight schedule in list
+        for (FlightScheduleEntity flightScheduleEntity : flightSchedules) {
+            this.createNewFlightSchedule(flightScheduleEntity, flightSchedulePlanEntity);
+        }
     }
 
     private void checkFlightSchedules(FlightScheduleEntity newFlightScheduleEntity, FlightEntity flightEntity) throws CreateNewFlightScheduleException {

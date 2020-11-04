@@ -7,6 +7,7 @@ package ejb.session.stateless;
 
 import entity.FareEntity;
 import entity.FlightSchedulePlanEntity;
+import java.util.List;
 import javax.ejb.Remote;
 import util.exception.CreateNewFareException;
 
@@ -17,6 +18,8 @@ import util.exception.CreateNewFareException;
 @Remote
 public interface FareEntitySessionBeanRemote {
 
-    public void createFareForFlightSchedulePlan(FareEntity fare, FlightSchedulePlanEntity flightSchedulePlanEntity) throws CreateNewFareException;
+    public void createNewFare(FareEntity fare, FlightSchedulePlanEntity flightSchedulePlanEntity) throws CreateNewFareException;
+
+    public void createNewFares(List<FareEntity> fares, FlightSchedulePlanEntity flightSchedulePlanEntity) throws CreateNewFareException;
 
 }

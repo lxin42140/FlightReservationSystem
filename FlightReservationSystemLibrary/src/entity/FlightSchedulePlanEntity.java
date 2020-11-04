@@ -13,6 +13,7 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -41,26 +42,24 @@ public class FlightSchedulePlanEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long flightSchedulePlanId;
 
-    @NotNull
-    @Column(nullable = false)
-    private FlightScheduleTypeEnum flightSchedulePlanType;
+//    @NotNull
+//    @Column(nullable = false)
+//    private FlightScheduleTypeEnum flightSchedulePlanType;
+//    @Temporal(TemporalType.DATE)
+//    private Date recurrentEndDate;
+    private Boolean isDisabled;
 
-    private Integer recurrentDay;
+    private Boolean isReturnFlightSchedulePlan;
 
-    @Temporal(TemporalType.DATE)
-    private Date recurrentEndDate;
-
-    private boolean isDisabled;
-
-    @OneToOne(optional = true, cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
+    @OneToOne(optional = true, cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "returnFlightSchedulePlanId")
     private FlightSchedulePlanEntity returnFlightSchedulePlan;
 
-    @OneToMany(mappedBy = "flightSchedulePlan", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
+    @OneToMany(mappedBy = "flightSchedulePlan", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true, fetch = FetchType.EAGER)
     @NotEmpty
     private List<FlightScheduleEntity> flightSchedules;
 
-    @OneToMany(mappedBy = "flightSchedulePlan", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
+    @OneToMany(mappedBy = "flightSchedulePlan", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true, fetch = FetchType.EAGER)
     @NotEmpty
     private List<FareEntity> fares;
 
@@ -86,35 +85,42 @@ public class FlightSchedulePlanEntity implements Serializable {
         this.flight = flight;
     }
 
-    public FlightScheduleTypeEnum getFlightSchedulePlanType() {
-        return flightSchedulePlanType;
+//    public FlightScheduleTypeEnum getFlightSchedulePlanType() {
+//        return flightSchedulePlanType;
+//    }
+//
+//    public void setFlightSchedulePlanType(FlightScheduleTypeEnum flightSchedulePlanType) {
+//        this.flightSchedulePlanType = flightSchedulePlanType;
+//    }
+//
+//    public Integer getRecurrentDay() {
+//        return recurrentDay;
+//    }
+//
+//    public void setRecurrentDay(Integer recurrentDay) {
+//        this.recurrentDay = recurrentDay;
+//    }
+//
+//    public Date getRecurrentEndDate() {
+//        return recurrentEndDate;
+//    }
+//
+//    public void setRecurrentEndDate(Date recurrentEndDate) {
+//        this.recurrentEndDate = recurrentEndDate;
+//    }
+    public Boolean getIsReturnFlightSchedulePlan() {
+        return isReturnFlightSchedulePlan;
     }
 
-    public void setFlightSchedulePlanType(FlightScheduleTypeEnum flightSchedulePlanType) {
-        this.flightSchedulePlanType = flightSchedulePlanType;
+    public void setIsReturnFlightSchedulePlan(Boolean isReturnFlightSchedulePlan) {
+        this.isReturnFlightSchedulePlan = isReturnFlightSchedulePlan;
     }
 
-    public Integer getRecurrentDay() {
-        return recurrentDay;
-    }
-
-    public void setRecurrentDay(Integer recurrentDay) {
-        this.recurrentDay = recurrentDay;
-    }
-
-    public Date getRecurrentEndDate() {
-        return recurrentEndDate;
-    }
-
-    public void setRecurrentEndDate(Date recurrentEndDate) {
-        this.recurrentEndDate = recurrentEndDate;
-    }
-
-    public boolean getIsDisabled() {
+    public Boolean getIsDisabled() {
         return isDisabled;
     }
 
-    public void setIsDisabled(boolean isDisabled) {
+    public void setIsDisabled(Boolean isDisabled) {
         this.isDisabled = isDisabled;
     }
 

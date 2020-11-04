@@ -5,9 +5,9 @@
  */
 package ejb.session.stateless;
 
-import entity.FlightEntity;
 import entity.FlightScheduleEntity;
 import entity.FlightSchedulePlanEntity;
+import java.util.List;
 import javax.ejb.Local;
 import util.exception.CreateNewFlightScheduleException;
 
@@ -18,7 +18,8 @@ import util.exception.CreateNewFlightScheduleException;
 @Local
 public interface FlightScheduleSessionBeanLocal {
 
-    public void createNewFlightSchedule(FlightScheduleEntity flightScheduleEntity, FlightSchedulePlanEntity flightSchedulePlanEntity, FlightEntity flightEntity) throws CreateNewFlightScheduleException;
+    public void createNewFlightSchedule(FlightScheduleEntity flightScheduleEntity, FlightSchedulePlanEntity flightSchedulePlanEntity) throws CreateNewFlightScheduleException;
 
-    
+    public void createNewFlightSchedules(FlightSchedulePlanEntity flightSchedulePlanEntity, List<FlightScheduleEntity> flightSchedules) throws CreateNewFlightScheduleException;
+
 }

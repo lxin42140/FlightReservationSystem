@@ -43,7 +43,7 @@ public class SeatInventorySessionBean implements SeatInventorySessionBeanRemote,
 
         // create seat inventory for each cabin configuration
         for (CabinConfigurationEntity cabinConfigurationEntity : aircraftConfigurationEntity.getCabinConfigurations()) {
-            addSeatsForCabinConfiguration(seatInventory, cabinConfigurationEntity, flightScheduleEntity);
+            this.addSeatsForCabinConfiguration(seatInventory, cabinConfigurationEntity, flightScheduleEntity);
         }
 
     }
