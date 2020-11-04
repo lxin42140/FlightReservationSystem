@@ -18,8 +18,6 @@ import util.exception.CreateNewFareException;
 @Remote
 public interface FareEntitySessionBeanRemote {
 
-    public void createNewFare(FareEntity fare, FlightSchedulePlanEntity flightSchedulePlanEntity) throws CreateNewFareException;
-
     public void createNewFares(List<FareEntity> fares, FlightSchedulePlanEntity flightSchedulePlanEntity) throws CreateNewFareException;
 
 }

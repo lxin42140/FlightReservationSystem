@@ -131,15 +131,12 @@ public class FlightSessionBean implements FlightSessionBeanRemote, FlightSession
         if (flightEntity == null) {
             throw new FlightNotFoundException("FlightNotFoundException: Flight with numer " + flightNumber + " does not exist!");
         }
-        
-        flightEntity.getFlightSchedulePlans().size();
-        
+
         return flightEntity;
     }
 
     @Override
     public String updateFlight(FlightEntity updateFlightEntity) throws UpdateFlightFailedException, FlightNotFoundException {
-
         try {
             validate(updateFlightEntity);
         } catch (CreateNewFlightException ex) {
@@ -148,14 +145,13 @@ public class FlightSessionBean implements FlightSessionBeanRemote, FlightSession
 
         FlightEntity flightEntity = this.retrieveFlightByFlightNumber(updateFlightEntity.getFlightNumber());
 
-        flightEntity.setFlightNumber(updateFlightEntity.getFlightNumber()); // update flight number
-        flightEntity.setReturnFlight(updateFlightEntity.getReturnFlight()); // update return flight
-        flightEntity.setFlightRoute(updateFlightEntity.getFlightRoute()); // update flight route
-        flightEntity.setAircraftConfiguration(updateFlightEntity.getAircraftConfiguration()); // update aircraft configuration
-        flightEntity.setFlightSchedulePlans(updateFlightEntity.getFlightSchedulePlans()); // update flightscheduleplan
-        //flightEntity.setIsDisabled(updateFlightEntity.isIsDisabled()); // update disable status ?
+        TODO: CHECK WHAT TO UPDATE, commented code does not work. Need to update association as well.
+//        flightEntity.setReturnFlight(updateFlightEntity.getReturnFlight()); // update return flight
+//        flightEntity.setFlightRoute(updateFlightEntity.getFlightRoute()); // update flight route
+//        flightEntity.setAircraftConfiguration(updateFlightEntity.getAircraftConfiguration()); // update aircraft configuration
+//        flightEntity.setFlightSchedulePlans(updateFlightEntity.getFlightSchedulePlans()); // update flightscheduleplan
+//        //flightEntity.setIsDisabled(updateFlightEntity.isIsDisabled()); // update disable status ?
 
-        em.merge(updateFlightEntity);
         em.flush();
 
         return updateFlightEntity.getFlightNumber();

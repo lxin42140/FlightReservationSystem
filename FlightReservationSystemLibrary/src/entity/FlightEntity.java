@@ -72,27 +72,10 @@ public class FlightEntity implements Serializable {
         this.flightRoute = flightRoute;
     }
 
-//    public FlightEntity(String iataAirlineCode, String flightNumber) {
-//        this.iataAirlineCode = iataAirlineCode;
-//        this.flightNumber = flightNumber;
-//    }
-//    public FlightEntity(String iataAirlineCode, String flightNumber, AircraftConfigurationEntity aircraftConfiguration, FlightRouteEntity flightRoute) {
-//        this.iataAirlineCode = iataAirlineCode;
-//        this.flightNumber = flightNumber;
-//        this.aircraftConfiguration = aircraftConfiguration;
-//        this.flightRoute = flightRoute;
-//    }
     public boolean isIsDisabled() {
         return isDisabled;
     }
 
-//    public String getIataAirlineCode() {
-//        return iataAirlineCode;
-//    }
-//
-//    public void setIataAirlineCode(String iataAirlineCode) {
-//        this.iataAirlineCode = iataAirlineCode;
-//    }
     public String getFlightNumber() {
         return flightNumber;
     }

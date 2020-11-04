@@ -8,6 +8,8 @@ package entity;
 import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -61,16 +63,17 @@ public class CabinConfigurationEntity implements Serializable {
 
     @NotNull
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private CabinClassEnum cabinClass;
 
     @NotNull
     @ManyToOne(optional = false)
     @JoinColumn(name = "aircraftConfigurationId", nullable = false)
     private AircraftConfigurationEntity aircraftConfiguration;
-    
+
     public CabinConfigurationEntity() {
     }
-    
+
     public CabinConfigurationEntity(Long numAisles, Long numAbreast, Long numRows, Long maxSeat, String seatingConfig, CabinClassEnum cabinClass) {
         numberOfAisles = numAisles;
         numberOfSeatsAbreast = numAbreast;
@@ -91,7 +94,7 @@ public class CabinConfigurationEntity implements Serializable {
     public void setNumberOfAisles(Long numberOfAisles) {
         this.numberOfAisles = numberOfAisles;
     }
-    
+
     public Long getNumberOfRows() {
         return numberOfRows;
     }

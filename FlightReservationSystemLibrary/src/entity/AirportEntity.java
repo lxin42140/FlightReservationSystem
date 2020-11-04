@@ -51,19 +51,32 @@ public class AirportEntity implements Serializable {
     @Size(max = 80)
     private String country;
 
+    @Column(nullable = false, length = 40)
+    @NotBlank
+    private String timeZoneId;
+
     public AirportEntity() {
     }
 
-    public AirportEntity(String iataAirlineCode, String airportName, String city, String province, String country) {
+    public AirportEntity(String iataAirlineCode, String airportName, String city, String province, String country, String timeZone) {
         this.iataAirlineCode = iataAirlineCode;
         this.airportName = airportName;
         this.city = city;
         this.province = province;
         this.country = country;
+        this.timeZoneId = timeZone;
     }
 
     public Long getAirportId() {
         return airportId;
+    }
+
+    public String getTimeZoneId() {
+        return timeZoneId;
+    }
+
+    public void setTimeZoneId(String timeZoneId) {
+        this.timeZoneId = timeZoneId;
     }
 
     public String getIataAirlineCode() {

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -35,21 +36,21 @@ public class FlightRouteEntity implements Serializable {
 
     private boolean isReturnFlightRoute;
 
-    @OneToOne(optional = false, cascade = {CascadeType.PERSIST})
+    @OneToOne(optional = false, cascade = {CascadeType.PERSIST}, fetch = FetchType.EAGER)
     @JoinColumn(name = "originAirportId", nullable = false)
     @NotNull
     private AirportEntity originAirport;
 
-    @OneToOne(optional = false, cascade = {CascadeType.PERSIST})
+    @OneToOne(optional = false, cascade = {CascadeType.PERSIST}, fetch = FetchType.EAGER)
     @JoinColumn(name = "destinationAirportId", nullable = false)
     @NotNull
     private AirportEntity destinationAirport;
 
-    @OneToOne(optional = true, cascade = {CascadeType.PERSIST}, orphanRemoval = true)
+    @OneToOne(optional = true, cascade = {CascadeType.PERSIST}, orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "returnFlightRouteId")
     private FlightRouteEntity returnFlightRoute;
 
-    @OneToMany(mappedBy = "flightRoute", cascade = {CascadeType.PERSIST})
+    @OneToMany(mappedBy = "flightRoute", cascade = {CascadeType.PERSIST}, fetch = FetchType.EAGER)
     private List<FlightEntity> flights;
 
     public FlightRouteEntity() {

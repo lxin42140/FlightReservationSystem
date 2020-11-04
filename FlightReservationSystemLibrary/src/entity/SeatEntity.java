@@ -9,6 +9,8 @@ import java.io.Serializable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -43,6 +45,7 @@ public class SeatEntity implements Serializable {
 //    private CabinConfigurationEntity cabinConfiguration;
     @NotNull
     @Column(name = "CabinClass", nullable = false)
+    @Enumerated(EnumType.STRING)
     private CabinClassEnum cabinClassEnum;
 
     @Min(value = 1)

@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import entity.AirportEntity;
 import entity.CabinConfigurationEntity;
 import entity.FlightEntity;
-import entity.FlightNumberEntityKey;
 import entity.FlightRouteEntity;
 import java.util.List;
 import java.util.logging.Level;

@@ -8,6 +8,8 @@ package entity;
 import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -46,6 +48,7 @@ public class EmployeeEntity implements Serializable {
     private String password;
 
     @NotNull
+    @Enumerated(EnumType.STRING)
     private EmployeeAccessRightEnum employeeAccessRight;
 
     public EmployeeEntity() {

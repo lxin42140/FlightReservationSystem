@@ -6,13 +6,17 @@
 package entity;
 
 import java.io.Serializable;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.TimeZone;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -41,7 +45,7 @@ public class FlightScheduleEntity implements Serializable {
 
     @NotNull
     @Column(nullable = false)
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     private Date departureDate;
 
     @Positive
@@ -53,7 +57,7 @@ public class FlightScheduleEntity implements Serializable {
     @NotEmpty
     private List<SeatEntity> seatInventory;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "flightSchedulePlanId", nullable = false)
     @NotNull
     private FlightSchedulePlanEntity flightSchedulePlan;
@@ -74,7 +78,7 @@ public class FlightScheduleEntity implements Serializable {
     }
 
     public Date getDepartureDate() {
-        return departureDate;
+        return this.departureDate;
     }
 
     public void setDepartureDate(Date departureDate) {
@@ -105,15 +109,24 @@ public class FlightScheduleEntity implements Serializable {
         this.seatInventory = seatInventory;
     }
 
+    // return arrival date time in time of destination country
     public Date getArrivalDateTime() {
-        AirportEntity origin = this.flightSchedulePlan.getFlight().getFlightRoute().getOriginAirport();
-        AirportEntity destination = this.flightSchedulePlan.getFlight().getFlightRoute().getDestinationAirport();
-        
         GregorianCalendar departureDateTimeCalender = new GregorianCalendar();
         departureDateTimeCalender.setTime(this.departureDate);
         departureDateTimeCalender.add(GregorianCalendar.HOUR_OF_DAY, this.estimatedFlightDuration);
         Date arrivalDateTime = departureDateTimeCalender.getTime();
-        return arrivalDateTime;
+
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm a");
+        sdf.setTimeZone(TimeZone.getTimeZone(this.flightSchedulePlan.getFlight().getFlightRoute().getDestinationAirport().getTimeZoneId()));
+        String arrivalDate = sdf.format(arrivalDateTime);
+
+        Date arrivalDateInLocalTime = arrivalDateTime;
+        try {
+            arrivalDateInLocalTime = new SimpleDateFormat("dd/MM/yyyy hh:mm a").parse(arrivalDate);
+        } catch (ParseException ex) {
+        }
+
+        return arrivalDateInLocalTime;
     }
 
     @Override

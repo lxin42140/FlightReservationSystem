@@ -31,11 +31,7 @@ public class FlightScheduleSessionBean implements FlightScheduleSessionBeanRemot
     @EJB
     private SeatInventorySessionBeanLocal seatInventorySessionBeanLocal;
 
-    @PersistenceContext
-    private EntityManager em;
-
-    @Override
-    public void createNewFlightSchedule(FlightScheduleEntity flightScheduleEntity, FlightSchedulePlanEntity flightSchedulePlanEntity) throws CreateNewFlightScheduleException {
+    private void createNewFlightSchedule(FlightScheduleEntity flightScheduleEntity, FlightSchedulePlanEntity flightSchedulePlanEntity) throws CreateNewFlightScheduleException {
 
         // check whether the new flight schedule conflict with any of existing flight schedules for flight
         checkFlightSchedules(flightScheduleEntity, flightSchedulePlanEntity.getFlight());

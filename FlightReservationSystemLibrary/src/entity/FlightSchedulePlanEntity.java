@@ -27,7 +27,6 @@ import javax.persistence.TemporalType;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import util.enumeration.FlightScheduleTypeEnum;
 
 /**
  *
@@ -42,13 +41,10 @@ public class FlightSchedulePlanEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long flightSchedulePlanId;
 
-//    @NotNull
-//    @Column(nullable = false)
-//    private FlightScheduleTypeEnum flightSchedulePlanType;
-//    @Temporal(TemporalType.DATE)
-//    private Date recurrentEndDate;
+    @Column(nullable = false)
     private Boolean isDisabled;
 
+    @Column(nullable = false)
     private Boolean isReturnFlightSchedulePlan;
 
     @OneToOne(optional = true, cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true, fetch = FetchType.EAGER)
@@ -69,6 +65,8 @@ public class FlightSchedulePlanEntity implements Serializable {
     private FlightEntity flight;
 
     public FlightSchedulePlanEntity() {
+        this.isDisabled = false;
+        this.isReturnFlightSchedulePlan = false;
         this.flightSchedules = new ArrayList<>();
         this.fares = new ArrayList<>();
     }
@@ -85,29 +83,6 @@ public class FlightSchedulePlanEntity implements Serializable {
         this.flight = flight;
     }
 
-//    public FlightScheduleTypeEnum getFlightSchedulePlanType() {
-//        return flightSchedulePlanType;
-//    }
-//
-//    public void setFlightSchedulePlanType(FlightScheduleTypeEnum flightSchedulePlanType) {
-//        this.flightSchedulePlanType = flightSchedulePlanType;
-//    }
-//
-//    public Integer getRecurrentDay() {
-//        return recurrentDay;
-//    }
-//
-//    public void setRecurrentDay(Integer recurrentDay) {
-//        this.recurrentDay = recurrentDay;
-//    }
-//
-//    public Date getRecurrentEndDate() {
-//        return recurrentEndDate;
-//    }
-//
-//    public void setRecurrentEndDate(Date recurrentEndDate) {
-//        this.recurrentEndDate = recurrentEndDate;
-//    }
     public Boolean getIsReturnFlightSchedulePlan() {
         return isReturnFlightSchedulePlan;
     }
