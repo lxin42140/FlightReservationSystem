@@ -21,6 +21,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
@@ -50,7 +51,7 @@ public class FlightScheduleEntity implements Serializable {
 
     @Positive
     @Max(24)
-    @Column(nullable = false, precision = 2)
+    @Column(nullable = false, precision = 3)
     private Integer estimatedFlightDuration;
 
     @OneToMany(mappedBy = "flightSchedule", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
@@ -62,8 +63,12 @@ public class FlightScheduleEntity implements Serializable {
     @NotNull
     private FlightSchedulePlanEntity flightSchedulePlan;
 
+//    @ManyToMany(fetch = FetchType.EAGER)
+//    private List<FlightReservationEntity> flightReservations;
+
     public FlightScheduleEntity() {
         this.seatInventory = new ArrayList<>();
+        //this.flightReservations = new ArrayList<>();
     }
 
     public FlightScheduleEntity(Date departureDate, Integer estimatedFlightDuration, FlightSchedulePlanEntity flightSchedulePlan) {
@@ -72,6 +77,14 @@ public class FlightScheduleEntity implements Serializable {
         this.estimatedFlightDuration = estimatedFlightDuration;
         this.flightSchedulePlan = flightSchedulePlan;
     }
+
+//    public List<FlightReservationEntity> getFlightReservations() {
+//        return flightReservations;
+//    }
+//
+//    public void setFlightReservations(List<FlightReservationEntity> flightReservations) {
+//        this.flightReservations = flightReservations;
+//    }
 
     public Long getFlightScheduleId() {
         return flightScheduleId;

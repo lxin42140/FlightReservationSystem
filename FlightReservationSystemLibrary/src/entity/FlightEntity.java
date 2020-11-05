@@ -72,7 +72,7 @@ public class FlightEntity implements Serializable {
         this.flightRoute = flightRoute;
     }
 
-    public boolean isIsDisabled() {
+    public boolean getIsDisabled() {
         return isDisabled;
     }
 

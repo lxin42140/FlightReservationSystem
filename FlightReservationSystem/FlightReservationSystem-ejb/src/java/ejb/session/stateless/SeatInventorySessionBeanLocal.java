@@ -10,8 +10,10 @@ import entity.FlightScheduleEntity;
 import entity.PassengerEntity;
 import entity.SeatEntity;
 import javax.ejb.Local;
+import pojo.SeatInventory;
 import util.enumeration.CabinClassEnum;
 import util.exception.CreateNewSeatInventoryException;
+import util.exception.FlightScheduleNotFoundException;
 import util.exception.ReserveSeatException;
 import util.exception.SeatNotFoundException;
 
@@ -24,8 +26,8 @@ public interface SeatInventorySessionBeanLocal {
 
     public void createSeatInventoryForFlightSchedule(FlightScheduleEntity flightScheduleEntity, AircraftConfigurationEntity aircraftConfigurationEntity) throws CreateNewSeatInventoryException;
 
-    public void reserveSeatForPassenger(Long flightScheduleId, CabinClassEnum cabinClassEnum, Long rowNumber, Character rowLetter, PassengerEntity passengerEntity) throws SeatNotFoundException, ReserveSeatException;
+    public SeatInventory viewSeatsInventoryByFlightScheduleId(Long flightScheduleId) throws FlightScheduleNotFoundException;
 
-    public SeatEntity retrieveSeatFromFlightSchedule(Long flightScheduleId, CabinClassEnum cabinClassEnum, Long rowNumber, Character rowLetter) throws SeatNotFoundException;
-
+    // public void reserveSeatForPassenger(Long flightScheduleId, CabinClassEnum cabinClassEnum, Long rowNumber, Character rowLetter, PassengerEntity passengerEntity) throws SeatNotFoundException, ReserveSeatException;
+    // public SeatEntity retrieveSeatFromFlightSchedule(Long flightScheduleId, CabinClassEnum cabinClassEnum, Long rowNumber, Character rowLetter) throws SeatNotFoundException;
 }

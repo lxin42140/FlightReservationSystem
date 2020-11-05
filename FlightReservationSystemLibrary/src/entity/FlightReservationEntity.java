@@ -12,10 +12,12 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -37,7 +39,7 @@ public class FlightReservationEntity implements Serializable {
     private Long flightReservationId;
 
     @Positive
-    @Column(length = 7, unique = true)
+    @Column(nullable = false, precision = 19, scale = 4)
     private BigDecimal totalAmount;
 
     @ManyToOne(optional = false)
@@ -45,7 +47,7 @@ public class FlightReservationEntity implements Serializable {
     @NotNull
     private UserEntity user;
 
-    @OneToOne(mappedBy = "flightReservation", optional = false, cascade = {CascadeType.PERSIST}, orphanRemoval = true)
+    @OneToOne(mappedBy = "flightReservation", optional = false, cascade = {CascadeType.PERSIST})
     @JoinColumn(name = "creditCardId", nullable = false)
     @NotNull
     private CreditCardEntity creditCard;
@@ -54,7 +56,7 @@ public class FlightReservationEntity implements Serializable {
     @NotEmpty
     private List<PassengerEntity> passengers;
 
-    @OneToMany
+    @OneToMany(fetch = FetchType.EAGER)
     @NotEmpty
     private List<FlightScheduleEntity> flightSchedules;
 
@@ -116,7 +118,6 @@ public class FlightReservationEntity implements Serializable {
 
     @Override
     public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the depositAccountId fields are not set
         if (!(object instanceof AircraftTypeEntity)) {
             return false;
         }

@@ -104,14 +104,11 @@ public class FlightRouteSessionBean implements FlightRouteSessionBeanRemote, Fli
     }
 
     private boolean isUniqueODpair(FlightRouteEntity flightRouteEntity) {
-        if (retrieveAllFlightRoutes().isEmpty()) { // no flight routes in database
-            return true;
-        }
-
         try {
             Query query = em.createQuery("SELECT f FROM FlightRouteEntity f WHERE f.originAirport = :inputOriginAirport AND f.destinationAirport = :inputDestinationAirport AND f.isDisabled = FALSE");
-            query.setParameter("inputOriginAirport", flightRouteEntity.getDestinationAirport());
+            query.setParameter("inputOriginAirport", flightRouteEntity.getOriginAirport());
             query.setParameter("inputDestinationAirport", flightRouteEntity.getDestinationAirport());
+            query.getSingleResult();
             return false;
         } catch (NoResultException ex) {
             return true;
@@ -126,14 +123,12 @@ public class FlightRouteSessionBean implements FlightRouteSessionBeanRemote, Fli
             throw new FlightRouteNotFoundException("FlightRouteNotFoundException: Flight route with ID " + flightRouteId + " does not exist!");
         }
 
-        flightRouteEntity.getFlights().size();
         return flightRouteEntity;
     }
 
     @Override
     public List<FlightRouteEntity> retrieveAllFlightRoutes() {
-        // order by origin aiport 
-        Query query = em.createQuery("SELECT f FROM FlightRouteEntity f WHERE f.isReturnFlightRoute = FALSE ORDER BY f.originAirport.airportName ASC");
+        Query query = em.createQuery("SELECT f FROM FlightRouteEntity f WHERE f.isDisabled = FALSE AND f.isReturnFlightRoute = FALSE ORDER BY f.originAirport.airportName ASC");
         List<FlightRouteEntity> flightRoutes = (List<FlightRouteEntity>) query.getResultList();
 
         return flightRoutes;
@@ -165,18 +160,18 @@ public class FlightRouteSessionBean implements FlightRouteSessionBeanRemote, Fli
     }
 
     private void deleteReturnFlightRoute(FlightRouteEntity returnFlightRouteEntity) throws FlightRouteInUseException {
+        if (!returnFlightRouteEntity.getFlights().isEmpty()) {
+            // flights associated with the return flight
+            returnFlightRouteEntity.setIsDisabled(true); // set disabled
+            em.flush();
+            throw new FlightRouteInUseException("FlightRouteInUseException: Flight route with ID " + returnFlightRouteEntity.getFlightRouteId() + " is in use! " + "\nFlight route is now disabled!");
+        }
+
         Query query = em.createQuery("SELECT f FROM FlightRouteEntity f WHERE f.returnFlightRoute = :inReturnFlightRoute"); // find parent flight
         query.setParameter("inReturnFlightRoute", returnFlightRouteEntity);
         FlightRouteEntity parentFlightRouteEntity = (FlightRouteEntity) query.getSingleResult();
 
         parentFlightRouteEntity.setReturnFlightRoute(null); // remove association from parent to return flight route
-        em.merge(parentFlightRouteEntity); // update parent
-
-        if (!returnFlightRouteEntity.getFlights().isEmpty()) {
-            // flights associated with the return flight
-            returnFlightRouteEntity.setIsDisabled(true); // set disabled
-            throw new FlightRouteInUseException("FlightRouteInUseException: Flight route with ID " + returnFlightRouteEntity.getFlightRouteId() + " is in use! " + "\nFlight route is now disabled!");
-        }
 
         em.remove(returnFlightRouteEntity);
     }

@@ -43,7 +43,13 @@ public class FlightSessionBean implements FlightSessionBeanRemote, FlightSession
 
     @Override
     public String createNewFlight(FlightEntity newFlightEntity, Long flightRouteId, Long aircraftConfigurationId, Boolean doCreateReturnFlight, String returnFlightNumber) throws CreateNewFlightException, FlightRouteNotFoundException, AircraftConfigurationNotFoundException {
+
         FlightRouteEntity flightRouteEntity = flightRouteSessionBeanLocal.retrieveFlightRouteById(flightRouteId);
+
+        if (flightRouteEntity.getIsDisabled()) {
+            throw new CreateNewFlightException("CreateNewFlightException: Selected flight route is disabled!");
+        }
+
         AircraftConfigurationEntity aircraftConfigurationEntity = aircraftConfigurationSessionBeanLocal.retrieveAircraftConfigurationById(aircraftConfigurationId);
 
         newFlightEntity.setAircraftConfiguration(aircraftConfigurationEntity); // associate flight with aircraft config
@@ -74,15 +80,23 @@ public class FlightSessionBean implements FlightSessionBeanRemote, FlightSession
     }
 
     private String createNewFlightWithReturnFlight(FlightEntity newFlightEntity, String returnFlightNumber) throws CreateNewFlightException {
-        // create return flight with new return flight number, and the return flight route
-        FlightEntity returnFlightEntity = new FlightEntity(returnFlightNumber, newFlightEntity.getAircraftConfiguration(), newFlightEntity.getFlightRoute().getReturnFlightRoute());
-        returnFlightEntity.setIsReturnFlight(true);
+        // get return flight route
+        FlightRouteEntity returnFlightRoute = newFlightEntity.getReturnFlight().getFlightRoute().getReturnFlightRoute();
 
-        // associate the return flight route with the return flight 
-        returnFlightEntity.getFlightRoute().getFlights().add(returnFlightEntity);
+        if (returnFlightRoute.getIsDisabled()) {
+            throw new CreateNewFlightException("CreateNewFlightException: Return flight route is disabled!");
+        }
+
+        // create new return flight entity
+        FlightEntity returnFlightEntity = new FlightEntity(returnFlightNumber, newFlightEntity.getAircraftConfiguration(), returnFlightRoute);
+        // set as return flight
+        returnFlightEntity.setIsReturnFlight(true);
+        // add return flight to return flight route
+        returnFlightRoute.getFlights().add(returnFlightEntity);
 
         validate(returnFlightEntity);
 
+        // assoicare return flight with main flight
         newFlightEntity.setReturnFlight(returnFlightEntity);
 
         try {
@@ -119,7 +133,7 @@ public class FlightSessionBean implements FlightSessionBeanRemote, FlightSession
 
     @Override
     public List<FlightEntity> retrieveAllFlights() {
-        Query query = em.createQuery("SELECT f from FlightEntity f WHERE f.isReturnFlight = FALSE ORDER BY f.flightNumber ASC");
+        Query query = em.createQuery("SELECT f from FlightEntity f WHERE f.isDisabled = FALSE AND f.isReturnFlight = FALSE ORDER BY f.flightNumber ASC");
         List<FlightEntity> flightEntities = query.getResultList();
         return flightEntities;
     }
@@ -129,12 +143,17 @@ public class FlightSessionBean implements FlightSessionBeanRemote, FlightSession
         FlightEntity flightEntity = em.find(FlightEntity.class, flightNumber);
 
         if (flightEntity == null) {
-            throw new FlightNotFoundException("FlightNotFoundException: Flight with numer " + flightNumber + " does not exist!");
+            throw new FlightNotFoundException("FlightNotFoundException: Flight number " + flightNumber + " does not exist!");
+        }
+
+        if (flightEntity.getIsDisabled()) {
+            throw new FlightNotFoundException("FlightNotFoundException: Flight number " + flightNumber + " is disabled!");
         }
 
         return flightEntity;
     }
 
+    //TODO CHECK WHAT TO UPDATE
     @Override
     public String updateFlight(FlightEntity updateFlightEntity) throws UpdateFlightFailedException, FlightNotFoundException {
         try {
@@ -142,19 +161,21 @@ public class FlightSessionBean implements FlightSessionBeanRemote, FlightSession
         } catch (CreateNewFlightException ex) {
             throw new UpdateFlightFailedException("UpdateFlightFailedException: " + ex);
         }
-
-        FlightEntity flightEntity = this.retrieveFlightByFlightNumber(updateFlightEntity.getFlightNumber());
-
-        TODO: CHECK WHAT TO UPDATE, commented code does not work. Need to update association as well.
-//        flightEntity.setReturnFlight(updateFlightEntity.getReturnFlight()); // update return flight
-//        flightEntity.setFlightRoute(updateFlightEntity.getFlightRoute()); // update flight route
-//        flightEntity.setAircraftConfiguration(updateFlightEntity.getAircraftConfiguration()); // update aircraft configuration
-//        flightEntity.setFlightSchedulePlans(updateFlightEntity.getFlightSchedulePlans()); // update flightscheduleplan
-//        //flightEntity.setIsDisabled(updateFlightEntity.isIsDisabled()); // update disable status ?
-
-        em.flush();
+//
+//        FlightEntity flightEntity = this.retrieveFlightByFlightNumber(updateFlightEntity.getFlightNumber());
+//
+//        if(updateFlightEntity.getAircraftConfiguration().equals(flightEntity.getAircraftConfiguration())) {
+//            updateFlightAircraftConfiguration(updateFlightEntity, updateFlightEntity);
+//        }
+//        
+//        
+//        em.flush();
 
         return updateFlightEntity.getFlightNumber();
+    }
+
+    private void updateFlightAircraftConfiguration(FlightEntity updateFlightEntity, FlightEntity existingFlightEntity) {
+        existingFlightEntity.setAircraftConfiguration(updateFlightEntity.getAircraftConfiguration());
     }
 
     @Override
@@ -162,10 +183,10 @@ public class FlightSessionBean implements FlightSessionBeanRemote, FlightSession
         FlightEntity flightEntity = em.find(FlightEntity.class, flightNumber);
 
         if (flightEntity == null) {
-            throw new FlightNotFoundException("FlightNotFoundException: Flight with numer " + flightNumber + " does not exist!");
+            throw new FlightNotFoundException("FlightNotFoundException: Flight number " + flightNumber + " does not exist!");
         }
 
-        if (flightEntity.getIsReturnFlight()) {
+        if (flightEntity.getIsReturnFlight()) { // deleting a return flight
             deleteReturnFlight(flightEntity);
             return;
         }
@@ -176,25 +197,33 @@ public class FlightSessionBean implements FlightSessionBeanRemote, FlightSession
                 flightEntity.getReturnFlight().setIsDisabled(true);
             }
             em.flush();
-            throw new FlightInUseException("FlightInUseException: Flight with numer " + flightNumber + " is in use!" + "\nFlight is now disabled!");
+            throw new FlightInUseException("FlightInUseException: Flight number " + flightNumber + " is in use!" + "\nFlight is now disabled!");
         }
+
+        flightEntity.getFlightRoute().getFlights().remove(flightEntity);
+
+        if (flightEntity.getReturnFlight() != null) {
+            flightEntity.getReturnFlight().getFlightRoute().getFlights().remove(flightEntity.getReturnFlight());
+        }
+
         em.remove(flightEntity);
     }
 
     private void deleteReturnFlight(FlightEntity returnFlightEntity) throws FlightInUseException {
+        if (!returnFlightEntity.getFlightSchedulePlans().isEmpty()) {
+            returnFlightEntity.setIsDisabled(true); // set disabled
+            em.flush();
+            throw new FlightInUseException("FlightInUseException: Flight number " + returnFlightEntity.getFlightNumber() + " is in use!" + "\nFlight is now disabled!");
+        }
+
         Query query = em.createQuery("SELECT f FROM FlightEntity f WHERE f.returnFlight = :inReturnFlight"); // find parent flight
         query.setParameter("inReturnFlight", returnFlightEntity);
         FlightEntity parentFlightEntity = (FlightEntity) query.getSingleResult();
 
         parentFlightEntity.setReturnFlight(null); // remove association from parent to return flight 
-        em.merge(parentFlightEntity); // update parent
 
-        if (!returnFlightEntity.getFlightSchedulePlans().isEmpty()) {
-            // flights associated with the return flight
-            returnFlightEntity.setIsDisabled(true); // set disabled
-            throw new FlightInUseException("FlightInUseException: Flight with numer " + returnFlightEntity.getFlightNumber() + " is in use!" + "\nFlight is now disabled!");
-        }
-
+        // remove return flight from flight route
+        returnFlightEntity.getFlightRoute().getFlights().remove(returnFlightEntity);
         em.remove(returnFlightEntity);
     }
 

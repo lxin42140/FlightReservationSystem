@@ -59,7 +59,7 @@ public class FlightSchedulePlanEntity implements Serializable {
     @NotEmpty
     private List<FareEntity> fares;
 
-    @ManyToOne
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE })
     @NotNull
     @JoinColumn(name = "flightNumber", nullable = false)
     private FlightEntity flight;

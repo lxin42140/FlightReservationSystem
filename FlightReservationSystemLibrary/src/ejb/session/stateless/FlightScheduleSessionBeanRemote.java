@@ -10,6 +10,7 @@ import entity.FlightSchedulePlanEntity;
 import java.util.List;
 import javax.ejb.Remote;
 import util.exception.CreateNewFlightScheduleException;
+import util.exception.FlightScheduleNotFoundException;
 
 /**
  *
@@ -19,5 +20,7 @@ import util.exception.CreateNewFlightScheduleException;
 public interface FlightScheduleSessionBeanRemote {
 
     public void createNewFlightSchedules(FlightSchedulePlanEntity flightSchedulePlanEntity, List<FlightScheduleEntity> flightSchedules) throws CreateNewFlightScheduleException;
+
+    public FlightScheduleEntity retrieveFlightScheduleById(Long flightScheduleId) throws FlightScheduleNotFoundException;
 
 }

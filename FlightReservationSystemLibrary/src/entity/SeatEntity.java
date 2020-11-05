@@ -48,41 +48,34 @@ public class SeatEntity implements Serializable {
     @Enumerated(EnumType.STRING)
     private CabinClassEnum cabinClassEnum;
 
-    @Min(value = 1)
-    @Max(value = 100)
-    @Column(nullable = false)
-    private Integer seatRowNumber;
-
-    @Size(min = 1, max = 1)
+    @Column(nullable = false, length = 5)
     @NotBlank
-    @Column(nullable = false)
-    private Character seatRowLetter;
+    private String seatNumber;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "FlightScheduleId", nullable = false)
     @NotNull
     private FlightScheduleEntity flightSchedule;
 
-    @ManyToOne(optional = true, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToOne(optional = true, cascade = {})
     @JoinColumn(name = "passengerId")
     private PassengerEntity passenger;
 
     public SeatEntity() {
     }
 
-    public SeatEntity(CabinClassEnum cabinClassEnum, Integer seatRowNumber, Character seatRowLetter, FlightScheduleEntity flightSchedule) {
+    public SeatEntity(CabinClassEnum cabinClassEnum, String seatNumber, FlightScheduleEntity flightSchedule) {
         this.cabinClassEnum = cabinClassEnum;
-        this.seatRowNumber = seatRowNumber;
-        this.seatRowLetter = seatRowLetter;
+        this.seatNumber = seatNumber;
         this.flightSchedule = flightSchedule;
     }
+
 //    public SeatEntity(CabinConfigurationEntity cabinConfiguration, Integer seatRowNumber, Character seatRowLetter, FlightScheduleEntity flightSchedule) {
 //        this.cabinConfiguration = cabinConfiguration;
 //        this.seatRowNumber = seatRowNumber;
 //        this.seatRowLetter = seatRowLetter;
 //        this.flightSchedule = flightSchedule;
 //    }
-
     public Long getSeatId() {
         return seatId;
     }
@@ -102,20 +95,12 @@ public class SeatEntity implements Serializable {
         this.cabinClassEnum = cabinClassEnum;
     }
 
-    public Integer getSeatRowNumber() {
-        return seatRowNumber;
+    public String getSeatNumber() {
+        return seatNumber;
     }
 
-    public void setSeatRowNumber(Integer seatRowNumber) {
-        this.seatRowNumber = seatRowNumber;
-    }
-
-    public Character getSeatRowLetter() {
-        return seatRowLetter;
-    }
-
-    public void setSeatRowLetter(Character seatRowLetter) {
-        this.seatRowLetter = seatRowLetter;
+    public void setSeatNumber(String seatNumber) {
+        this.seatNumber = seatNumber;
     }
 
     public PassengerEntity getPassenger() {

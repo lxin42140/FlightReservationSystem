@@ -12,6 +12,7 @@ import entity.PassengerEntity;
 import entity.SeatEntity;
 import java.util.List;
 import java.util.Set;
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -21,8 +22,10 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import pojo.SeatInventory;
 import util.enumeration.CabinClassEnum;
 import util.exception.CreateNewSeatInventoryException;
+import util.exception.FlightScheduleNotFoundException;
 import util.exception.SeatNotFoundException;
 import util.exception.ReserveSeatException;
 
@@ -32,6 +35,9 @@ import util.exception.ReserveSeatException;
  */
 @Stateless
 public class SeatInventorySessionBean implements SeatInventorySessionBeanRemote, SeatInventorySessionBeanLocal {
+
+    @EJB
+    private FlightScheduleSessionBeanLocal flightScheduleSessionBeanLocal;
 
     @PersistenceContext(unitName = "FlightReservationSystem-ejbPU")
     private EntityManager em;
@@ -56,7 +62,8 @@ public class SeatInventorySessionBean implements SeatInventorySessionBeanRemote,
             int firstLetter = 65; // ASCII code for 'A'
             for (int j = 0; j < numSeatAbreast; j++) {
                 // create new seat and associate with the flight schedule
-                SeatEntity seatEntity = new SeatEntity(cabinConfigurationEntity.getCabinClass(), i, (char) firstLetter, flightScheduleEntity);
+                String seatNumber = "" + i + ((char) firstLetter);
+                SeatEntity seatEntity = new SeatEntity(cabinConfigurationEntity.getCabinClass(), seatNumber, flightScheduleEntity);
 
                 validate(seatEntity);
 
@@ -83,40 +90,86 @@ public class SeatInventorySessionBean implements SeatInventorySessionBeanRemote,
     }
 
     @Override
-    public SeatEntity retrieveSeatFromFlightSchedule(Long flightScheduleId, CabinClassEnum cabinClassEnum, Long rowNumber, Character rowLetter) throws SeatNotFoundException {
-        Query query = em.createQuery("SELECT s FROM SeatEntity s WHERE s.flightSchedule = :inFlightSchedule AND s.cabinClassEnum = :incabinClassEnum AND s.seatRowNumber = :inRowNumber AND s.seatRowLetter = :inRowLetter");
+    public SeatInventory viewSeatsInventoryByFlightScheduleId(Long flightScheduleId) throws FlightScheduleNotFoundException {
+        SeatInventory seatInventory = new SeatInventory();
 
-        query.setParameter("inFlightSchedule", flightScheduleId);
-        query.setParameter("incabinClassEnum", cabinClassEnum);
-        query.setParameter("inRowNumber", rowNumber);
-        query.setParameter("inRowLetter", rowLetter);
+        FlightScheduleEntity flightScheduleEntity = flightScheduleSessionBeanLocal.retrieveFlightScheduleById(flightScheduleId);
 
-        try {
-            SeatEntity seatEntity = (SeatEntity) query.getSingleResult();
-            return seatEntity;
-        } catch (NoResultException ex) {
-            throw new SeatNotFoundException("SeatNotFoundException: Seat with seat number " + rowNumber + rowLetter + " does not exist!");
+        // set total balanced seats of the flight schedule
+        seatInventory.setTotalAvailSeats(flightScheduleEntity.getSeatInventory().size());
+
+        // retrieve unique cabins from seat inventory
+        Query query = em.createQuery("SELECT DISTINCT s.cabinClassEnum FROM SeatEntity s WHERE s.flightSchedule.flightScheduleId =:inFlightScheduleId");
+        query.setParameter("inFlightScheduleId", flightScheduleId);
+        List<CabinClassEnum> cabinClasses = (List<CabinClassEnum>) query.getResultList();
+
+        for (CabinClassEnum cabinClass : cabinClasses) {
+            // 0 - total avail
+            // 1 - reserved
+            // 2 - balanced = 0 - 1
+            Integer[] arr = seatInventory.getCabinSeatsInventory().get(cabinClass);
+
+            // retrieve all avail seats of the particular cabin class for the particular flight
+            query = em.createQuery("SELECT s FROM SeatEntity s WHERE s.cabinClassEnum =:inCabinClass AND s.flightSchedule.flightScheduleId =:inFlightScheduleId");
+            query.setParameter("inCabinClass", cabinClass);
+            query.setParameter("inFlightScheduleId", flightScheduleId);
+            arr[0] = query.getResultList().size();
+
+            // retrieve all seats of the particualr cabin class for the particualr flight where the passenger is not null (i.e. reserved)
+            query = em.createQuery("SELECT s FROM SeatEntity s WHERE s.cabinClassEnum =:inCabinClass AND s.flightSchedule.flightScheduleId =:inFlightScheduleId AND s.passenger IS NOT NULL");
+            query.setParameter("inCabinClass", cabinClass);
+            query.setParameter("inFlightScheduleId", flightScheduleId);
+            arr[1] = query.getResultList().size();
+
+            // update total reserved seats
+            seatInventory.setTotalReservedSeats(seatInventory.getTotalReservedSeats() + arr[1]);
+
+            // set balanced seats as total - reserved
+            arr[2] = arr[0] - arr[1];
         }
+
+        // cal total balanced seats
+        seatInventory.setTotalBalancedSeats(seatInventory.getTotalAvailSeats() - seatInventory.getTotalReservedSeats());
+
+        return seatInventory;
     }
 
-    @Override
-    public void reserveSeatForPassenger(Long flightScheduleId, CabinClassEnum cabinClassEnum, Long rowNumber, Character rowLetter, PassengerEntity passengerEntity) throws SeatNotFoundException, ReserveSeatException {
-        if (passengerEntity == null) {
-            throw new ReserveSeatException("ReserveSeatException: Invalid passenger!");
-        }
+// DO NOT DELETE
+//    @Override
+//    public SeatEntity retrieveSeatFromFlightSchedule(Long flightScheduleId, CabinClassEnum cabinClassEnum, String seatNumber) throws SeatNotFoundException {
+//        Query query = em.createQuery("SELECT s FROM SeatEntity s WHERE s.flightSchedule = :inFlightSchedule AND s.cabinClassEnum = :incabinClassEnum AND s.seatNumber =:inSeatNumber");
+//
+//        query.setParameter("inFlightSchedule", flightScheduleId);
+//        query.setParameter("incabinClassEnum", cabinClassEnum);
+//        query.setParameter("inSeatNumber", seatNumber);
+//
+//        try {
+//            SeatEntity seatEntity = (SeatEntity) query.getSingleResult();
+//            return seatEntity;
+//        } catch (NoResultException ex) {
+//            throw new SeatNotFoundException("SeatNotFoundException: Seat with seat number " + seatNumber + " does not exist!");
+//        }
+//    }
 
-        SeatEntity seatEntity = this.retrieveSeatFromFlightSchedule(flightScheduleId, cabinClassEnum, rowNumber, rowLetter);
-
-        if (seatEntity.getPassenger() != null) {
-            throw new ReserveSeatException("ReserveSeatException: Seat with seat number " + rowNumber + rowLetter + " already reserved!");
-        }
-
-        //associate passenger with seat
-        seatEntity.setPassenger(passengerEntity);
-        //associate seat with passenger
-        passengerEntity.getSeats().add(seatEntity);
-
-        em.merge(seatEntity);
-    }
+// DO NOT DELETE
+//    @Override
+//    public void reserveSeatForPassenger(Long flightScheduleId, CabinClassEnum cabinClassEnum, String seatNumber, PassengerEntity passengerEntity) throws SeatNotFoundException, ReserveSeatException {
+//        if (passengerEntity == null) {
+//            throw new ReserveSeatException("ReserveSeatException: Invalid passenger!");
+//        }
+//
+//        SeatEntity seatEntity = this.retrieveSeatFromFlightSchedule(flightScheduleId, cabinClassEnum, seatNumber);
+//
+//        if (seatEntity.getPassenger() != null) {
+//            throw new ReserveSeatException("ReserveSeatException: Seat with seat number " + seatNumber + " already reserved!");
+//        }
+//
+//        //associate passenger with seat
+//        seatEntity.setPassenger(passengerEntity);
+//        //associate seat with passenger
+//        passengerEntity.getSeats().add(seatEntity);
+//
+//        em.merge(seatEntity);
+//    }
 
 }

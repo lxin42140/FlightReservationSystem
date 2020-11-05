@@ -20,6 +20,7 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import util.exception.CreateNewFlightScheduleException;
 import util.exception.CreateNewSeatInventoryException;
+import util.exception.FlightScheduleNotFoundException;
 
 /**
  *
@@ -27,6 +28,9 @@ import util.exception.CreateNewSeatInventoryException;
  */
 @Stateless
 public class FlightScheduleSessionBean implements FlightScheduleSessionBeanRemote, FlightScheduleSessionBeanLocal {
+
+    @PersistenceContext(unitName = "FlightReservationSystem-ejbPU")
+    private EntityManager em;
 
     @EJB
     private SeatInventorySessionBeanLocal seatInventorySessionBeanLocal;
@@ -106,6 +110,21 @@ public class FlightScheduleSessionBean implements FlightScheduleSessionBeanRemot
         if (errorMessage.length() > 0) {
             throw new CreateNewFlightScheduleException("CreateNewFlightScheduleException: Invalid inputs!\n" + errorMessage);
         }
+    }
+
+    @Override
+    public FlightScheduleEntity retrieveFlightScheduleById(Long flightScheduleId) throws FlightScheduleNotFoundException {
+        FlightScheduleEntity flightScheduleEntity = em.find(FlightScheduleEntity.class, flightScheduleId);
+
+        if (flightScheduleEntity == null) {
+            throw new FlightScheduleNotFoundException("FlightScheduleNotFoundException: Flight schedule with id " + flightScheduleId + " does not exsit!");
+        }
+
+        if (flightScheduleEntity.getFlightSchedulePlan().getIsDisabled()) {
+            throw new FlightScheduleNotFoundException("FlightScheduleNotFoundException: Flight schedule with id " + flightScheduleId + " is disabled!");
+        }
+
+        return flightScheduleEntity;
     }
 
 }

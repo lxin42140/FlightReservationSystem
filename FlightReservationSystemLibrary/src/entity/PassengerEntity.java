@@ -47,7 +47,7 @@ public class PassengerEntity implements Serializable {
     private String fareBasisCode;
 
     @Positive
-    @Column(precision = 8, scale = 2, nullable = false)
+    @Column(nullable = false, precision = 19, scale = 4)
     private BigDecimal fareAmount;
 
     @Column(unique = true, length = 10, nullable = false)

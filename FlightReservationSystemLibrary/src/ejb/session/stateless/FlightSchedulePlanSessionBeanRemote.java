@@ -5,7 +5,16 @@
  */
 package ejb.session.stateless;
 
+import entity.FareEntity;
+import entity.FlightScheduleEntity;
+import entity.FlightSchedulePlanEntity;
+import java.util.Date;
+import java.util.List;
 import javax.ejb.Remote;
+import util.exception.CreateNewFlightSchedulePlanException;
+import util.exception.FlightNotFoundException;
+import util.exception.FlightSchedulePlanInUseException;
+import util.exception.FlightSchedulePlanNotFoundException;
 
 /**
  *
@@ -13,5 +22,15 @@ import javax.ejb.Remote;
  */
 @Remote
 public interface FlightSchedulePlanSessionBeanRemote {
-    
+
+    public Long createNewNonRecurrentFlightSchedulePlan(List<FlightScheduleEntity> flightSchedules, List<FareEntity> fares, String flightNumber, Boolean doCreateReturnFlightSchedule) throws CreateNewFlightSchedulePlanException, FlightNotFoundException;
+
+    public Long createRecurrentFlightSchedulePlan(Date endDate, Integer recurrentDaysFrequency, FlightScheduleEntity baseFlightSchedule, List<FareEntity> fares, String flightNumber, Boolean doCreateReturnFlightSchedule) throws CreateNewFlightSchedulePlanException, FlightNotFoundException;
+
+    public List<FlightSchedulePlanEntity> retrieveAllFlightSchedulePlans();
+
+    public FlightSchedulePlanEntity retrieveFlightSchedulePlanById(Long flightSchedulePlanId) throws FlightSchedulePlanNotFoundException;
+
+    public void deleteFlightSchedulePlanById(Long flightSchedulePlanId) throws FlightSchedulePlanNotFoundException, FlightSchedulePlanInUseException;
+
 }
