@@ -32,9 +32,11 @@ public class FlightRouteEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long flightRouteId;
 
-    private boolean isDisabled;
+    @NotNull
+    private Boolean isDisabled;
 
-    private boolean isReturnFlightRoute;
+    @NotNull
+    private Boolean isReturnFlightRoute;
 
     @OneToOne(optional = false, cascade = {CascadeType.PERSIST}, fetch = FetchType.EAGER)
     @JoinColumn(name = "originAirportId", nullable = false)
@@ -54,13 +56,15 @@ public class FlightRouteEntity implements Serializable {
     private List<FlightEntity> flights;
 
     public FlightRouteEntity() {
+        this.isDisabled = false;
+        this.isReturnFlightRoute = false;
         this.flights = new ArrayList<>();
     }
 
     public FlightRouteEntity(AirportEntity originAirport, AirportEntity destinationAirport) {
+        this();
         this.originAirport = originAirport;
         this.destinationAirport = destinationAirport;
-        this.flights = new ArrayList<>();
     }
 
     public Long getFlightRouteId() {

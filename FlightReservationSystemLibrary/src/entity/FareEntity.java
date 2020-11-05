@@ -39,7 +39,7 @@ public class FareEntity implements Serializable {
     @NotNull
     private String fareBasisCode;
 
-    @Column(precision = 8, scale = 2, nullable = false)
+    @Column(nullable = false, precision = 19, scale = 4)
     @Positive
     @NotNull
     private BigDecimal fareAmount;

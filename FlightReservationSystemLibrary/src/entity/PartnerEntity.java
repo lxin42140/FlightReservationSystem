@@ -24,6 +24,7 @@ public class PartnerEntity extends UserEntity implements Serializable {
     private String partnerName;
 
     public PartnerEntity() {
+        super();
     }
 
     public PartnerEntity(String partnerName, String userName, String password) {

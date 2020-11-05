@@ -17,9 +17,8 @@ import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.Future;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 /**
  *
@@ -37,17 +36,16 @@ public class CreditCardEntity implements Serializable {
     @Future
     @NotNull
     @Column(nullable = false)
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     private Date dateOfExpiry;
 
-    @Min(value = 3)
-    @Max(value = 3)
-    @Column(nullable = false)
-    private Long cvc;
+    @Size(min = 3, max = 3)
+    @Column(nullable = false, length = 3)
+    private String cvc;
 
-    @OneToOne(optional = false)
     @NotNull
-    @JoinColumn(nullable = false)
+    @OneToOne(optional = false)
+    @JoinColumn(nullable = false, name = "flightReservationId")
     private FlightReservationEntity flightReservation;
 
     public Long getCreditCardId() {
@@ -62,11 +60,11 @@ public class CreditCardEntity implements Serializable {
         this.dateOfExpiry = dateOfExpiry;
     }
 
-    public Long getCvc() {
+    public String getCvc() {
         return cvc;
     }
 
-    public void setCvc(Long cvc) {
+    public void setCvc(String cvc) {
         this.cvc = cvc;
     }
 

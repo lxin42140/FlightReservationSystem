@@ -25,6 +25,7 @@ import javax.validation.constraints.Size;
  */
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
+
 public class UserEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -49,9 +50,9 @@ public class UserEntity implements Serializable {
     }
 
     public UserEntity(String userName, String password) {
+        this();
         this.userName = userName;
         this.password = password;
-        this.flightReservations = new ArrayList<>();
     }
 
     public Long getUserId() {
@@ -91,7 +92,6 @@ public class UserEntity implements Serializable {
 
     @Override
     public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the depositAccountId fields are not set
         if (!(object instanceof AircraftTypeEntity)) {
             return false;
         }

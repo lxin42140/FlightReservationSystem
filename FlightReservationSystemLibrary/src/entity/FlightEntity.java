@@ -35,9 +35,11 @@ public class FlightEntity implements Serializable {
     @Column(nullable = false, length = 10)
     private String flightNumber;
 
-    private boolean isDisabled;
+    @NotNull
+    private Boolean isDisabled;
 
-    private boolean isReturnFlight;
+    @NotNull
+    private Boolean isReturnFlight;
 
     @OneToOne(optional = true, cascade = {CascadeType.PERSIST}, orphanRemoval = true)
     @JoinColumn(name = "returnFlightNumber")
@@ -57,6 +59,8 @@ public class FlightEntity implements Serializable {
     private List<FlightSchedulePlanEntity> flightSchedulePlans;
 
     public FlightEntity() {
+        this.isDisabled = false;
+        this.isReturnFlight = false;
         this.flightSchedulePlans = new ArrayList<>();
     }
 

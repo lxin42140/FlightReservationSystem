@@ -66,6 +66,16 @@ public class PassengerEntity implements Serializable {
         this.seats = new ArrayList<>();
     }
 
+    public PassengerEntity(String firstName, String lastName, String fareBasisCode, BigDecimal fareAmount, String passportNumber, FlightReservationEntity flightReservation) {
+        this();
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.fareBasisCode = fareBasisCode;
+        this.fareAmount = fareAmount;
+        this.passportNumber = passportNumber;
+        this.flightReservation = flightReservation;
+    }
+
     public Long getPassengerId() {
         return passengerId;
     }

@@ -34,14 +34,26 @@ public class CustomerEntity extends UserEntity implements Serializable {
     @Column(length = 100, nullable = false)
     private String email;
 
-    @Min(value = 8)
-    @Max(value = 13)
+    @Size(min = 8, max = 13)
     @Column(length = 113, nullable = false)
     private String mobilePhoneNumber;
 
     @Size(min = 1, max = 100)
     @Column(length = 100, nullable = false)
     private String address;
+
+    public CustomerEntity() {
+        super();
+    }
+
+    public CustomerEntity(String firstName, String lastName, String email, String mobilePhoneNumber, String address, String userName, String password) {
+        super(userName, password);
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.mobilePhoneNumber = mobilePhoneNumber;
+        this.address = address;
+    }
 
     public String getFirstName() {
         return firstName;
