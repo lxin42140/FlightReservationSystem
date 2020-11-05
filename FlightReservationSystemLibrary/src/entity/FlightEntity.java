@@ -32,7 +32,7 @@ public class FlightEntity implements Serializable {
     @Id
     @NotNull
     @Size(min = 1, max = 10)
-    @Column(nullable = false, length = 10)
+    @Column(nullable = false, length = 10, unique = true)
     private String flightNumber;
 
     @NotNull

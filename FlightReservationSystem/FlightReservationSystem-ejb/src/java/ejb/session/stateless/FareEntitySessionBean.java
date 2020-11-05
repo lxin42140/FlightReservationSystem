@@ -71,16 +71,29 @@ public class FareEntitySessionBean implements FareEntitySessionBeanRemote, FareE
     }
 
     private void validateFaresForFlight(List<FareEntity> fares, FlightEntity flightEntity) throws InvalidFareException {
-        HashSet<CabinClassEnum> availableCabins = new HashSet<>();
+        HashSet<CabinClassEnum> availableCabinClasses = new HashSet<>();
+        HashSet<CabinClassEnum> allCabinClasses = new HashSet<>();
         HashMap<CabinClassEnum, HashSet<String>> classToBasisCode = new HashMap<>();
 
         for (CabinConfigurationEntity cabinConfigurationEntity : flightEntity.getAircraftConfiguration().getCabinConfigurations()) {
-            availableCabins.add(cabinConfigurationEntity.getCabinClass());
+            availableCabinClasses.add(cabinConfigurationEntity.getCabinClass());
+            allCabinClasses.add(cabinConfigurationEntity.getCabinClass());
             classToBasisCode.put(cabinConfigurationEntity.getCabinClass(), new HashSet<String>());
         }
 
         for (FareEntity fareEntity : fares) {
-            availableCabins.remove(fareEntity.getCabinClass());
+            if (!allCabinClasses.contains(fareEntity.getCabinClass())) {
+                throw new InvalidFareException("InvalidFareException: Cabin class in fare does not exist in flight!");
+            }
+
+            if (!(fareEntity.getFareBasisCode().charAt(0) == 'F'
+                    || fareEntity.getFareBasisCode().charAt(0) == 'J'
+                    || fareEntity.getFareBasisCode().charAt(0) == 'W'
+                    || fareEntity.getFareBasisCode().charAt(0) == 'Y')) {
+                throw new InvalidFareException("InvalidFareException: Fare basis code needs to begin with cabin class!");
+            }
+
+            availableCabinClasses.remove(fareEntity.getCabinClass());
 
             if (classToBasisCode.get(fareEntity.getCabinClass()).contains(fareEntity.getFareBasisCode())) {
                 throw new InvalidFareException("InvalidFareException: Fare basis code for a cabin should be different!");
@@ -89,7 +102,7 @@ public class FareEntitySessionBean implements FareEntitySessionBeanRemote, FareE
             }
         }
 
-        if (!availableCabins.isEmpty()) {
+        if (!availableCabinClasses.isEmpty()) {
             throw new InvalidFareException("InvalidFareException: Please provide at least one fare for all available cabins!");
         }
     }

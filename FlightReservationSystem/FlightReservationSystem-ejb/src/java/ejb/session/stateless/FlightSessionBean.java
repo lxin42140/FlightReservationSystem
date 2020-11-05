@@ -50,6 +50,10 @@ public class FlightSessionBean implements FlightSessionBeanRemote, FlightSession
             throw new CreateNewFlightException("CreateNewFlightException: Selected flight route is disabled!");
         }
 
+        if (doCreateReturnFlight && flightRouteEntity.getReturnFlightRoute() == null) {
+            throw new CreateNewFlightException("CreateNewFlightException: Selected flight route does not has a return flight route!");
+        }
+
         AircraftConfigurationEntity aircraftConfigurationEntity = aircraftConfigurationSessionBeanLocal.retrieveAircraftConfigurationById(aircraftConfigurationId);
 
         newFlightEntity.setAircraftConfiguration(aircraftConfigurationEntity); // associate flight with aircraft config
@@ -81,7 +85,7 @@ public class FlightSessionBean implements FlightSessionBeanRemote, FlightSession
 
     private String createNewFlightWithReturnFlight(FlightEntity newFlightEntity, String returnFlightNumber) throws CreateNewFlightException {
         // get return flight route
-        FlightRouteEntity returnFlightRoute = newFlightEntity.getReturnFlight().getFlightRoute().getReturnFlightRoute();
+        FlightRouteEntity returnFlightRoute = newFlightEntity.getFlightRoute().getReturnFlightRoute();
 
         if (returnFlightRoute.getIsDisabled()) {
             throw new CreateNewFlightException("CreateNewFlightException: Return flight route is disabled!");

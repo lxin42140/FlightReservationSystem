@@ -62,8 +62,6 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
 
         FlightSchedulePlanEntity newFlightSchedulePlanEntity = new FlightSchedulePlanEntity();
 
-        em.persist(newFlightSchedulePlanEntity);
-
         // bi directional schedule plan and flight assoication
         newFlightSchedulePlanEntity.setFlight(flightEntity);
         flightEntity.getFlightSchedulePlans().add(newFlightSchedulePlanEntity);
@@ -81,6 +79,7 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
             newFlightSchedulePlanEntity.setReturnFlightSchedulePlan(createReturnFlightSchedulePlan(newFlightSchedulePlanEntity));
         }
 
+        em.persist(newFlightSchedulePlanEntity);
         em.flush();
 
         return newFlightSchedulePlanEntity.getFlightSchedulePlanId();
@@ -96,8 +95,6 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
 
         FlightSchedulePlanEntity newFlightSchedulePlanEntity = new FlightSchedulePlanEntity();
 
-        em.persist(newFlightSchedulePlanEntity);
-
         newFlightSchedulePlanEntity.setFlight(flightEntity); //associate flight schedule with flight
 
         List<FlightScheduleEntity> autoGenerateFlightSchedules = new ArrayList<>(); // store generated flight schedules
@@ -105,8 +102,8 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
 
         Date startDate = baseFlightSchedule.getDepartureDate(); // base start date
 
-        // while start date is smaller or equals to end date
-        while (startDate.compareTo(endDate) <= 0) {
+        // while start date is smaller to end date
+        while (startDate.compareTo(endDate) < 0) {
             GregorianCalendar autoCalender = new GregorianCalendar();
             autoCalender.setTime(startDate);
             autoCalender.add(GregorianCalendar.HOUR_OF_DAY, recurrentDaysFrequency * 24);
@@ -126,6 +123,7 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
             newFlightSchedulePlanEntity.setReturnFlightSchedulePlan(createReturnFlightSchedulePlan(newFlightSchedulePlanEntity));
         }
 
+        em.persist(newFlightSchedulePlanEntity);
         em.flush();
 
         return newFlightSchedulePlanEntity.getFlightSchedulePlanId();
@@ -225,12 +223,24 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
 
     @Override
     public List<FlightSchedulePlanEntity> retrieveAllFlightSchedulePlans() {
-        String jpql = "SELECT DISTINCT f from FlightSchedulePlanEntity f, in (f.flightSchedules) t"
-                + " WHERE f.isReturnFlightSchedulePlan = FALSE AND f.isDisabled = FALSE"
-                + " ORDER BY f.flight.flightNumber ASC, t.departureDate DESC";
-        Query query = em.createQuery(jpql);
+//        String jpql = "SELECT DISTINCT f from FlightSchedulePlanEntity f, in (f.flightSchedules) t"
+//                + " WHERE f.isReturnFlightSchedulePlan = FALSE AND f.isDisabled = FALSE"
+//                + " ORDER BY f.flight.flightNumber ASC, t.departureDate DESC";
+//        Query query = em.createQuery(jpql);
+
+        // ascending order by flight number
+        Query query = em.createQuery("SELECT f from FlightSchedulePlanEntity f WHERE f.isReturnFlightSchedulePlan = FALSE AND f.isDisabled = FALSE ORDER BY f.flight.flightNumber ASC");
 
         List<FlightSchedulePlanEntity> flightSchedulePlans = (List<FlightSchedulePlanEntity>) query.getResultList();
+
+        // descending order by first departure date time
+        flightSchedulePlans.sort((FlightSchedulePlanEntity a, FlightSchedulePlanEntity b) -> {
+            if (!a.getFlightSchedules().isEmpty() && !b.getFlightSchedules().isEmpty()) {
+                return b.getFlightSchedules().get(0).getDepartureDate().compareTo(a.getFlightSchedules().get(0).getDepartureDate());
+            }
+            return 0;
+        });
+
         return flightSchedulePlans;
     }
 
@@ -259,7 +269,7 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
         }
 
         for (FlightScheduleEntity flightScheduleEntity : flightSchedulePlanEntity.getFlightSchedules()) {
-            Query query = em.createQuery("SELECT f from FlightReservationEntity f IN (f.flightSchedules) fl WHERE fl.flightScheduleId =:inFlightScheduleId");
+            Query query = em.createQuery("SELECT f from FlightReservationEntity f, IN (f.flightSchedules) fl WHERE fl.flightScheduleId =:inFlightScheduleId");
             query.setParameter("inFlightScheduleId", flightScheduleEntity.getFlightScheduleId());
 
             if (!query.getResultList().isEmpty()) {
@@ -286,7 +296,7 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
 
     private void deleteReturnFlightSchedulePlan(FlightSchedulePlanEntity returnFlightSchedulePlanEntity) throws FlightSchedulePlanInUseException {
         for (FlightScheduleEntity flightScheduleEntity : returnFlightSchedulePlanEntity.getFlightSchedules()) {
-            Query query = em.createQuery("SELECT f from FlightReservationEntity f IN (f.flightSchedules) fl WHERE fl.flightScheduleId =:inFlightScheduleId");
+            Query query = em.createQuery("SELECT f from FlightReservationEntity f, IN (f.flightSchedules) fl WHERE fl.flightScheduleId =:inFlightScheduleId");
             query.setParameter("inFlightScheduleId", flightScheduleEntity.getFlightScheduleId());
 
             if (!query.getResultList().isEmpty()) {

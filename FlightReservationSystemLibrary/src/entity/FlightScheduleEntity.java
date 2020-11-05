@@ -64,7 +64,6 @@ public class FlightScheduleEntity implements Serializable {
 
 //    @ManyToMany(fetch = FetchType.EAGER)
 //    private List<FlightReservationEntity> flightReservations;
-
     public FlightScheduleEntity() {
         this.seatInventory = new ArrayList<>();
         //this.flightReservations = new ArrayList<>();
@@ -84,7 +83,6 @@ public class FlightScheduleEntity implements Serializable {
 //    public void setFlightReservations(List<FlightReservationEntity> flightReservations) {
 //        this.flightReservations = flightReservations;
 //    }
-
     public Long getFlightScheduleId() {
         return flightScheduleId;
     }
@@ -114,6 +112,9 @@ public class FlightScheduleEntity implements Serializable {
     }
 
     public List<SeatEntity> getSeatInventory() {
+        // sort seats according to seat number
+        this.seatInventory.sort((SeatEntity a, SeatEntity b) -> a.getSeatNumber().compareTo(b.getSeatNumber()));
+
         return seatInventory;
     }
 
@@ -129,7 +130,8 @@ public class FlightScheduleEntity implements Serializable {
         Date arrivalDateTime = departureDateTimeCalender.getTime();
 
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm a");
-        sdf.setTimeZone(TimeZone.getTimeZone(this.flightSchedulePlan.getFlight().getFlightRoute().getDestinationAirport().getTimeZoneId()));
+        String destinationTimeZoneId = this.flightSchedulePlan.getFlight().getFlightRoute().getDestinationAirport().getTimeZoneId();
+        sdf.setTimeZone(TimeZone.getTimeZone(destinationTimeZoneId));
         String arrivalDate = sdf.format(arrivalDateTime);
 
         Date arrivalDateInLocalTime = arrivalDateTime;

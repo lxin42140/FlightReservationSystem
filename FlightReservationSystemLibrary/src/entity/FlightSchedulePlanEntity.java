@@ -54,7 +54,7 @@ public class FlightSchedulePlanEntity implements Serializable {
     @NotEmpty
     private List<FareEntity> fares;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE })
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
     @NotNull
     @JoinColumn(name = "flightNumber", nullable = false)
     private FlightEntity flight;
@@ -103,6 +103,7 @@ public class FlightSchedulePlanEntity implements Serializable {
     }
 
     public List<FlightScheduleEntity> getFlightSchedules() {
+        this.flightSchedules.sort((FlightScheduleEntity a, FlightScheduleEntity b) -> b.getDepartureDate().compareTo(a.getDepartureDate()));
         return flightSchedules;
     }
 
@@ -127,7 +128,6 @@ public class FlightSchedulePlanEntity implements Serializable {
 
     @Override
     public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the depositAccountId fields are not set
         if (!(object instanceof AircraftTypeEntity)) {
             return false;
         }

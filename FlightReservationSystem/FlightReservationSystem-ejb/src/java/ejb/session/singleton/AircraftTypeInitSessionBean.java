@@ -5,16 +5,13 @@
  */
 package ejb.session.singleton;
 
-import ejb.session.stateless.AircraftTypeSessionBeanLocal;
 import entity.AircraftTypeEntity;
 import javax.annotation.PostConstruct;
-import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.LocalBean;
 import javax.ejb.Startup;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import util.exception.CreateNewAircraftTypeException;
 
 /**
  *
@@ -34,11 +31,11 @@ public class AircraftTypeInitSessionBean {
             return;
         }
 
-        em.persist(new AircraftTypeEntity(Long.valueOf(10), "Boeing 737"));
+        em.persist(new AircraftTypeEntity(Long.valueOf(100), "Boeing 737"));
         em.flush();
-        em.persist(new AircraftTypeEntity(Long.valueOf(10), "Boeing 747"));
+        em.persist(new AircraftTypeEntity(Long.valueOf(50), "Boeing 747"));
         em.flush();
-        em.persist(new AircraftTypeEntity(Long.valueOf(10), "Airbus A380"));
+        em.persist(new AircraftTypeEntity(Long.valueOf(100), "Airbus A380"));
         em.flush();
     }
 

@@ -37,11 +37,13 @@ public class FlightScheduleSessionBean implements FlightScheduleSessionBeanRemot
 
     private void createNewFlightSchedule(FlightScheduleEntity flightScheduleEntity, FlightSchedulePlanEntity flightSchedulePlanEntity) throws CreateNewFlightScheduleException {
 
-        // check whether the new flight schedule conflict with any of existing flight schedules for flight
+        // 1. associate flight schedule plan with flight schedule
+        flightScheduleEntity.setFlightSchedulePlan(flightSchedulePlanEntity);
+
+        // 2. check whether the new flight schedule conflict with any of existing flight schedules for flight
         checkFlightSchedules(flightScheduleEntity, flightSchedulePlanEntity.getFlight());
 
-        //bidirectional association
-        flightScheduleEntity.setFlightSchedulePlan(flightSchedulePlanEntity);
+        // 3. add new flight schedule to flight schedule plan if no conflict
         flightSchedulePlanEntity.getFlightSchedules().add(flightScheduleEntity);
 
         // create seat inventory for the flight schedule
@@ -76,7 +78,7 @@ public class FlightScheduleSessionBean implements FlightScheduleSessionBeanRemot
             // check if any flight schedule conflict with the new flight schedule
             for (FlightScheduleEntity flightScheduleEntity : flightSchedules) {
                 if (checkConflictBetweenTwoSchedule(flightScheduleEntity, newFlightScheduleEntity)) {
-                    throw new CreateNewFlightScheduleException("CreateNewFlightScheduleException: New flight schedule conflicts with existing flight schedule " + flightScheduleEntity.getFlightScheduleId() + " !");
+                    throw new CreateNewFlightScheduleException("CreateNewFlightScheduleException: New flight schedule conflicts with existing flight schedule!");
                 }
             }
         }
