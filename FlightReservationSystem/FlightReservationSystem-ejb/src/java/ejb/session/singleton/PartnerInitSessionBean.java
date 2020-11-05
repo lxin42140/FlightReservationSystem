@@ -5,14 +5,14 @@
  */
 package ejb.session.singleton;
 
-import ejb.session.stateless.PartnerEntitySessionBeanLocal;
+import entity.AirportEntity;
 import entity.PartnerEntity;
 import javax.annotation.PostConstruct;
-import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.LocalBean;
 import javax.ejb.Startup;
-import util.exception.CreateNewPartnerException;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 /**
  *
@@ -23,19 +23,16 @@ import util.exception.CreateNewPartnerException;
 @Startup
 public class PartnerInitSessionBean {
 
-    @EJB
-    private PartnerEntitySessionBeanLocal partnerEntitySessionBean;
+    @PersistenceContext(unitName = "FlightReservationSystem-ejbPU")
+    private EntityManager em;
 
     @PostConstruct
     public void postConstruct() {
-        if (!partnerEntitySessionBean.retrieveAllPartners().isEmpty()) {
+        if (em.find(AirportEntity.class, 1l) != null) {
             return;
         }
 
-        try {
-            partnerEntitySessionBean.createNewPartner(new PartnerEntity("Holiday Reservation.com", "partner1", "password"));
-        } catch (CreateNewPartnerException ex) {
-            System.out.println(ex);
-        }
+        em.persist(new PartnerEntity("Holiday Reservation.com", "partner1", "password"));
+        em.flush();
     }
 }

@@ -5,15 +5,13 @@
  */
 package ejb.session.singleton;
 
-import ejb.session.stateless.AirportEntitySessionBeanLocal;
 import entity.AirportEntity;
-import java.util.TimeZone;
 import javax.annotation.PostConstruct;
-import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.LocalBean;
 import javax.ejb.Startup;
-import util.exception.CreateNewAirportException;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 /**
  *
@@ -24,29 +22,28 @@ import util.exception.CreateNewAirportException;
 @Startup
 public class AirportInitSessionBean {
 
-    @EJB
-    private AirportEntitySessionBeanLocal airportEntitySessionBean;
+    @PersistenceContext(unitName = "FlightReservationSystem-ejbPU")
+    private EntityManager em;
 
     @PostConstruct
     public void postConstruct() {
-        if (!airportEntitySessionBean.retrieveAllAirports().isEmpty()) {
+        if (em.find(AirportEntity.class, 1l) != null) {
             return;
         }
 
-        try {
-            airportEntitySessionBean.createNewAirport(new AirportEntity("SIN", "Singapore Changi Airport", "Singapore", "Singapore", "Singapore", "Asia/Singapore"));
-
-            airportEntitySessionBean.createNewAirport(new AirportEntity("TPE", "Taoyuan International Airport", "Taipei", "Taipei", "Taiwan", "Asia/Taipei"));
-
-            airportEntitySessionBean.createNewAirport(new AirportEntity("HND", "Tokyo International Airport", "Tokyo", "Tokyo", "Japan", "Asia/Tokyo"));
-
-            airportEntitySessionBean.createNewAirport(new AirportEntity("ICN", "Incheon International Airport", "Incheon", "Seoul", "Korea", "Asia/Seoul"));
-            airportEntitySessionBean.createNewAirport(new AirportEntity("GMP", "Gimpo International Airport", "Gimpo", "Seoul", "Korea", "Asia/Seoul"));
-
-            airportEntitySessionBean.createNewAirport(new AirportEntity("SYD", "Sydney International Airport", "Sidney", "New South Wales", "Australia", "Australia/NSW"));
-            airportEntitySessionBean.createNewAirport(new AirportEntity("NSO", "Scone International Airport", "Scone", "New South Wales", "Australia", "Australia/NSW"));
-        } catch (CreateNewAirportException ex) {
-            System.out.println(ex);
-        }
+        em.persist(new AirportEntity("SIN", "Singapore Changi Airport", "Singapore", "Singapore", "Singapore", "Asia/Singapore"));
+        em.flush();
+        em.persist(new AirportEntity("TPE", "Taoyuan International Airport", "Taipei", "Taipei", "Taiwan", "Asia/Taipei"));
+        em.flush();
+        em.persist(new AirportEntity("HND", "Tokyo International Airport", "Tokyo", "Tokyo", "Japan", "Asia/Tokyo"));
+        em.flush();
+        em.persist(new AirportEntity("ICN", "Incheon International Airport", "Incheon", "Seoul", "Korea", "Asia/Seoul"));
+        em.flush();
+        em.persist(new AirportEntity("GMP", "Gimpo International Airport", "Gimpo", "Seoul", "Korea", "Asia/Seoul"));
+        em.flush();
+        em.persist(new AirportEntity("SYD", "Sydney International Airport", "Sidney", "New South Wales", "Australia", "Australia/NSW"));
+        em.flush();
+        em.persist(new AirportEntity("NSO", "Scone International Airport", "Scone", "New South Wales", "Australia", "Australia/NSW"));
+        em.flush();
     }
 }

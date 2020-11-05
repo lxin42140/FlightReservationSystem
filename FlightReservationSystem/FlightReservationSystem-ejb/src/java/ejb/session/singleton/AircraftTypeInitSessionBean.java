@@ -12,6 +12,8 @@ import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.LocalBean;
 import javax.ejb.Startup;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import util.exception.CreateNewAircraftTypeException;
 
 /**
@@ -23,21 +25,21 @@ import util.exception.CreateNewAircraftTypeException;
 @Startup
 public class AircraftTypeInitSessionBean {
 
-    @EJB
-    private AircraftTypeSessionBeanLocal aircraftTypeSessionBean;
+    @PersistenceContext(unitName = "FlightReservationSystem-ejbPU")
+    private EntityManager em;
 
     @PostConstruct
     public void postConstruct() {
-        if (!aircraftTypeSessionBean.retrieveAllAircraftTypes().isEmpty()) {
+        if (em.find(AircraftTypeEntity.class, 1l) != null) {
             return;
         }
 
-        try {
-            aircraftTypeSessionBean.createNewAircraftType(new AircraftTypeEntity(Long.valueOf(120), "Boeing 737"));
-            aircraftTypeSessionBean.createNewAircraftType(new AircraftTypeEntity(Long.valueOf(660), "Boeing 747"));
-            aircraftTypeSessionBean.createNewAircraftType(new AircraftTypeEntity(Long.valueOf(519), "Airbus A380"));
-        } catch (CreateNewAircraftTypeException ex) {
-            System.out.println(ex);
-        }
+        em.persist(new AircraftTypeEntity(Long.valueOf(10), "Boeing 737"));
+        em.flush();
+        em.persist(new AircraftTypeEntity(Long.valueOf(10), "Boeing 747"));
+        em.flush();
+        em.persist(new AircraftTypeEntity(Long.valueOf(10), "Airbus A380"));
+        em.flush();
     }
+
 }

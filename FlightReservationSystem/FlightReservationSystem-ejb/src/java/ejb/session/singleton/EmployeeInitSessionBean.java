@@ -5,15 +5,15 @@
  */
 package ejb.session.singleton;
 
-import ejb.session.stateless.EmployeeEntitySessionBeanLocal;
+import entity.AirportEntity;
 import entity.EmployeeEntity;
 import javax.annotation.PostConstruct;
-import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.LocalBean;
 import javax.ejb.Startup;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import util.enumeration.EmployeeAccessRightEnum;
-import util.exception.CreateNewEmployeeException;
 
 /**
  *
@@ -24,24 +24,26 @@ import util.exception.CreateNewEmployeeException;
 @Startup
 public class EmployeeInitSessionBean {
 
-    @EJB
-    private EmployeeEntitySessionBeanLocal employeeEntitySessionBean;
+    @PersistenceContext(unitName = "FlightReservationSystem-ejbPU")
+    private EntityManager em;
 
     @PostConstruct
     public void postConstruct() {
-        if (!employeeEntitySessionBean.retrieveAllEmployees().isEmpty()) {
+        if (em.find(AirportEntity.class, 1l) != null) {
             return;
         }
 
-        try {
-            employeeEntitySessionBean.createNewEmployee(new EmployeeEntity("Li", "Xin", "user1", "password", EmployeeAccessRightEnum.ADMIN));
-            employeeEntitySessionBean.createNewEmployee(new EmployeeEntity("Li", "Xin", "user2", "password", EmployeeAccessRightEnum.FLEETMANAGER));
-            employeeEntitySessionBean.createNewEmployee(new EmployeeEntity("Li", "Xin", "user3", "password", EmployeeAccessRightEnum.ROUTEMANAGER));
-            employeeEntitySessionBean.createNewEmployee(new EmployeeEntity("Li", "Xin", "user4", "password", EmployeeAccessRightEnum.SCHEDULEMANAGER));
-            employeeEntitySessionBean.createNewEmployee(new EmployeeEntity("Li", "Xin", "user5", "password", EmployeeAccessRightEnum.SALESMANAGER));
-        } catch (CreateNewEmployeeException ex) {
-            System.out.println(ex);
-        }
+        em.persist(new EmployeeEntity("Li", "Xin", "user1", "password", EmployeeAccessRightEnum.ADMIN));
+        em.flush();
+        em.persist(new EmployeeEntity("Li", "Xin", "user2", "password", EmployeeAccessRightEnum.FLEETMANAGER));
+        em.flush();
+        em.persist(new EmployeeEntity("Li", "Xin", "user3", "password", EmployeeAccessRightEnum.ROUTEMANAGER));
+        em.flush();
+        em.persist(new EmployeeEntity("Li", "Xin", "user4", "password", EmployeeAccessRightEnum.SCHEDULEMANAGER));
+        em.flush();
+        em.persist(new EmployeeEntity("Li", "Xin", "user5", "password", EmployeeAccessRightEnum.SALESMANAGER));
+        em.flush();
+
     }
 
 }
