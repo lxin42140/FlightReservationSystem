@@ -48,7 +48,7 @@ import util.exception.UpdateFlightFailedException;
 @Singleton
 @LocalBean
 @Startup
-@DependsOn({"AircraftTypeInitSessionBean", "AirportInitSessionBean", "EmployeeInitSessionBean", "PartnerInitSessionBean", "AircraftConfigurationInitSessionBean"})
+@DependsOn({"AircraftTypeInitSessionBean","AirportInitSessionBean", "EmployeeInitSessionBean", "PartnerInitSessionBean"})
 public class TestSessionBean {
 
     @EJB
