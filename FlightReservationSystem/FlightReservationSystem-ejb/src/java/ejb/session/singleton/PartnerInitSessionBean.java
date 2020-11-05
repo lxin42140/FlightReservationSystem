@@ -28,7 +28,7 @@ public class PartnerInitSessionBean {
 
     @PostConstruct
     public void postConstruct() {
-        if (em.find(AirportEntity.class, 1l) != null) {
+        if (em.find(PartnerEntity.class, 1l) != null) {
             return;
         }
 

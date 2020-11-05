@@ -29,7 +29,7 @@ public class EmployeeInitSessionBean {
 
     @PostConstruct
     public void postConstruct() {
-        if (em.find(AirportEntity.class, 1l) != null) {
+        if (em.find(EmployeeEntity.class, 1l) != null) {
             return;
         }
 
@@ -43,7 +43,6 @@ public class EmployeeInitSessionBean {
         em.flush();
         em.persist(new EmployeeEntity("Li", "Xin", "user5", "password", EmployeeAccessRightEnum.SALESMANAGER));
         em.flush();
-
     }
 
 }
