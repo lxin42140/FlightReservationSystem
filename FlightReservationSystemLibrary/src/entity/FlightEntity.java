@@ -41,7 +41,7 @@ public class FlightEntity implements Serializable {
     @NotNull
     private Boolean isReturnFlight;
 
-    @OneToOne(optional = true, cascade = {CascadeType.PERSIST}, orphanRemoval = true)
+    @OneToOne(optional = true, cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
     @JoinColumn(name = "returnFlightNumber")
     private FlightEntity returnFlight;
 
