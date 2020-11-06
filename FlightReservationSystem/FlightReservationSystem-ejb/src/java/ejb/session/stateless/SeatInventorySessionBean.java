@@ -134,24 +134,38 @@ public class SeatInventorySessionBean implements SeatInventorySessionBeanRemote,
         return seatInventory;
     }
 
-// DO NOT DELETE
-//    @Override
-//    public SeatEntity retrieveSeatFromFlightSchedule(Long flightScheduleId, CabinClassEnum cabinClassEnum, String seatNumber) throws SeatNotFoundException {
-//        Query query = em.createQuery("SELECT s FROM SeatEntity s WHERE s.flightSchedule = :inFlightSchedule AND s.cabinClassEnum = :incabinClassEnum AND s.seatNumber =:inSeatNumber");
-//
-//        query.setParameter("inFlightSchedule", flightScheduleId);
-//        query.setParameter("incabinClassEnum", cabinClassEnum);
-//        query.setParameter("inSeatNumber", seatNumber);
-//
-//        try {
-//            SeatEntity seatEntity = (SeatEntity) query.getSingleResult();
-//            return seatEntity;
-//        } catch (NoResultException ex) {
-//            throw new SeatNotFoundException("SeatNotFoundException: Seat with seat number " + seatNumber + " does not exist!");
-//        }
-//    }
+    @Override
+    public SeatEntity retrieveAvailableSeatFromFlightScheduleAndCabin(Long flightScheduleId, CabinClassEnum cabinClassEnum, String seatNumber) throws SeatNotFoundException, ReserveSeatException {
+        Query query = em.createQuery("SELECT s FROM SeatEntity s WHERE s.flightSchedule = :inFlightSchedule AND s.cabinClassEnum = :incabinClassEnum AND s.seatNumber =:inSeatNumber");
 
-// DO NOT DELETE
+        query.setParameter("inFlightSchedule", flightScheduleId);
+        query.setParameter("incabinClassEnum", cabinClassEnum);
+        query.setParameter("inSeatNumber", seatNumber);
+
+        try {
+            SeatEntity seatEntity = (SeatEntity) query.getSingleResult();
+
+            if (seatEntity.getPassenger() != null) {
+                throw new ReserveSeatException("ReserveSeatException: Seat with seat number " + seatNumber + " already reserved!");
+            }
+
+            return seatEntity;
+        } catch (NoResultException ex) {
+            throw new SeatNotFoundException("SeatNotFoundException: Seat with seat number " + seatNumber + " does not exist!");
+        }
+    }
+
+    @Override
+    public List<SeatEntity> retrieveAllAvailableSeatsFromFlightScheduleAndCabin(Long flightScheduleId, CabinClassEnum cabinClassEnum) {
+        Query query = em.createQuery("SELECT s FROM SeatEntity s WHERE s.flightSchedule = :inFlightSchedule AND s.cabinClassEnum = :incabinClassEnum AND s.passenger IS NULL");
+
+        query.setParameter("inFlightSchedule", flightScheduleId);
+        query.setParameter("incabinClassEnum", cabinClassEnum);
+        
+        return (List<SeatEntity>) query.getResultList();
+    }
+
+//// DO NOT DELETE
 //    @Override
 //    public void reserveSeatForPassenger(Long flightScheduleId, CabinClassEnum cabinClassEnum, String seatNumber, PassengerEntity passengerEntity) throws SeatNotFoundException, ReserveSeatException {
 //        if (passengerEntity == null) {
@@ -171,5 +185,4 @@ public class SeatInventorySessionBean implements SeatInventorySessionBeanRemote,
 //
 //        em.merge(seatEntity);
 //    }
-
 }

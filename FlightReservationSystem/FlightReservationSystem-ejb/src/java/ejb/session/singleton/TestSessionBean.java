@@ -262,14 +262,20 @@ public class TestSessionBean {
             base.setDepartureDate(inputDateFormat.parse("10/11/2020"));
             base.setEstimatedFlightDuration(2);
 
-            FareEntity fareEntity3 = new FareEntity("W123", BigDecimal.valueOf(100.0), CabinClassEnum.W);
-            FareEntity fareEntity4 = new FareEntity("J456", BigDecimal.valueOf(200.0), CabinClassEnum.J);
-            FareEntity fareEntity5 = new FareEntity("F789", BigDecimal.valueOf(200.0), CabinClassEnum.F);
+            FareEntity fareEntity3 = new FareEntity("W111", BigDecimal.valueOf(100.0), CabinClassEnum.W);
+            FareEntity fareEntity4 = new FareEntity("J111", BigDecimal.valueOf(200.0), CabinClassEnum.J);
+            FareEntity fareEntity5 = new FareEntity("F111", BigDecimal.valueOf(200.0), CabinClassEnum.F);
+            FareEntity fareEntity6 = new FareEntity("W222", BigDecimal.valueOf(300.0), CabinClassEnum.W);
+            FareEntity fareEntity7 = new FareEntity("J222", BigDecimal.valueOf(300.0), CabinClassEnum.J);
+            FareEntity fareEntity8 = new FareEntity("F222", BigDecimal.valueOf(300.0), CabinClassEnum.F);
 
             List<FareEntity> fares1 = new ArrayList<>();
             fares1.add(fareEntity3);
             fares1.add(fareEntity4);
             fares1.add(fareEntity5);
+            fares1.add(fareEntity6);
+            fares1.add(fareEntity7);
+            fares1.add(fareEntity8);
 
             flightSchedulePlanSessionBeanRemote.createRecurrentFlightSchedulePlan(inputDateFormat.parse("13/11/2020"), 1, base, fares1, "ML001", Boolean.FALSE);
         } catch (Exception ex) {
@@ -324,7 +330,7 @@ public class TestSessionBean {
 
     private void deleteFlightSchedulePlan() {
         try {
-            flightSchedulePlanSessionBeanRemote.deleteFlightSchedulePlanById(1l);
+            flightSchedulePlanSessionBeanRemote.deleteFlightSchedulePlanById(2l);
         } catch (FlightSchedulePlanNotFoundException | FlightSchedulePlanInUseException ex) {
             System.out.println(ex);
         }
@@ -342,8 +348,9 @@ public class TestSessionBean {
 //                    iter.remove();
 //                }
 //            }
+            // test add new flight schedule
             FlightScheduleEntity flightScheduleEntity = new FlightScheduleEntity();
-            
+
             SimpleDateFormat inputDateFormat = new SimpleDateFormat("d/M/y");
             flightScheduleEntity.setDepartureDate(inputDateFormat.parse("05/11/2020"));
             flightScheduleEntity.setEstimatedFlightDuration(2);
@@ -379,28 +386,4 @@ public class TestSessionBean {
 
     }
 
-    //TESTED AND SUCCEEDED
-//    private void createAircraftConfig() {
-//        List<AircraftConfigurationEntity> configs = aircraftConfigurationSessionBeanLocal.retrieveAllAircraftConfiguration();
-//        //should print 2
-//        System.out.println("aircraft config list size = " + configs.size());
-//        try {
-//            AircraftConfigurationEntity result = aircraftConfigurationSessionBeanLocal.retrieveAircraftConfigurationById(12L);
-//            //should print 20
-//            System.out.println("aircraft config seating capacity = " + result.getMaximumConfigurationSeatCapacity());
-//        } catch (AircraftConfigurationNotFoundException ex) {
-//            System.out.println(ex.getMessage());
-//        }
-//
-//        List<CabinConfigurationEntity> cabinConfigs = cabinConfigurationEntitySessionBeanLocal.retrieveAllCabinConfiguration();
-//        //should print 3
-//        System.out.println("cabin config list size = " + cabinConfigs.size());
-//        try {
-//            CabinConfigurationEntity result = cabinConfigurationEntitySessionBeanLocal.retrieveCabinConfigurationById(11L);
-//            //should print 80
-//            System.out.println("cabin config seating capacity = " + result.getMaximumCabinSeatCapacity());
-//        } catch (CabinConfigurationNotFoundException ex) {
-//            System.out.println(ex.getMessage());
-//        }
-//    }
 }

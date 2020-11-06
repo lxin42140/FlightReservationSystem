@@ -11,6 +11,7 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -42,7 +43,7 @@ public class UserEntity implements Serializable {
     @Size(min = 1, max = 10)
     private String password;
 
-    @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST}, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST}, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<FlightReservationEntity> flightReservations;
 
     public UserEntity() {

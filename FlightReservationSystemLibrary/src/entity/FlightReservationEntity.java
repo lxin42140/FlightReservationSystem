@@ -56,13 +56,21 @@ public class FlightReservationEntity implements Serializable {
     @NotEmpty
     private List<PassengerEntity> passengers;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "flightScheduleId")
     @NotEmpty
     private List<FlightScheduleEntity> flightSchedules;
 
     public FlightReservationEntity() {
         this.passengers = new ArrayList<>();
         this.flightSchedules = new ArrayList<>();
+    }
+
+    public FlightReservationEntity(BigDecimal totalAmount, UserEntity user, CreditCardEntity creditCard) {
+        this();
+        this.totalAmount = totalAmount;
+        this.user = user;
+        this.creditCard = creditCard;
     }
 
     public Long getFlightReservationId() {

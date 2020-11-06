@@ -31,11 +31,11 @@ public class CustomerEntity extends UserEntity implements Serializable {
     private String lastName;
 
     @Email
-    @Column(length = 100, nullable = false)
+    @Column(length = 100, nullable = false, unique = true)
     private String email;
 
     @Size(min = 8, max = 13)
-    @Column(length = 113, nullable = false)
+    @Column(length = 113, nullable = false, unique = true)
     private String mobilePhoneNumber;
 
     @Size(min = 1, max = 100)
