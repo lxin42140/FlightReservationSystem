@@ -15,6 +15,7 @@ import util.exception.CreateNewFlightSchedulePlanException;
 import util.exception.FlightNotFoundException;
 import util.exception.FlightSchedulePlanInUseException;
 import util.exception.FlightSchedulePlanNotFoundException;
+import util.exception.UpdateFlightSchedulePlanFailedException;
 
 /**
  *
@@ -30,6 +31,8 @@ public interface FlightSchedulePlanSessionBeanLocal {
     public List<FlightSchedulePlanEntity> retrieveAllFlightSchedulePlans();
 
     public FlightSchedulePlanEntity retrieveFlightSchedulePlanById(Long flightSchedulePlanId) throws FlightSchedulePlanNotFoundException;
+
+    public Long updateFlightSchedulePlan(FlightSchedulePlanEntity updatedFlightSchedulePlanEntity) throws FlightSchedulePlanNotFoundException, UpdateFlightSchedulePlanFailedException;
 
     public void deleteFlightSchedulePlanById(Long flightSchedulePlanId) throws FlightSchedulePlanNotFoundException, FlightSchedulePlanInUseException;
 

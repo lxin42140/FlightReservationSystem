@@ -133,7 +133,7 @@ public class FlightRouteEntity implements Serializable {
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the depositAccountId fields are not set
-        if (!(object instanceof AircraftTypeEntity)) {
+        if (!(object instanceof FlightRouteEntity)) {
             return false;
         }
         FlightRouteEntity other = (FlightRouteEntity) object;

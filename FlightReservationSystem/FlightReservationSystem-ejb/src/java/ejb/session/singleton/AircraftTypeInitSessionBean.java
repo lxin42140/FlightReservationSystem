@@ -31,11 +31,11 @@ public class AircraftTypeInitSessionBean {
             return;
         }
 
-        em.persist(new AircraftTypeEntity(Long.valueOf(100), "Boeing 737"));
+        em.persist(new AircraftTypeEntity(Long.valueOf(200), "Boeing 737"));
         em.flush();
-        em.persist(new AircraftTypeEntity(Long.valueOf(50), "Boeing 747"));
+        em.persist(new AircraftTypeEntity(Long.valueOf(200), "Boeing 747"));
         em.flush();
-        em.persist(new AircraftTypeEntity(Long.valueOf(100), "Airbus A380"));
+        em.persist(new AircraftTypeEntity(Long.valueOf(200), "Airbus A380"));
         em.flush();
     }
 

@@ -128,7 +128,7 @@ public class AirportEntity implements Serializable {
 
     @Override
     public boolean equals(Object object) {
-        if (!(object instanceof AircraftTypeEntity)) {
+        if (!(object instanceof AirportEntity)) {
             return false;
         }
         AirportEntity other = (AirportEntity) object;

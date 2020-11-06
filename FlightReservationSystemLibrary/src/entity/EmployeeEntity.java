@@ -115,7 +115,7 @@ public class EmployeeEntity implements Serializable {
 
     @Override
     public boolean equals(Object object) {
-        if (!(object instanceof AircraftTypeEntity)) {
+        if (!(object instanceof EmployeeEntity)) {
             return false;
         }
         EmployeeEntity other = (EmployeeEntity) object;

@@ -5,13 +5,12 @@
  */
 package ejb.session.singleton;
 
-import ejb.session.stateless.AircraftConfigurationSessionBeanLocal;
-import ejb.session.stateless.AircraftTypeSessionBeanLocal;
-import ejb.session.stateless.AirportEntitySessionBeanLocal;
-import ejb.session.stateless.CabinConfigurationEntitySessionBeanLocal;
-import ejb.session.stateless.FlightRouteSessionBeanLocal;
-import ejb.session.stateless.FlightSchedulePlanSessionBeanLocal;
-import ejb.session.stateless.FlightSessionBeanLocal;
+import ejb.session.stateless.AircraftConfigurationSessionBeanRemote;
+import ejb.session.stateless.AircraftTypeSessionBeanRemote;
+import ejb.session.stateless.FlightRouteSessionBeanRemote;
+import ejb.session.stateless.FlightSchedulePlanSessionBeanRemote;
+import ejb.session.stateless.FlightSessionBeanRemote;
+import ejb.session.stateless.SeatInventorySessionBeanRemote;
 import entity.AircraftConfigurationEntity;
 import entity.AircraftTypeEntity;
 import java.util.ArrayList;
@@ -21,10 +20,9 @@ import entity.FlightEntity;
 import entity.FlightRouteEntity;
 import entity.FlightScheduleEntity;
 import entity.FlightSchedulePlanEntity;
-import entity.SeatEntity;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,6 +32,7 @@ import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.LocalBean;
 import javax.ejb.Startup;
+import pojo.SeatInventory;
 import util.enumeration.CabinClassEnum;
 import util.exception.AircraftTypeNotFoundException;
 import util.exception.AirportNotFoundException;
@@ -45,8 +44,10 @@ import util.exception.FlightInUseException;
 import util.exception.FlightNotFoundException;
 import util.exception.FlightRouteInUseException;
 import util.exception.FlightRouteNotFoundException;
+import util.exception.FlightScheduleNotFoundException;
 import util.exception.FlightSchedulePlanInUseException;
 import util.exception.FlightSchedulePlanNotFoundException;
+import util.exception.UpdateFlightSchedulePlanFailedException;
 
 /**
  *
@@ -58,26 +59,23 @@ import util.exception.FlightSchedulePlanNotFoundException;
 @DependsOn({"AircraftTypeInitSessionBean", "AirportInitSessionBean", "EmployeeInitSessionBean", "PartnerInitSessionBean"})
 public class TestSessionBean {
 
-    @EJB
-    private FlightSchedulePlanSessionBeanLocal flightSchedulePlanSessionBeanLocal;
+    @EJB(name = "SeatInventorySessionBeanRemote")
+    private SeatInventorySessionBeanRemote seatInventorySessionBeanRemote;
+
+    @EJB(name = "FlightRouteSessionBeanRemote")
+    private FlightRouteSessionBeanRemote flightRouteSessionBeanRemote;
+
+    @EJB(name = "FlightSessionBeanRemote")
+    private FlightSessionBeanRemote flightSessionBeanRemote;
 
     @EJB
-    private FlightSessionBeanLocal flightSessionBean;
+    private AircraftTypeSessionBeanRemote aircraftTypeSessionBeanRemote;
 
     @EJB
-    private AircraftTypeSessionBeanLocal aircraftTypeSessionBean;
+    private AircraftConfigurationSessionBeanRemote aircraftConfigurationSessionBeanRemote;
 
     @EJB
-    private AirportEntitySessionBeanLocal airportEntitySessionBean;
-
-    @EJB
-    private FlightRouteSessionBeanLocal flightRouteSessionBean;
-
-    @EJB
-    private AircraftConfigurationSessionBeanLocal aircraftConfigurationSessionBeanLocal;
-
-    @EJB
-    private CabinConfigurationEntitySessionBeanLocal cabinConfigurationEntitySessionBeanLocal;
+    private FlightSchedulePlanSessionBeanRemote flightSchedulePlanSessionBeanRemote;
 
     @PostConstruct
     public void postConstruct() {
@@ -97,6 +95,9 @@ public class TestSessionBean {
             //createFlightSchedulePlan();
             //viewAllFlightSchedulePlans();
             //deleteFlightSchedulePlan();
+            //updateFlightSchedulePlanEntity();
+            //
+            //viewSeatInventory();
         } catch (Exception ex) {
             System.out.println(ex);
         }
@@ -104,7 +105,7 @@ public class TestSessionBean {
     }
 
     private void createAircraftConfig() {
-        List<AircraftTypeEntity> list = aircraftTypeSessionBean.retrieveAllAircraftTypes();
+        List<AircraftTypeEntity> list = aircraftTypeSessionBeanRemote.retrieveAllAircraftTypes();
         Long aircraftTypeId = list.get(0).getAricraftId();
         Long aircraftTypeId1 = list.get(1).getAricraftId();
 
@@ -130,9 +131,9 @@ public class TestSessionBean {
         thirdList.add(thirdCabinConfig);
 
         try {
-            aircraftConfigurationSessionBeanLocal.createNewAircraftConfiguration(firstAircraftConfig, firstList, aircraftTypeId);
-            aircraftConfigurationSessionBeanLocal.createNewAircraftConfiguration(secondAircraftConfig, secondList, aircraftTypeId);
-            aircraftConfigurationSessionBeanLocal.createNewAircraftConfiguration(fourthAircraftConfig, thirdList, aircraftTypeId1);
+            aircraftConfigurationSessionBeanRemote.createNewAircraftConfiguration(firstAircraftConfig, firstList, aircraftTypeId);
+            aircraftConfigurationSessionBeanRemote.createNewAircraftConfiguration(secondAircraftConfig, secondList, aircraftTypeId);
+            aircraftConfigurationSessionBeanRemote.createNewAircraftConfiguration(fourthAircraftConfig, thirdList, aircraftTypeId1);
 
             //should print an error because aircraft configuration have same name (SUCCESS)
             //aircraftConfigurationSessionBeanLocal.createNewAircraftConfiguration(thirdAircraftConfig, firstList, aircraftTypeId);
@@ -144,7 +145,7 @@ public class TestSessionBean {
     }
 
     private void viewAllAircraftConfigurations() {
-        List<AircraftConfigurationEntity> list = aircraftConfigurationSessionBeanLocal.retrieveAllAircraftConfiguration();
+        List<AircraftConfigurationEntity> list = aircraftConfigurationSessionBeanRemote.retrieveAllAircraftConfiguration();
 
         for (AircraftConfigurationEntity aircraftConfigurationEntity : list) {
             System.out.println(aircraftConfigurationEntity.getAircraftType().getAricraftTypeName() + " " + aircraftConfigurationEntity.getAircraftConfigurationName());
@@ -154,7 +155,7 @@ public class TestSessionBean {
 
     private void createFlightRoute() {
         try {
-            flightRouteSessionBean.createNewFlightRoute(1l, 5l, true);
+            flightRouteSessionBeanRemote.createNewFlightRoute(1l, 5l, true);
 //            flightRouteSessionBean.createNewFlightRoute(3l, 4l, false);
 //            flightRouteSessionBean.createNewFlightRoute(5l, 6l, true);
         } catch (CreateNewFlightRouteException | AirportNotFoundException ex) {
@@ -163,7 +164,7 @@ public class TestSessionBean {
     }
 
     private void viewAllFlightRoute() {
-        List<FlightRouteEntity> list = flightRouteSessionBean.retrieveAllFlightRoutes();
+        List<FlightRouteEntity> list = flightRouteSessionBeanRemote.retrieveAllFlightRoutes();
 
         for (FlightRouteEntity flightRouteEntity : list) {
             System.out.println(flightRouteEntity.getOriginAirport().getAirportName() + "--->" + flightRouteEntity.getDestinationAirport().getAirportName());
@@ -178,7 +179,7 @@ public class TestSessionBean {
     private void deleteFlightRoute() {
         try {
             // delete return flight route only
-            flightRouteSessionBean.deleteFlightRouteById(6l);
+            flightRouteSessionBeanRemote.deleteFlightRouteById(6l);
             viewAllFlightRoute();
 
             //delete main flight route with return flight route
@@ -197,7 +198,7 @@ public class TestSessionBean {
 //        FlightEntity flightEntity1 = new FlightEntity("ML003");
 //        FlightEntity flightEntity2 = new FlightEntity("ML005");
         try {
-            System.out.println(flightSessionBean.createNewFlight(flightEntity, 2l, 3l, Boolean.TRUE, "ML002"));
+            System.out.println(flightSessionBeanRemote.createNewFlight(flightEntity, 2l, 3l, Boolean.FALSE, "ML002"));
 //            System.out.println(flightSessionBean.createNewFlight(flightEntity1, 5l, 3l, Boolean.TRUE, "ML004"));
 //            System.out.println(flightSessionBean.createNewFlight(flightEntity2, 3l, 4l, Boolean.FALSE, "ML006"));
         } catch (CreateNewFlightException | FlightRouteNotFoundException | AircraftConfigurationNotFoundException ex) {
@@ -206,7 +207,7 @@ public class TestSessionBean {
     }
 
     private void viewAllFlights() {
-        List<FlightEntity> list = flightSessionBean.retrieveAllFlights();
+        List<FlightEntity> list = flightSessionBeanRemote.retrieveAllFlights();
 
         for (FlightEntity flightEntity : list) {
             System.out.println(flightEntity.getFlightNumber() + ": " + flightEntity.getFlightRoute().getOriginAirport().getAirportName() + "--->" + flightEntity.getFlightRoute().getDestinationAirport().getAirportName() + " via " + flightEntity.getAircraftConfiguration().getAircraftConfigurationName());
@@ -220,7 +221,7 @@ public class TestSessionBean {
     private void deleteFlight() {
         try {
             // delete return flight only
-            flightSessionBean.deleteFlightByFlightNumber("ML002");
+            flightSessionBeanRemote.deleteFlightByFlightNumber("ML002");
             viewAllFlights();
 
             // delete flight with return flight
@@ -256,8 +257,7 @@ public class TestSessionBean {
 //            fares.add(fareEntity);
 //            fares.add(fareEntity1);
 //
-//            flightSchedulePlanSessionBeanLocal.createNewNonRecurrentFlightSchedulePlan(flightSchedules, fares, "ML001", true);
-
+//            flightSchedulePlanSessionBeanRemote.createNewNonRecurrentFlightSchedulePlan(flightSchedules, fares, "ML001", true);
             FlightScheduleEntity base = new FlightScheduleEntity();
             base.setDepartureDate(inputDateFormat.parse("10/11/2020"));
             base.setEstimatedFlightDuration(2);
@@ -271,14 +271,14 @@ public class TestSessionBean {
             fares1.add(fareEntity4);
             fares1.add(fareEntity5);
 
-            flightSchedulePlanSessionBeanLocal.createRecurrentFlightSchedulePlan(inputDateFormat.parse("13/11/2020"), 1, base, fares1, "ML001", Boolean.TRUE);
+            flightSchedulePlanSessionBeanRemote.createRecurrentFlightSchedulePlan(inputDateFormat.parse("13/11/2020"), 1, base, fares1, "ML001", Boolean.FALSE);
         } catch (Exception ex) {
             System.out.println(ex);
         }
     }
 
     private void viewAllFlightSchedulePlans() {
-        List<FlightSchedulePlanEntity> list = flightSchedulePlanSessionBeanLocal.retrieveAllFlightSchedulePlans();
+        List<FlightSchedulePlanEntity> list = flightSchedulePlanSessionBeanRemote.retrieveAllFlightSchedulePlans();
         for (FlightSchedulePlanEntity flightSchedulePlanEntity : list) {
             System.out.println("Flight schedule plan ID: " + flightSchedulePlanEntity.getFlightSchedulePlanId());
             System.out.println("\tFlight schedules> ");
@@ -295,19 +295,19 @@ public class TestSessionBean {
             for (FareEntity fareEntity : flightSchedulePlanEntity.getFares()) {
                 System.out.println("\tFare basis code: " + fareEntity.getFareBasisCode() + " Amount: " + fareEntity.getFareAmount() + " Cabin class: " + fareEntity.getCabinClass());
             }
-            
+
             if (flightSchedulePlanEntity.getReturnFlightSchedulePlan() != null) {
                 System.out.println("Return flight schedule plan>");
                 printReturnFlightSchedulePlan(flightSchedulePlanEntity.getReturnFlightSchedulePlan());
             }
-            
+
         }
     }
 
     private void printReturnFlightSchedulePlan(FlightSchedulePlanEntity flightSchedulePlanEntity) {
         System.out.println("\tReturn flight schedule plan ID: " + flightSchedulePlanEntity.getFlightSchedulePlanId());
         System.out.println("\t\tReturn Flight schedules> ");
-        
+
         for (FlightScheduleEntity flightScheduleEntity : flightSchedulePlanEntity.getFlightSchedules()) {
             System.out.println("\tID: " + flightScheduleEntity.getFlightScheduleId() + " Airport: " + flightScheduleEntity.getFlightSchedulePlan().getFlight().getFlightRoute().getOriginAirport().getAirportName() + " Departure date: " + flightScheduleEntity.getDepartureDate() + "-->" + flightScheduleEntity.getFlightSchedulePlan().getFlight().getFlightRoute().getDestinationAirport().getAirportName() + " Arrival date: " + flightScheduleEntity.getArrivalDateTime());
 //            System.out.println("\t\t\tReturn Seat inventory> ");
@@ -320,15 +320,63 @@ public class TestSessionBean {
         for (FareEntity fareEntity : flightSchedulePlanEntity.getFares()) {
             System.out.println("\t\tReturn Fare basis code: " + fareEntity.getFareBasisCode() + " Amount: " + fareEntity.getFareAmount() + " Cabin class: " + fareEntity.getCabinClass());
         }
-
     }
 
     private void deleteFlightSchedulePlan() {
         try {
-            flightSchedulePlanSessionBeanLocal.deleteFlightSchedulePlanById(2l);
+            flightSchedulePlanSessionBeanRemote.deleteFlightSchedulePlanById(1l);
         } catch (FlightSchedulePlanNotFoundException | FlightSchedulePlanInUseException ex) {
             System.out.println(ex);
         }
+    }
+
+    private void updateFlightSchedulePlanEntity() {
+        try {
+            FlightSchedulePlanEntity flightSchedulePlanEntity = flightSchedulePlanSessionBeanRemote.retrieveFlightSchedulePlanById(2l);
+            List<FlightScheduleEntity> flightSchedules = flightSchedulePlanEntity.getFlightSchedules();
+            //test update remove
+//            Iterator<FlightScheduleEntity> iter = flightSchedules.iterator();
+//            while (iter.hasNext()) {
+//                FlightScheduleEntity flightScheduleEntity = iter.next();
+//                if (!flightScheduleEntity.getFlightScheduleId().equals(5l)) {
+//                    iter.remove();
+//                }
+//            }
+            FlightScheduleEntity flightScheduleEntity = new FlightScheduleEntity();
+            
+            SimpleDateFormat inputDateFormat = new SimpleDateFormat("d/M/y");
+            flightScheduleEntity.setDepartureDate(inputDateFormat.parse("05/11/2020"));
+            flightScheduleEntity.setEstimatedFlightDuration(2);
+            flightSchedules.add(flightScheduleEntity);
+            flightSchedulePlanSessionBeanRemote.updateFlightSchedulePlan(flightSchedulePlanEntity);
+            viewAllFlightSchedulePlans();
+        } catch (Exception ex) {
+            System.out.println(ex);
+        }
+    }
+
+    private void viewSeatInventory() {
+        SeatInventory seatInventory;
+        try {
+            seatInventory = seatInventorySessionBeanRemote.viewSeatsInventoryByFlightScheduleId(11l);
+            System.out.println("total avail seats: " + seatInventory.getTotalAvailSeats());
+            System.out.println("total reserved seats: " + seatInventory.getTotalReservedSeats());
+            System.out.println("total balanced seats: " + seatInventory.getTotalBalancedSeats());
+
+            seatInventory.getCabinSeatsInventory().forEach((CabinClassEnum cabinClassEnum, Integer[] cabinSeat) -> {
+                if (cabinSeat[0] == null) {
+                    return;
+                }
+                System.out.println(cabinClassEnum);
+                System.out.println("\tTotal avail for cabin " + cabinSeat[0]);
+                System.out.println("\tTotal reserved for cabin " + cabinSeat[1]);
+                System.out.println("\tTotal balanced for cabin " + cabinSeat[2]);
+
+            });
+        } catch (FlightScheduleNotFoundException ex) {
+            System.out.println(ex);
+        }
+
     }
 
     //TESTED AND SUCCEEDED

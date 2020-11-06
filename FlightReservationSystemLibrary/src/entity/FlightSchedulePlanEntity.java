@@ -128,7 +128,7 @@ public class FlightSchedulePlanEntity implements Serializable {
 
     @Override
     public boolean equals(Object object) {
-        if (!(object instanceof AircraftTypeEntity)) {
+        if (!(object instanceof FlightSchedulePlanEntity)) {
             return false;
         }
         FlightSchedulePlanEntity other = (FlightSchedulePlanEntity) object;
