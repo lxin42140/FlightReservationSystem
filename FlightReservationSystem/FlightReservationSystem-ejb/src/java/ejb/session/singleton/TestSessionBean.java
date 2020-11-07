@@ -22,10 +22,8 @@ import entity.FlightScheduleEntity;
 import entity.FlightSchedulePlanEntity;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.ejb.DependsOn;
 import javax.ejb.EJB;
@@ -47,7 +45,6 @@ import util.exception.FlightRouteNotFoundException;
 import util.exception.FlightScheduleNotFoundException;
 import util.exception.FlightSchedulePlanInUseException;
 import util.exception.FlightSchedulePlanNotFoundException;
-import util.exception.UpdateFlightSchedulePlanFailedException;
 
 /**
  *
@@ -89,12 +86,13 @@ public class TestSessionBean {
             //deleteFlightRoute();
             //            
             //createFlight();
-            updateFlight();
+            //updateFlight();
             //viewAllFlights();
             //deleteFlight();
             //
             //createFlightSchedulePlan();
             //viewAllFlightSchedulePlans();
+            updateFlightSchedulePlan();
             //deleteFlightSchedulePlan();
             //updateFlightSchedulePlanEntity();
             //
@@ -211,8 +209,8 @@ public class TestSessionBean {
     private void updateFlight() {
         try {
             FlightEntity flightEntity = flightSessionBeanRemote.retrieveFlightByFlightNumber("ML555");
-            //flightSessionBeanRemote.updateFlightRoute(flightEntity, 2l);
-            
+            //             flightSessionBeanRemote.updateFlightRoute(flightEntity, 2l);
+
             //            flightSessionBeanRemote.updateFlightNumber(flightEntity, "ML555", "ML666");
             //            System.out.println(flightEntity.getAircraftConfiguration().getAircraftConfigurationId());
             //            flightSessionBeanRemote.updateAircraftConfiguration(flightEntity, 1l);
@@ -256,28 +254,17 @@ public class TestSessionBean {
         try {
             SimpleDateFormat inputDateFormat = new SimpleDateFormat("d/M/y");
 
-//            FlightScheduleEntity flightScheduleEntity = new FlightScheduleEntity();
-//            flightScheduleEntity.setDepartureDate(inputDateFormat.parse("05/11/2020"));
-//            flightScheduleEntity.setEstimatedFlightDuration(2);
-//
-//            FlightScheduleEntity flightScheduleEntity1 = new FlightScheduleEntity();
-//            flightScheduleEntity1.setDepartureDate(inputDateFormat.parse("06/11/2020"));
-//            flightScheduleEntity1.setEstimatedFlightDuration(3);
-//
-//            List<FlightScheduleEntity> flightSchedules = new ArrayList<>();
-//            flightSchedules.add(flightScheduleEntity);
-//            flightSchedules.add(flightScheduleEntity1);
-//
-//            FareEntity fareEntity = new FareEntity("F123", BigDecimal.valueOf(100.0), CabinClassEnum.F);
-//            FareEntity fareEntity1 = new FareEntity("F456", BigDecimal.valueOf(200.0), CabinClassEnum.F);
-//            List<FareEntity> fares = new ArrayList<>();
-//            fares.add(fareEntity);
-//            fares.add(fareEntity1);
-//
-//            flightSchedulePlanSessionBeanRemote.createNewNonRecurrentFlightSchedulePlan(flightSchedules, fares, "ML001", true);
-            FlightScheduleEntity base = new FlightScheduleEntity();
-            base.setDepartureDate(inputDateFormat.parse("10/11/2020"));
-            base.setEstimatedFlightDuration(2);
+            FlightScheduleEntity flightScheduleEntity = new FlightScheduleEntity();
+            flightScheduleEntity.setDepartureDate(inputDateFormat.parse("05/11/2020"));
+            flightScheduleEntity.setEstimatedFlightDuration(2);
+
+            FlightScheduleEntity flightScheduleEntity1 = new FlightScheduleEntity();
+            flightScheduleEntity1.setDepartureDate(inputDateFormat.parse("06/11/2020"));
+            flightScheduleEntity1.setEstimatedFlightDuration(3);
+
+            List<FlightScheduleEntity> flightSchedules = new ArrayList<>();
+            flightSchedules.add(flightScheduleEntity);
+            flightSchedules.add(flightScheduleEntity1);
 
             FareEntity fareEntity3 = new FareEntity("W111", BigDecimal.valueOf(100.0), CabinClassEnum.W);
             FareEntity fareEntity4 = new FareEntity("J111", BigDecimal.valueOf(200.0), CabinClassEnum.J);
@@ -294,7 +281,27 @@ public class TestSessionBean {
             fares1.add(fareEntity7);
             fares1.add(fareEntity8);
 
-            flightSchedulePlanSessionBeanRemote.createRecurrentFlightSchedulePlan(inputDateFormat.parse("13/11/2020"), 1, base, fares1, "ML001", Boolean.FALSE);
+            flightSchedulePlanSessionBeanRemote.createNewNonRecurrentFlightSchedulePlan(flightSchedules, fares1, "ML001", true);
+//            FlightScheduleEntity base = new FlightScheduleEntity();
+//            base.setDepartureDate(inputDateFormat.parse("10/11/2020"));
+//            base.setEstimatedFlightDuration(2);
+//
+//            FareEntity fareEntity3 = new FareEntity("W111", BigDecimal.valueOf(100.0), CabinClassEnum.W);
+//            FareEntity fareEntity4 = new FareEntity("J111", BigDecimal.valueOf(200.0), CabinClassEnum.J);
+//            FareEntity fareEntity5 = new FareEntity("F111", BigDecimal.valueOf(200.0), CabinClassEnum.F);
+//            FareEntity fareEntity6 = new FareEntity("W222", BigDecimal.valueOf(300.0), CabinClassEnum.W);
+//            FareEntity fareEntity7 = new FareEntity("J222", BigDecimal.valueOf(300.0), CabinClassEnum.J);
+//            FareEntity fareEntity8 = new FareEntity("F222", BigDecimal.valueOf(300.0), CabinClassEnum.F);
+//
+//            List<FareEntity> fares1 = new ArrayList<>();
+//            fares1.add(fareEntity3);
+//            fares1.add(fareEntity4);
+//            fares1.add(fareEntity5);
+//            fares1.add(fareEntity6);
+//            fares1.add(fareEntity7);
+//            fares1.add(fareEntity8);
+//
+//            flightSchedulePlanSessionBeanRemote.createRecurrentFlightSchedulePlan(inputDateFormat.parse("14/11/2020"), 2, base, fares1, "ML001", Boolean.TRUE);
         } catch (Exception ex) {
             System.out.println(ex);
         }
@@ -345,35 +352,42 @@ public class TestSessionBean {
         }
     }
 
-    private void deleteFlightSchedulePlan() {
+    private void updateFlightSchedulePlan() {
         try {
-            flightSchedulePlanSessionBeanRemote.deleteFlightSchedulePlanById(2l);
-        } catch (FlightSchedulePlanNotFoundException | FlightSchedulePlanInUseException ex) {
+//            HashSet<Long> set = new HashSet<>();
+//            set.add(8l);
+//            set.add(10l);
+//
+//            flightSchedulePlanSessionBeanRemote.updateRemoveFlightScheduleFromFlightSchedulePlan(2l, set);
+            //
+            SimpleDateFormat inputDateFormat = new SimpleDateFormat("d/M/y");
+//
+//            FlightScheduleEntity flightScheduleEntity = new FlightScheduleEntity();
+//            flightScheduleEntity.setDepartureDate(inputDateFormat.parse("05/11/2020"));
+//            flightScheduleEntity.setEstimatedFlightDuration(2);
+//
+//            FlightScheduleEntity flightScheduleEntity1 = new FlightScheduleEntity();
+//            flightScheduleEntity1.setDepartureDate(inputDateFormat.parse("06/11/2020"));
+//            flightScheduleEntity1.setEstimatedFlightDuration(3);
+//
+//            List<FlightScheduleEntity> flightSchedules = new ArrayList<>();
+//            flightSchedules.add(flightScheduleEntity);
+//            flightSchedules.add(flightScheduleEntity1);
+//
+//            flightSchedulePlanSessionBeanRemote.updateAddFlightScheduleToFlightSchedulePlan(2l, flightSchedules, false);
+
+            //flightSchedulePlanSessionBeanRemote.updateRecurrentFlightSchedulePlanParameters(4l, null, 1);
+            //viewAllFlightSchedulePlans();
+
+        } catch (Exception ex) {
             System.out.println(ex);
         }
     }
 
-    private void updateFlightSchedulePlanEntity() {
+    private void deleteFlightSchedulePlan() {
         try {
-            FlightSchedulePlanEntity flightSchedulePlanEntity = flightSchedulePlanSessionBeanRemote.retrieveFlightSchedulePlanById(2l);
-            List<FlightScheduleEntity> flightSchedules = flightSchedulePlanEntity.getFlightSchedules();
-            //test update remove
-//            Iterator<FlightScheduleEntity> iter = flightSchedules.iterator();
-//            while (iter.hasNext()) {
-//                FlightScheduleEntity flightScheduleEntity = iter.next();
-//                if (!flightScheduleEntity.getFlightScheduleId().equals(5l)) {
-//                    iter.remove();
-//                }
-//            }
-            // test add new flight schedule
-            FlightScheduleEntity flightScheduleEntity = new FlightScheduleEntity();
-
-            SimpleDateFormat inputDateFormat = new SimpleDateFormat("d/M/y");
-            flightScheduleEntity.setDepartureDate(inputDateFormat.parse("05/11/2020"));
-            flightScheduleEntity.setEstimatedFlightDuration(2);
-            flightSchedules.add(flightScheduleEntity);
-            viewAllFlightSchedulePlans();
-        } catch (Exception ex) {
+            flightSchedulePlanSessionBeanRemote.deleteFlightSchedulePlanById(4l);
+        } catch (FlightSchedulePlanNotFoundException | FlightSchedulePlanInUseException ex) {
             System.out.println(ex);
         }
     }

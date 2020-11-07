@@ -44,7 +44,7 @@ public class FlightScheduleEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long flightScheduleId;
 
-    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "returnFlightScheduleId")
     private FlightScheduleEntity returnFlightSchedule;
 
@@ -58,7 +58,7 @@ public class FlightScheduleEntity implements Serializable {
     @Column(nullable = false, precision = 3)
     private Integer estimatedFlightDuration;
 
-    @OneToMany(mappedBy = "flightSchedule", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
+    @OneToMany(mappedBy = "flightSchedule", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true)
     @NotEmpty
     private List<SeatEntity> seatInventory;
 
@@ -74,12 +74,12 @@ public class FlightScheduleEntity implements Serializable {
         //this.flightReservations = new ArrayList<>();
     }
 
-    public FlightScheduleEntity(Date departureDate, Integer estimatedFlightDuration, FlightSchedulePlanEntity flightSchedulePlan) {
-        this();
-        this.departureDate = departureDate;
-        this.estimatedFlightDuration = estimatedFlightDuration;
-        this.flightSchedulePlan = flightSchedulePlan;
-    }
+//    public FlightScheduleEntity(Date departureDate, Integer estimatedFlightDuration, FlightSchedulePlanEntity flightSchedulePlan) {
+//        this();
+//        this.departureDate = departureDate;
+//        this.estimatedFlightDuration = estimatedFlightDuration;
+//        this.flightSchedulePlan = flightSchedulePlan;
+//    }
 
     public FlightScheduleEntity(Date departureDate, Integer estimatedFlightDuration) {
         this();
