@@ -35,6 +35,18 @@ public class FlightScheduleSessionBean implements FlightScheduleSessionBeanRemot
     @EJB
     private SeatInventorySessionBeanLocal seatInventorySessionBeanLocal;
 
+    @Override
+    public void createNewFlightSchedules(FlightSchedulePlanEntity flightSchedulePlanEntity, List<FlightScheduleEntity> flightSchedules) throws CreateNewFlightScheduleException {
+        if (flightSchedules.isEmpty()) {
+            throw new CreateNewFlightScheduleException("CreateNewFlightScheduleException: Please provide at least one flight schedule!");
+        }
+
+        // create new flight schedule for every flight schedule in list
+        for (FlightScheduleEntity flightScheduleEntity : flightSchedules) {
+            this.createNewFlightSchedule(flightScheduleEntity, flightSchedulePlanEntity);
+        }
+    }
+
     private void createNewFlightSchedule(FlightScheduleEntity flightScheduleEntity, FlightSchedulePlanEntity flightSchedulePlanEntity) throws CreateNewFlightScheduleException {
 
         // 1. associate flight schedule plan with flight schedule
@@ -56,19 +68,8 @@ public class FlightScheduleSessionBean implements FlightScheduleSessionBeanRemot
         validateFlightSchedule(flightScheduleEntity);
     }
 
-    @Override
-    public void createNewFlightSchedules(FlightSchedulePlanEntity flightSchedulePlanEntity, List<FlightScheduleEntity> flightSchedules) throws CreateNewFlightScheduleException {
-        if (flightSchedules.isEmpty()) {
-            throw new CreateNewFlightScheduleException("CreateNewFlightScheduleException: Please provide at least one flight schedule!");
-        }
-
-        // create new flight schedule for every flight schedule in list
-        for (FlightScheduleEntity flightScheduleEntity : flightSchedules) {
-            this.createNewFlightSchedule(flightScheduleEntity, flightSchedulePlanEntity);
-        }
-    }
-
-    private void checkFlightSchedules(FlightScheduleEntity newFlightScheduleEntity, FlightEntity flightEntity) throws CreateNewFlightScheduleException {
+    @Override  // local interface only
+    public void checkFlightSchedules(FlightScheduleEntity newFlightScheduleEntity, FlightEntity flightEntity) throws CreateNewFlightScheduleException {
         // retrieve all flight schedule plans associated with flight
         List<FlightSchedulePlanEntity> flightSchedulePlans = flightEntity.getFlightSchedulePlans();
 
