@@ -115,6 +115,7 @@ public class MainApp {
                 flightOperationModule.flightOperationMenu();
                 break;
             case SALESMANAGER:
+                salesManagementModule.salesManagementMenu();
                 break;
             default:
                 break;

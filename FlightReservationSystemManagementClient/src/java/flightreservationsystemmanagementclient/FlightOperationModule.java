@@ -9,18 +9,17 @@ import ejb.session.stateless.FareEntitySessionBeanRemote;
 import ejb.session.stateless.FlightRouteSessionBeanRemote;
 import ejb.session.stateless.FlightSchedulePlanSessionBeanRemote;
 import ejb.session.stateless.FlightSessionBeanRemote;
-import entity.AircraftConfigurationEntity;
 import entity.AirportEntity;
 import entity.CabinConfigurationEntity;
 import entity.FareEntity;
 import entity.FlightEntity;
 import entity.FlightRouteEntity;
 import entity.FlightScheduleEntity;
+import entity.FlightSchedulePlanEntity;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -35,6 +34,8 @@ import util.exception.CreateNewFlightSchedulePlanException;
 import util.exception.FlightInUseException;
 import util.exception.FlightNotFoundException;
 import util.exception.FlightRouteNotFoundException;
+import util.exception.FlightSchedulePlanInUseException;
+import util.exception.FlightSchedulePlanNotFoundException;
 
 /**
  *
@@ -63,6 +64,11 @@ public class FlightOperationModule {
             System.out.println("4: Update Flight Details");
             System.out.println("5: Delete Flight\n");
             System.out.println("6: Create Flight Schedule Plan");
+            System.out.println("7: View All Flight Schedule Plans");
+            System.out.println("8: View Flight Schedule Plan Details");
+//            System.out.println("9: View All Flight Schedule Plans");
+//            System.out.println("10: View All Flight Schedule Plans");
+
             System.out.println("4: Logout\n");
             response = 0;
 
@@ -84,7 +90,15 @@ public class FlightOperationModule {
                     deleteFlight();
                 } else if (response == 6) {
                     createFlightSchedulePlan();
+                } else if (response == 7) {
+                    viewAllFlightSchedulePlans();
+                } else if (response == 8) {
+                    viewFlightSchedulePlanDetails();
+                } else if (response == 9) {
+//                    updateFlightSchedulePlanDetails();
                 } else if (response == 10) {
+
+                } else if (response == 15) {
                     break;
                 } else {
                     System.out.println("Invalid option, please try again!\n");
@@ -263,11 +277,11 @@ public class FlightOperationModule {
                     cabinClass = scanner.nextLine().trim();
                 } while (!cabinClass.equals("F") || !cabinClass.equals("J") || !cabinClass.equals("W") || !cabinClass.equals("Y"));
 
-                String fareBasisCode = "";
+                String fareBasisCode = cabinClass;
                 do {
                     System.out.print("Enter fare basis code>");
                     fareBasisCode = scanner.nextLine().trim();
-                } while (fareBasisCode.length() <= 0 || fareBasisCode.length() > 7);
+                } while (fareBasisCode.length() <= 0 || fareBasisCode.length() > 6);
 
                 BigDecimal fareAmount = new BigDecimal(0);
                 do {
@@ -424,4 +438,94 @@ public class FlightOperationModule {
         return flightSchedule;
     }
 
+    private void viewAllFlightSchedulePlans() {
+        System.out.println("*** Flight Planning Module: View all Flight Schedule Plans ***\n");
+
+        List<FlightSchedulePlanEntity> flightSchedulePlans = flightSchedulePlanSessionBeanRemote.retrieveAllFlightSchedulePlans();
+
+        for (FlightSchedulePlanEntity flightSchedulePlan : flightSchedulePlans) {
+            System.out.println("Flight number: " + flightSchedulePlan.getFlight().getFlightNumber());
+            System.out.println("\tFlight Schedule Plan Id: " + flightSchedulePlan.getFlightSchedulePlanId());
+            System.out.println("\tFirst departure date/time: " + flightSchedulePlan.getFlightSchedules().get(0).getDepartureDate());
+            if (flightSchedulePlan.getReturnFlightSchedulePlan() != null) {
+                System.out.println("Return Flight number: " + flightSchedulePlan.getFlight().getFlightNumber());
+                System.out.println("\tReturn Flight Schedule Plan Id: " + flightSchedulePlan.getFlightSchedulePlanId());
+                System.out.println("\tFirst departure date/time: " + flightSchedulePlan.getFlightSchedules().get(0).getDepartureDate());
+            }
+            System.out.print("\n");
+        }
+    }
+
+    private void viewFlightSchedulePlanDetails() {
+        System.out.println("*** Flight Planning Module: View Flight Schedule Plan Details ***\n");
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Enter Flight Schedule Plan Id>");
+        Long flightSchedulePlanId = scanner.nextLong();
+
+        try {
+            FlightSchedulePlanEntity flightSchedulePlan = flightSchedulePlanSessionBeanRemote.retrieveFlightSchedulePlanById(flightSchedulePlanId);
+            FlightEntity flight = flightSchedulePlan.getFlight();
+
+            System.out.println("Flight Schedule Plan Id: " + flightSchedulePlan.getFlightSchedulePlanId());
+            System.out.println("Flight number: " + flight.getFlightNumber());
+            System.out.println("Origin Airport: " + flight.getFlightRoute().getOriginAirport().getAirportName() + "---> Destination Airport: " + flight.getFlightRoute().getDestinationAirport().getAirportName());
+
+            System.out.println("Fare(s):");
+            List<FareEntity> faresList = flightSchedulePlan.getFares();
+            for (FareEntity fare : faresList) {
+                System.out.println("\tFare Id: " + fare.getFareId());
+                System.out.println("\t\tCabin Class: " + fare.getCabinClass().toString());
+                System.out.println("\t\tFare Basis Code: " + fare.getFareBasisCode());
+                System.out.println("\t\tFare Amount: " + fare.getFareAmount());
+            }
+
+            List<FlightScheduleEntity> flightSchedulesList = flightSchedulePlan.getFlightSchedules();
+
+            System.out.println("Flight Schedule(s):");
+            for (FlightScheduleEntity flightSchedule : flightSchedulesList) {
+                System.out.println("\tFlight Schedule Id: " + flightSchedule.getFlightScheduleId());
+                System.out.println("\t\tDeparture Date: " + flightSchedule.getDepartureDate());
+                System.out.println("\t\tEstimated Flight Duration: " + flightSchedule.getEstimatedFlightDuration());
+                //view estimated arival datetime?
+                //view flight schedule type?
+                //view end date (for recurrent)?
+            }
+            System.out.print("\n");
+            
+            Integer response = 0;
+            do {
+                System.out.println("1: Update Flight Schedule Plan");
+                System.out.println("2: Delete Flight Schedule Plan");
+                System.out.println("3: Back");
+                System.out.print(">");
+                response = scanner.nextInt();
+                if (response <= 0 || response > 3) {
+                    System.out.println("Invalid response! Enter 1-3");
+                }
+            } while (response <= 0 || response > 3);
+            
+            if (response == 1) {
+//                updateFlightSchedulePlanDetails(flightSchedulePlanId);
+            } else if (response == 2) {
+                deleteFlightSchedulePlan(flightSchedulePlanId);
+            }
+            
+        } catch (FlightSchedulePlanNotFoundException ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
+
+    //KIV on update methods
+//    private void updateFlightSchedulePlanDetails(Long flightSchedulePlanId) {
+//        
+//    }
+    private void deleteFlightSchedulePlan(Long flightSchedulePlanId) {
+        try {
+            flightSchedulePlanSessionBeanRemote.deleteFlightSchedulePlanById(flightSchedulePlanId);
+            System.out.println("Flight Schedule Plan has been siccesssfully deleted!");
+        } catch(FlightSchedulePlanNotFoundException | FlightSchedulePlanInUseException ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
 }

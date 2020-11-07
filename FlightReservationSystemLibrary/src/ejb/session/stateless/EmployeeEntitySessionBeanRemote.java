@@ -7,6 +7,7 @@ package ejb.session.stateless;
 
 import entity.EmployeeEntity;
 import java.util.List;
+import javax.ejb.Remote;
 import util.exception.CreateNewEmployeeException;
 import util.exception.EmployeeNotFoundException;
 import util.exception.InvalidLoginCredentialsException;
@@ -15,6 +16,7 @@ import util.exception.InvalidLoginCredentialsException;
  *
  * @author Li Xin
  */
+@Remote
 public interface EmployeeEntitySessionBeanRemote {
 
     public void createNewEmployee(EmployeeEntity newEmployeeEntity) throws CreateNewEmployeeException;
