@@ -11,9 +11,12 @@ import entity.FlightRouteEntity;
 import entity.FlightSchedulePlanEntity;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
@@ -145,23 +148,21 @@ public class FlightSessionBean implements FlightSessionBeanRemote, FlightSession
 
     @Override
     public FlightEntity retrieveFlightByFlightNumber(String flightNumber) throws FlightNotFoundException {
-        FlightEntity flightEntity = em.find(FlightEntity.class, flightNumber);
+        Query query = em.createQuery("SELECT f FROM FlightEntity f WHERE f.flightNumber =:inFlightNumber");
+        query.setParameter("inFlightNumber", flightNumber);
 
-        if (flightEntity == null) {
+        try {
+            return (FlightEntity) query.getSingleResult();
+        } catch (NoResultException ex) {
             throw new FlightNotFoundException("FlightNotFoundException: Flight number " + flightNumber + " does not exist!");
         }
-
-        if (flightEntity.getIsDisabled()) {
-            throw new FlightNotFoundException("FlightNotFoundException: Flight number " + flightNumber + " is disabled!");
-        }
-
-        return flightEntity;
     }
 
-    // set return flight number to "" if not used
+    // set return flight number to null if not used
     @Override
-    public String updateFlightNumber(FlightEntity flightEntity, String newFlightNumber, String returnFlightNumber) throws UpdateFlightFailedException {
-        if (flightEntity.getReturnFlight() == null && !returnFlightNumber.isEmpty()) {
+    public String updateFlightNumberForFlight(FlightEntity flightEntity, String newFlightNumber, String returnFlightNumber) throws UpdateFlightFailedException {
+
+        if (flightEntity.getReturnFlight() == null && returnFlightNumber != null) {
             throw new UpdateFlightFailedException("UpdateFlightFailedException: Flight has no complementary return flight for update of flight number!");
         }
 
@@ -175,77 +176,28 @@ public class FlightSessionBean implements FlightSessionBeanRemote, FlightSession
             throw new UpdateFlightFailedException("UpdateFlightFailedException: New flight number already exists!");
         }
 
-        if (flightEntity.getIsReturnFlight()) { // updating a return flight
-            updateReturnFlightNumber(flightEntity, newFlightNumber);
-
-            em.persist(flightEntity);
+        if (flightEntity.getIsReturnFlight()) {
+            flightEntity.setFlightNumber(newFlightNumber);
+            em.merge(flightEntity);
             em.flush();
 
             return flightEntity.getFlightNumber();
         }
 
-        // retrieve flight route
-        FlightRouteEntity flightRoute = flightEntity.getFlightRoute();
-        flightRoute.getFlights().remove(flightEntity); // remove existing from flight route
-
-        // retrieve flight schedule plans
-        List<FlightSchedulePlanEntity> flightSchedulePlans = flightEntity.getFlightSchedulePlans();
-        for (FlightSchedulePlanEntity flightSchedulePlan : flightSchedulePlans) {
-            flightSchedulePlan.setFlight(null);
-        }
-
-        // update flight number
         flightEntity.setFlightNumber(newFlightNumber);
 
-        flightRoute.getFlights().add(flightEntity);
-        for (FlightSchedulePlanEntity flightSchedulePlan : flightSchedulePlans) {
-            flightSchedulePlan.setFlight(flightEntity);
+        if (flightEntity.getReturnFlight() != null && returnFlightNumber != null) {
+            flightEntity.getReturnFlight().setFlightNumber(returnFlightNumber);
         }
 
-        if (flightEntity.getReturnFlight() != null && !returnFlightNumber.isEmpty()) {
-            // update flight number for return flight
-            updateReturnFlightNumber(flightEntity.getReturnFlight(), returnFlightNumber);
-        }
-
-        em.persist(flightEntity);
+        em.merge(flightEntity);
         em.flush();
 
         return flightEntity.getFlightNumber();
     }
 
-    private void updateReturnFlightNumber(FlightEntity flightEntity, String newFlightNumber) throws UpdateFlightFailedException {
-        try {
-            Query query = em.createQuery("SELECT f FROM FlightEntity f WHERE f.returnFlight = :inReturnFlight"); // find parent flight
-            query.setParameter("inReturnFlight", flightEntity);
-
-            FlightEntity parentFlightEntity = (FlightEntity) query.getSingleResult();
-            parentFlightEntity.setReturnFlight(null); // remove existing return flight
-
-            FlightRouteEntity flightRoute = flightEntity.getFlightRoute();
-            flightRoute.getFlights().remove(flightEntity); // remove existing from flight route
-
-            List<FlightSchedulePlanEntity> flightSchedulePlans = flightEntity.getFlightSchedulePlans();
-            for (FlightSchedulePlanEntity flightSchedulePlan : flightSchedulePlans) {
-                flightSchedulePlan.setFlight(null);
-            }
-
-            // set to new flight number
-            flightEntity.setFlightNumber(newFlightNumber);
-
-            parentFlightEntity.setReturnFlight(flightEntity);
-            flightRoute.getFlights().add(flightEntity);
-            for (FlightSchedulePlanEntity flightSchedulePlan : flightSchedulePlans) {
-                flightSchedulePlan.setFlight(flightEntity);
-            }
-
-            validate(flightEntity);
-        } catch (CreateNewFlightException ex) {
-            throw new UpdateFlightFailedException(ex.getMessage());
-        }
-    }
-
     @Override
-    public String updateAircraftConfiguration(FlightEntity flightEntity, Long newAircraftConfigurationId) throws UpdateFlightFailedException {
+    public String updateAircraftConfigurationForFlight(FlightEntity flightEntity, Long newAircraftConfigurationId) throws UpdateFlightFailedException {
         if (!flightEntity.getFlightSchedulePlans().isEmpty()) {
             throw new UpdateFlightFailedException("UpdateFlightFailedException: Flight already in use and unable to update aircraft configuration!");
         }
@@ -264,8 +216,9 @@ public class FlightSessionBean implements FlightSessionBeanRemote, FlightSession
                 returnFlight.setAircraftConfiguration(newAircraftConfigurationEntity);
             }
 
-            em.persist(flightEntity);
+            em.merge(flightEntity);
             em.flush();
+
             return flightEntity.getFlightNumber();
         } catch (AircraftConfigurationNotFoundException ex) {
             throw new UpdateFlightFailedException(ex.getMessage());
@@ -273,7 +226,7 @@ public class FlightSessionBean implements FlightSessionBeanRemote, FlightSession
     }
 
     @Override
-    public String updateFlightRoute(FlightEntity flightEntity, Long newFlightRouteId) throws UpdateFlightFailedException {
+    public String updateFlightRouteForFlight(FlightEntity flightEntity, Long newFlightRouteId) throws UpdateFlightFailedException {
         if (!flightEntity.getFlightSchedulePlans().isEmpty()) {
             throw new UpdateFlightFailedException("UpdateFlightFailedException: Flight already in use and unable to update flight route!");
         }
@@ -307,13 +260,13 @@ public class FlightSessionBean implements FlightSessionBeanRemote, FlightSession
                 newReturnFlightRouteEntity.getFlights().add(returnFlight);
             }
 
-            em.persist(flightEntity);
+            em.merge(flightEntity);
             em.flush();
+
             return flightEntity.getFlightNumber();
         } catch (FlightRouteNotFoundException ex) {
             throw new UpdateFlightFailedException(ex.getMessage());
         }
-
     }
 
     @Override

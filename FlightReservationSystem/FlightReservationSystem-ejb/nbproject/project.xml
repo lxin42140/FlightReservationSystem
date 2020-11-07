@@ -6,7 +6,6 @@
             <name>FlightReservationSystem-ejb</name>
             <minimum-ant-version>1.6.5</minimum-ant-version>
             <included-library dirs="200">libs.javaee-api-8.0.classpath</included-library>
-            <included-library dirs="200">reference.FlightReservationSystemLibrary.jar</included-library>
             <included-library dirs="200">file.reference.FlightReservationSystemLibrary.jar</included-library>
             <source-roots>
                 <root id="src.dir" name="Source Packages"/>

@@ -81,23 +81,26 @@ public class TestSessionBean {
     public void postConstruct() {
         System.out.println("-----------------------TEST------------------------------\n");
         try {
-//            createAircraftConfig(); 
-//            viewAllAircraftConfigurations();
-            
-//            createFlightRoute();
-//            viewAllFlightRoute();
-//            deleteFlightRoute();
-                        
-//            createFlight();
-//            viewAllFlights();
-//            deleteFlight();
-            
-//            createFlightSchedulePlan();
-//            viewAllFlightSchedulePlans();
-//            deleteFlightSchedulePlan();
-//            updateFlightSchedulePlanEntity();
-            
-//            viewSeatInventory();
+
+            //createAircraftConfig(); 
+            //viewAllAircraftConfigurations();
+            //
+            //createFlightRoute();
+            //viewAllFlightRoute();
+            //deleteFlightRoute();
+            //            
+            //createFlight();
+            updateFlight();
+            //viewAllFlights();
+            //deleteFlight();
+            //
+            //createFlightSchedulePlan();
+            //viewAllFlightSchedulePlans();
+            //deleteFlightSchedulePlan();
+            //updateFlightSchedulePlanEntity();
+            //
+            //viewSeatInventory();
+
         } catch (Exception ex) {
             System.out.println(ex);
         }
@@ -156,8 +159,9 @@ public class TestSessionBean {
     private void createFlightRoute() {
         try {
             flightRouteSessionBeanRemote.createNewFlightRoute(1l, 5l, true);
+            flightRouteSessionBeanRemote.createNewFlightRoute(5l, 6l, true);
+
 //            flightRouteSessionBean.createNewFlightRoute(3l, 4l, false);
-//            flightRouteSessionBean.createNewFlightRoute(5l, 6l, true);
         } catch (CreateNewFlightRouteException | AirportNotFoundException ex) {
             System.out.println(ex.toString());
         }
@@ -198,11 +202,26 @@ public class TestSessionBean {
 //        FlightEntity flightEntity1 = new FlightEntity("ML003");
 //        FlightEntity flightEntity2 = new FlightEntity("ML005");
         try {
-            System.out.println(flightSessionBeanRemote.createNewFlight(flightEntity, 3l, 4l, Boolean.FALSE, "ML001"));
-            //System.out.println(flightSessionBeanRemote.createNewFlight(flightEntity, 2l, 3l, Boolean.FALSE, "ML002"));
+
+            System.out.println(flightSessionBeanRemote.createNewFlight(flightEntity, 2l, 3l, Boolean.TRUE, "ML002"));
 //            System.out.println(flightSessionBean.createNewFlight(flightEntity1, 5l, 3l, Boolean.TRUE, "ML004"));
 //            System.out.println(flightSessionBean.createNewFlight(flightEntity2, 3l, 4l, Boolean.FALSE, "ML006"));
         } catch (CreateNewFlightException | FlightRouteNotFoundException | AircraftConfigurationNotFoundException ex) {
+            System.out.println(ex);
+        }
+    }
+
+    private void updateFlight() {
+        try {
+            FlightEntity flightEntity = flightSessionBeanRemote.retrieveFlightByFlightNumber("ML555");
+            //flightSessionBeanRemote.updateFlightRoute(flightEntity, 2l);
+            
+            //            flightSessionBeanRemote.updateFlightNumber(flightEntity, "ML555", "ML666");
+            //            System.out.println(flightEntity.getAircraftConfiguration().getAircraftConfigurationId());
+            //            flightSessionBeanRemote.updateAircraftConfiguration(flightEntity, 1l);
+            //            flightEntity = flightSessionBeanRemote.retrieveFlightByFlightNumber("ML001");
+            //            System.out.println(flightEntity.getAircraftConfiguration().getAircraftConfigurationId());
+        } catch (Exception ex) {
             System.out.println(ex);
         }
     }
@@ -222,8 +241,8 @@ public class TestSessionBean {
     private void deleteFlight() {
         try {
             // delete return flight only
-            flightSessionBeanRemote.deleteFlightByFlightNumber("ML002");
-            viewAllFlights();
+            //flightSessionBeanRemote.deleteFlightByFlightNumber("ML111");
+            flightSessionBeanRemote.deleteFlightByFlightNumber("ML222");
 
             // delete flight with return flight
 //            flightSessionBean.deleteFlightByFlightNumber("ML003");
