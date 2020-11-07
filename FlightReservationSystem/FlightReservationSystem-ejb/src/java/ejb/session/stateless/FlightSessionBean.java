@@ -8,6 +8,7 @@ package ejb.session.stateless;
 import entity.AircraftConfigurationEntity;
 import entity.FlightEntity;
 import entity.FlightRouteEntity;
+import entity.FlightSchedulePlanEntity;
 import java.util.List;
 import java.util.Set;
 import javax.ejb.EJB;
@@ -157,29 +158,162 @@ public class FlightSessionBean implements FlightSessionBeanRemote, FlightSession
         return flightEntity;
     }
 
-    //TODO CHECK WHAT TO UPDATE
+    // set return flight number to "" if not used
     @Override
-    public String updateFlight(FlightEntity updateFlightEntity) throws UpdateFlightFailedException, FlightNotFoundException {
-        try {
-            validate(updateFlightEntity);
-        } catch (CreateNewFlightException ex) {
-            throw new UpdateFlightFailedException("UpdateFlightFailedException: " + ex);
+    public String updateFlightNumber(FlightEntity flightEntity, String newFlightNumber, String returnFlightNumber) throws UpdateFlightFailedException {
+        if (flightEntity.getReturnFlight() == null && !returnFlightNumber.isEmpty()) {
+            throw new UpdateFlightFailedException("UpdateFlightFailedException: Flight has no complementary return flight for update of flight number!");
         }
-//
-//        FlightEntity flightEntity = this.retrieveFlightByFlightNumber(updateFlightEntity.getFlightNumber());
-//
-//        if(updateFlightEntity.getAircraftConfiguration().equals(flightEntity.getAircraftConfiguration())) {
-//            updateFlightAircraftConfiguration(updateFlightEntity, updateFlightEntity);
-//        }
-//        
-//        
-//        em.flush();
 
-        return updateFlightEntity.getFlightNumber();
+        Query query = em.createQuery("SELECT f FROM FlightEntity f WHERE f.flightNumber =:inFlightNumber OR f.flightNumber =:inReturnFlightNumber");
+        query.setParameter("inFlightNumber", newFlightNumber);
+        query.setParameter("inReturnFlightNumber", returnFlightNumber);
+
+        List<FlightEntity> conflicts = (List< FlightEntity>) query.getResultList();
+
+        if (!conflicts.isEmpty()) {
+            throw new UpdateFlightFailedException("UpdateFlightFailedException: New flight number already exists!");
+        }
+
+        if (flightEntity.getIsReturnFlight()) { // updating a return flight
+            updateReturnFlightNumber(flightEntity, newFlightNumber);
+
+            em.persist(flightEntity);
+            em.flush();
+
+            return flightEntity.getFlightNumber();
+        }
+
+        // retrieve flight route
+        FlightRouteEntity flightRoute = flightEntity.getFlightRoute();
+        flightRoute.getFlights().remove(flightEntity); // remove existing from flight route
+
+        // retrieve flight schedule plans
+        List<FlightSchedulePlanEntity> flightSchedulePlans = flightEntity.getFlightSchedulePlans();
+        for (FlightSchedulePlanEntity flightSchedulePlan : flightSchedulePlans) {
+            flightSchedulePlan.setFlight(null);
+        }
+
+        // update flight number
+        flightEntity.setFlightNumber(newFlightNumber);
+
+        flightRoute.getFlights().add(flightEntity);
+        for (FlightSchedulePlanEntity flightSchedulePlan : flightSchedulePlans) {
+            flightSchedulePlan.setFlight(flightEntity);
+        }
+
+        if (flightEntity.getReturnFlight() != null && !returnFlightNumber.isEmpty()) {
+            // update flight number for return flight
+            updateReturnFlightNumber(flightEntity.getReturnFlight(), returnFlightNumber);
+        }
+
+        em.persist(flightEntity);
+        em.flush();
+
+        return flightEntity.getFlightNumber();
     }
 
-    private void updateFlightAircraftConfiguration(FlightEntity updateFlightEntity, FlightEntity existingFlightEntity) {
-        existingFlightEntity.setAircraftConfiguration(updateFlightEntity.getAircraftConfiguration());
+    private void updateReturnFlightNumber(FlightEntity flightEntity, String newFlightNumber) throws UpdateFlightFailedException {
+        try {
+            Query query = em.createQuery("SELECT f FROM FlightEntity f WHERE f.returnFlight = :inReturnFlight"); // find parent flight
+            query.setParameter("inReturnFlight", flightEntity);
+
+            FlightEntity parentFlightEntity = (FlightEntity) query.getSingleResult();
+            parentFlightEntity.setReturnFlight(null); // remove existing return flight
+
+            FlightRouteEntity flightRoute = flightEntity.getFlightRoute();
+            flightRoute.getFlights().remove(flightEntity); // remove existing from flight route
+
+            List<FlightSchedulePlanEntity> flightSchedulePlans = flightEntity.getFlightSchedulePlans();
+            for (FlightSchedulePlanEntity flightSchedulePlan : flightSchedulePlans) {
+                flightSchedulePlan.setFlight(null);
+            }
+
+            // set to new flight number
+            flightEntity.setFlightNumber(newFlightNumber);
+
+            parentFlightEntity.setReturnFlight(flightEntity);
+            flightRoute.getFlights().add(flightEntity);
+            for (FlightSchedulePlanEntity flightSchedulePlan : flightSchedulePlans) {
+                flightSchedulePlan.setFlight(flightEntity);
+            }
+
+            validate(flightEntity);
+        } catch (CreateNewFlightException ex) {
+            throw new UpdateFlightFailedException(ex.getMessage());
+        }
+    }
+
+    @Override
+    public String updateAircraftConfiguration(FlightEntity flightEntity, Long newAircraftConfigurationId) throws UpdateFlightFailedException {
+        if (!flightEntity.getFlightSchedulePlans().isEmpty()) {
+            throw new UpdateFlightFailedException("UpdateFlightFailedException: Flight already in use and unable to update aircraft configuration!");
+        }
+
+        if (flightEntity.getIsReturnFlight()) {
+            throw new UpdateFlightFailedException("UpdateFlightFailedException: Unable to update aircraft configuration for a return flight!");
+        }
+
+        try {
+            AircraftConfigurationEntity newAircraftConfigurationEntity = aircraftConfigurationSessionBeanLocal.retrieveAircraftConfigurationById(newAircraftConfigurationId);
+            flightEntity.setAircraftConfiguration(newAircraftConfigurationEntity);
+
+            //update aircraft config for return flight if any
+            if (flightEntity.getReturnFlight() != null) {
+                FlightEntity returnFlight = flightEntity.getReturnFlight();
+                returnFlight.setAircraftConfiguration(newAircraftConfigurationEntity);
+            }
+
+            em.persist(flightEntity);
+            em.flush();
+            return flightEntity.getFlightNumber();
+        } catch (AircraftConfigurationNotFoundException ex) {
+            throw new UpdateFlightFailedException(ex.getMessage());
+        }
+    }
+
+    @Override
+    public String updateFlightRoute(FlightEntity flightEntity, Long newFlightRouteId) throws UpdateFlightFailedException {
+        if (!flightEntity.getFlightSchedulePlans().isEmpty()) {
+            throw new UpdateFlightFailedException("UpdateFlightFailedException: Flight already in use and unable to update flight route!");
+        }
+
+        if (flightEntity.getIsReturnFlight()) {
+            throw new UpdateFlightFailedException("UpdateFlightFailedException: Unable to update flight route for a return flight!");
+        }
+
+        try {
+            // remove existing flight from old flight route
+            flightEntity.getFlightRoute().getFlights().remove(flightEntity);
+
+            FlightRouteEntity newFlightRouteEntity = flightRouteSessionBeanLocal.retrieveFlightRouteById(newFlightRouteId);
+            flightEntity.setFlightRoute(newFlightRouteEntity);
+            newFlightRouteEntity.getFlights().add(flightEntity);
+
+            //update route for return flight if any
+            if (flightEntity.getReturnFlight() != null) {
+
+                if (newFlightRouteEntity.getReturnFlightRoute() == null) {
+                    throw new UpdateFlightFailedException("UpdateFlightFailedException: New flight route does not has complementary return flight route!");
+                }
+
+                FlightEntity returnFlight = flightEntity.getReturnFlight();
+
+                // remove return flight from associated flight route
+                returnFlight.getFlightRoute().getFlights().remove(returnFlight);
+
+                FlightRouteEntity newReturnFlightRouteEntity = newFlightRouteEntity.getReturnFlightRoute();
+                returnFlight.setFlightRoute(newReturnFlightRouteEntity);
+                newReturnFlightRouteEntity.getFlights().add(returnFlight);
+            }
+
+            em.persist(flightEntity);
+            em.flush();
+            return flightEntity.getFlightNumber();
+        } catch (FlightRouteNotFoundException ex) {
+            throw new UpdateFlightFailedException(ex.getMessage());
+        }
+
     }
 
     @Override

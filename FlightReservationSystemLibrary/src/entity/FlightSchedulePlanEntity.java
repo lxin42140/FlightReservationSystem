@@ -5,9 +5,9 @@
  */
 package entity;
 
-//import static entity.FlightEntity_.flightNumber;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -20,6 +20,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
@@ -35,6 +37,11 @@ public class FlightSchedulePlanEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long flightSchedulePlanId;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date recurrentEndDate;
+
+    private Integer recurrentFrequency;
 
     @Column(nullable = false)
     private Boolean isDisabled;
@@ -68,6 +75,22 @@ public class FlightSchedulePlanEntity implements Serializable {
 
     public Long getFlightSchedulePlanId() {
         return flightSchedulePlanId;
+    }
+
+    public Date getRecurrentEndDate() {
+        return recurrentEndDate;
+    }
+
+    public void setRecurrentEndDate(Date recurrentEndDate) {
+        this.recurrentEndDate = recurrentEndDate;
+    }
+
+    public Integer getRecurrentFrequency() {
+        return recurrentFrequency;
+    }
+
+    public void setRecurrentFrequency(Integer recurrentFrequency) {
+        this.recurrentFrequency = recurrentFrequency;
     }
 
     public FlightEntity getFlight() {

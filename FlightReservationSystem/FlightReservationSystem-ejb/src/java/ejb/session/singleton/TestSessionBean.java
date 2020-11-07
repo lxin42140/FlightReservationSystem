@@ -364,7 +364,6 @@ public class TestSessionBean {
             flightScheduleEntity.setDepartureDate(inputDateFormat.parse("05/11/2020"));
             flightScheduleEntity.setEstimatedFlightDuration(2);
             flightSchedules.add(flightScheduleEntity);
-            flightSchedulePlanSessionBeanRemote.updateFlightSchedulePlan(flightSchedulePlanEntity);
             viewAllFlightSchedulePlans();
         } catch (Exception ex) {
             System.out.println(ex);

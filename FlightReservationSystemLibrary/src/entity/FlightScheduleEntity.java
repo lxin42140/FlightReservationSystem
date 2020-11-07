@@ -23,6 +23,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.Max;
@@ -42,6 +43,10 @@ public class FlightScheduleEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long flightScheduleId;
+
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JoinColumn(name = "returnFlightScheduleId")
+    private FlightScheduleEntity returnFlightSchedule;
 
     @NotNull
     @Column(nullable = false)
@@ -76,6 +81,27 @@ public class FlightScheduleEntity implements Serializable {
         this.flightSchedulePlan = flightSchedulePlan;
     }
 
+    public FlightScheduleEntity(Date departureDate, Integer estimatedFlightDuration) {
+        this();
+        this.departureDate = departureDate;
+        this.estimatedFlightDuration = estimatedFlightDuration;
+    }
+
+    public FlightScheduleEntity getReturnFlightSchedule() {
+        return returnFlightSchedule;
+    }
+
+    public void setReturnFlightSchedule(FlightScheduleEntity returnFlightSchedule) {
+        this.returnFlightSchedule = returnFlightSchedule;
+    }
+
+//    public Boolean getIsReturnFlightSchedule() {
+//        return isReturnFlightSchedule;
+//    }
+//
+//    public void setIsReturnFlightSchedule(Boolean isReturnFlightSchedule) {
+//        this.isReturnFlightSchedule = isReturnFlightSchedule;
+//    }
 //    public List<FlightReservationEntity> getFlightReservations() {
 //        return flightReservations;
 //    }
