@@ -12,6 +12,8 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -30,6 +32,9 @@ public class FlightEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long flightId;
+
     @NotNull
     @Size(min = 1, max = 10)
     @Column(nullable = false, length = 10, unique = true)
@@ -74,6 +79,10 @@ public class FlightEntity implements Serializable {
         this.flightNumber = flightNumber;
         this.aircraftConfiguration = aircraftConfiguration;
         this.flightRoute = flightRoute;
+    }
+
+    public Long getFlightId() {
+        return flightId;
     }
 
     public boolean getIsDisabled() {

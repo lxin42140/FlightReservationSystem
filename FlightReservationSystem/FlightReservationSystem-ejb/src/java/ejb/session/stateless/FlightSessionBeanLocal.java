@@ -28,11 +28,11 @@ public interface FlightSessionBeanLocal {
 
     public FlightEntity retrieveFlightByFlightNumber(String flightNumber) throws FlightNotFoundException;
 
-    public String updateFlightNumber(FlightEntity flightEntity, String newFlightNumber, String returnFlightNumber) throws UpdateFlightFailedException;
+    public String updateFlightNumberForFlight(FlightEntity flightEntity, String newFlightNumber, String returnFlightNumber) throws UpdateFlightFailedException;
 
-    public String updateAircraftConfiguration(FlightEntity flightEntity, Long newAircraftConfigurationId) throws UpdateFlightFailedException;
+    public String updateAircraftConfigurationForFlight(FlightEntity flightEntity, Long newAircraftConfigurationId) throws UpdateFlightFailedException;
 
-    public String updateFlightRoute(FlightEntity flightEntity, Long newFlightRouteId) throws UpdateFlightFailedException;
+    public String updateFlightRouteForFlight(FlightEntity flightEntity, Long newFlightRouteId) throws UpdateFlightFailedException;
 
     public void deleteFlightByFlightNumber(String flightNumber) throws FlightNotFoundException, FlightInUseException;
 
