@@ -359,8 +359,7 @@ public class TestSessionBean {
 //            set.add(10l);
 //
 //            flightSchedulePlanSessionBeanRemote.updateRemoveFlightScheduleFromFlightSchedulePlan(2l, set);
-            //
-            SimpleDateFormat inputDateFormat = new SimpleDateFormat("d/M/y");
+//            SimpleDateFormat inputDateFormat = new SimpleDateFormat("d/M/y");
 //
 //            FlightScheduleEntity flightScheduleEntity = new FlightScheduleEntity();
 //            flightScheduleEntity.setDepartureDate(inputDateFormat.parse("05/11/2020"));
@@ -375,12 +374,41 @@ public class TestSessionBean {
 //            flightSchedules.add(flightScheduleEntity1);
 //
 //            flightSchedulePlanSessionBeanRemote.updateAddFlightScheduleToFlightSchedulePlan(2l, flightSchedules, false);
-
-            //flightSchedulePlanSessionBeanRemote.updateRecurrentFlightSchedulePlanParameters(4l, null, 1);
-            //viewAllFlightSchedulePlans();
-
+//            flightSchedulePlanSessionBeanRemote.updateRecurrentFlightSchedulePlanParameters(4l, null, 1);
+//            viewAllFlightSchedulePlans();
+//            FlightSchedulePlanEntity flightSchedulePlan = flightSchedulePlanSessionBeanRemote.retrieveFlightSchedulePlanById(6l);
+//            List<FlightScheduleEntity> flightSchedules = flightSchedulePlan.getFlightSchedules();
+//            for (FlightScheduleEntity flightScheduleEntity : flightSchedules) {
+//                if (flightScheduleEntity.getFlightScheduleId().equals(71l)) {
+//                    Date date = inputDateFormat.parse("11/11/2020");
+//                    flightScheduleEntity.setDepartureDate(date);
+//                    flightScheduleEntity.setEstimatedFlightDuration(1);
+//                }
+//            }
+//
+//            flightSchedulePlanSessionBeanRemote.updateFlightScheduleDetailForNonRecurrentFlightSchedulePlan(6l, flightSchedules);
+//            FlightSchedulePlanEntity flightSchedulePlan = flightSchedulePlanSessionBeanRemote.retrieveFlightSchedulePlanById(5l);
+//            List<FareEntity> fares = flightSchedulePlan.getFares();
+//            for (FareEntity fare : fares) {
+//                fare.setFareAmount(BigDecimal.valueOf(20.0));
+//            }
+//            HashSet<Long> set = new HashSet<>();
+//            set.add(26l);
+//            flightSchedulePlanSessionBeanRemote.updateRemoveFareFromFlightSchedulePlan(6l, set);
+//            FlightSchedulePlanEntity flightSchedulePlan = flightSchedulePlanSessionBeanRemote.retrieveFlightSchedulePlanById(6l);
+//            FareEntity fareEntity1 = new FareEntity("F001", BigDecimal.valueOf(300.0), CabinClassEnum.F);
+//            FareEntity fareEntity2 = new FareEntity("F002", BigDecimal.valueOf(300.0), CabinClassEnum.F);
+//            FareEntity fareEntity3 = new FareEntity("F003", BigDecimal.valueOf(300.0), CabinClassEnum.F);
+//
+//            List<FareEntity> fares1 = new ArrayList<>();
+//            fares1.add(fareEntity1);
+//            fares1.add(fareEntity2);
+//            fares1.add(fareEntity3);
+//            
+//            flightSchedulePlanSessionBeanRemote.updateAddFareToFlightSchedulePlan(6l, fares1);
         } catch (Exception ex) {
             System.out.println(ex);
+
         }
     }
 

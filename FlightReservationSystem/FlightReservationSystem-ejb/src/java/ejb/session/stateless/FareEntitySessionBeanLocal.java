@@ -20,7 +20,8 @@ import util.exception.InvalidFareException;
 @Local
 public interface FareEntitySessionBeanLocal {
 
-    public void createNewFares(List<FareEntity> fares, FlightSchedulePlanEntity flightSchedulePlanEntity) throws CreateNewFareException;
+    public void createNewFare(FareEntity fare, FlightSchedulePlanEntity flightSchedulePlanEntity) throws CreateNewFareException;
 
+    public void createNewFares(List<FareEntity> fares, FlightSchedulePlanEntity flightSchedulePlanEntity) throws CreateNewFareException;
 
 }

@@ -29,7 +29,9 @@ import util.exception.InvalidFareException;
 @Stateless
 public class FareEntitySessionBean implements FareEntitySessionBeanRemote, FareEntitySessionBeanLocal {
 
-    private void createNewFare(FareEntity fare, FlightSchedulePlanEntity flightSchedulePlanEntity) throws CreateNewFareException {
+    @Override
+    // local interface only
+    public void createNewFare(FareEntity fare, FlightSchedulePlanEntity flightSchedulePlanEntity) throws CreateNewFareException {
         // bidirectional association
         fare.setFlightSchedulePlan(flightSchedulePlanEntity);
         flightSchedulePlanEntity.getFares().add(fare);
