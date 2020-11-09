@@ -103,7 +103,7 @@ public class TestSessionBean {
             //updateFlightSchedulePlanEntity();
             //
             //viewSeatInventory();
-            search();
+            //search();
         } catch (Exception ex) {
             System.out.println(ex);
         }
@@ -161,18 +161,10 @@ public class TestSessionBean {
 
     private void createFlightRoute() {
         try {
-
-            /**
-             * Gimpo International Airport--->Sydney International Airport|#]
-             * RETURN FLIGHT ROUTE Sydney International Airport--->Gimpo
-             * International Airport|#] Singapore Changi Airport--->Gimpo
-             * International Airport|#] RETURN FLIGHT ROUTE Gimpo International
-             * Airport--->Singapore Changi Airport|#]
-             */
-            //flightRouteSessionBeanRemote.createNewFlightRoute(1l, 5l, true);
-            //flightRouteSessionBeanRemote.createNewFlightRoute(5l, 6l, true);
-            //flightRouteSessionBeanRemote.createNewFlightRoute(1l, 6l, true);;
-//            flightRouteSessionBean.createNewFlightRoute(3l, 4l, false);
+            flightRouteSessionBeanRemote.createNewFlightRoute(1l, 5l, true);
+            flightRouteSessionBeanRemote.createNewFlightRoute(5l, 6l, true);
+            flightRouteSessionBeanRemote.createNewFlightRoute(1l, 6l, true);;
+            flightRouteSessionBeanRemote.createNewFlightRoute(3l, 4l, false);
         } catch (CreateNewFlightRouteException | AirportNotFoundException ex) {
             System.out.println(ex.toString());
         }
@@ -221,7 +213,7 @@ public class TestSessionBean {
         
         
          */
-        //FlightEntity flightEntity = new FlightEntity("ML001");
+        FlightEntity flightEntity = new FlightEntity("ML001");
         FlightEntity flightEntity1 = new FlightEntity("ML003");
         FlightEntity flightEntity2 = new FlightEntity("ML005");
         try {
@@ -270,15 +262,14 @@ public class TestSessionBean {
     private void deleteFlight() {
         try {
             // delete return flight only
-            //flightSessionBeanRemote.deleteFlightByFlightNumber("ML111");
-            //flightSessionBeanRemote.deleteFlightByFlightNumber("ML222");
+            flightSessionBeanRemote.deleteFlightByFlightNumber("ML111");
+            flightSessionBeanRemote.deleteFlightByFlightNumber("ML222");
 
             // delete flight with return flight
-//            flightSessionBean.deleteFlightByFlightNumber("ML003");
-//            viewAllFlights();
-//            flightSessionBean.deleteFlightByFlightNumber("ML001");
-//            flightSessionBean.deleteFlightByFlightNumber("ML005");
+            flightSessionBeanRemote.deleteFlightByFlightNumber("ML003");
             viewAllFlights();
+            flightSessionBeanRemote.deleteFlightByFlightNumber("ML001");
+            flightSessionBeanRemote.deleteFlightByFlightNumber("ML005");
         } catch (FlightNotFoundException | FlightInUseException ex) {
             System.out.println(ex);
         }
