@@ -8,10 +8,13 @@ package ejb.session.stateless;
 import entity.FareEntity;
 import entity.FlightEntity;
 import entity.FlightSchedulePlanEntity;
+import java.math.BigDecimal;
 import java.util.List;
 import javax.ejb.Local;
 import util.exception.CreateNewFareException;
+import util.exception.FlightSchedulePlanNotFoundException;
 import util.exception.InvalidFareException;
+import util.exception.UpdateFlightSchedulePlanFailedException;
 
 /**
  *
@@ -23,5 +26,7 @@ public interface FareEntitySessionBeanLocal {
     public void createNewFare(FareEntity fare, FlightSchedulePlanEntity flightSchedulePlanEntity) throws CreateNewFareException;
 
     public void createNewFares(List<FareEntity> fares, FlightSchedulePlanEntity flightSchedulePlanEntity) throws CreateNewFareException;
+    
+    public FareEntity updateFareAmount(Long flightScheduleId, Long fareId, BigDecimal updatedFareAmount) throws FlightSchedulePlanNotFoundException, UpdateFlightSchedulePlanFailedException;
 
 }

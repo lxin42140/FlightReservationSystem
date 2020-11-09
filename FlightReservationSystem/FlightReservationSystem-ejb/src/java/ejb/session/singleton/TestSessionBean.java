@@ -83,6 +83,7 @@ public class TestSessionBean {
     public void postConstruct() {
         System.out.println("-----------------------TEST------------------------------\n");
         try {
+
             //createAircraftConfig(); 
             //viewAllAircraftConfigurations();
             //
@@ -224,9 +225,16 @@ public class TestSessionBean {
         FlightEntity flightEntity1 = new FlightEntity("ML003");
         FlightEntity flightEntity2 = new FlightEntity("ML005");
         try {
+
 //            System.out.println(flightSessionBeanRemote.createNewFlight(flightEntity, 2l, 3l, Boolean.TRUE, "ML002"));
             System.out.println(flightSessionBeanRemote.createNewFlight(flightEntity1, 4l, 3l, Boolean.TRUE, "ML004"));
             System.out.println(flightSessionBeanRemote.createNewFlight(flightEntity2, 6l, 3l, Boolean.TRUE, "ML006"));
+
+
+            System.out.println(flightSessionBeanRemote.createNewFlight(flightEntity, 2l, 3l, Boolean.TRUE, "ML002"));
+//            System.out.println(flightSessionBean.createNewFlight(flightEntity1, 5l, 3l, Boolean.TRUE, "ML004"));
+//            System.out.println(flightSessionBean.createNewFlight(flightEntity2, 3l, 4l, Boolean.FALSE, "ML006"));
+
         } catch (CreateNewFlightException | FlightRouteNotFoundException | AircraftConfigurationNotFoundException ex) {
             System.out.println(ex);
         }
@@ -310,8 +318,13 @@ public class TestSessionBean {
             fares1.add(fareEntity5);
             fares1.add(fareEntity8);
 
+
             flightSchedulePlanSessionBeanRemote.createNewNonRecurrentFlightSchedulePlan(flightSchedules, fares1, "ML005", true);
 //
+
+            flightSchedulePlanSessionBeanRemote.createNewNonRecurrentFlightSchedulePlan(flightSchedules, fares1, "ML001", true);
+
+
 //            FlightScheduleEntity base = new FlightScheduleEntity();
 //            base.setDepartureDate(inputDateFormat.parse("1/11/2020"));
 //            base.setEstimatedFlightDuration(1);
@@ -331,6 +344,7 @@ public class TestSessionBean {
 //            fares1.add(fareEntity7);
 //            fares1.add(fareEntity8);
 //
+
 //            flightSchedulePlanSessionBeanRemote.createRecurrentFlightSchedulePlan(inputDateFormat.parse("5/11/2020"), 2, base, fares1, "ML003", Boolean.TRUE);
 
             /*
@@ -341,6 +355,11 @@ public class TestSessionBean {
   ML005: Singapore Changi Airport--->Sydney International Airport via SIABudget|#]
   	ML006: Sydney International Airport--->Singapore Changi Airport via SIABudget|#]
              */
+
+
+//            flightSchedulePlanSessionBeanRemote.createRecurrentFlightSchedulePlan(inputDateFormat.parse("14/11/2020"), 2, base, fares1, "ML001", Boolean.TRUE);
+
+
         } catch (Exception ex) {
             System.out.println(ex);
         }
