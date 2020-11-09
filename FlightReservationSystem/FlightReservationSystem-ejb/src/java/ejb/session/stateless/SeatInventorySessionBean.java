@@ -12,6 +12,7 @@ import entity.FlightScheduleEntity;
 import entity.PassengerEntity;
 import entity.SeatEntity;
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.ejb.EJB;
@@ -138,9 +139,9 @@ public class SeatInventorySessionBean implements SeatInventorySessionBeanRemote,
 
     @Override
     public SeatEntity retrieveAvailableSeatFromFlightScheduleAndCabin(Long flightScheduleId, CabinClassEnum cabinClassEnum, String seatNumber) throws SeatNotFoundException, ReserveSeatException {
-        Query query = em.createQuery("SELECT s FROM SeatEntity s WHERE s.flightSchedule = :inFlightSchedule AND s.cabinClassEnum = :incabinClassEnum AND s.seatNumber =:inSeatNumber");
+        Query query = em.createQuery("SELECT s FROM SeatEntity s WHERE s.flightSchedule.flightScheduleId = :inFlightScheduleId AND s.cabinClassEnum = :incabinClassEnum AND s.seatNumber =:inSeatNumber");
 
-        query.setParameter("inFlightSchedule", flightScheduleId);
+        query.setParameter("inFlightScheduleId", flightScheduleId);
         query.setParameter("incabinClassEnum", cabinClassEnum);
         query.setParameter("inSeatNumber", seatNumber);
 
@@ -159,9 +160,9 @@ public class SeatInventorySessionBean implements SeatInventorySessionBeanRemote,
 
     @Override
     public List<SeatEntity> retrieveAllAvailableSeatsFromFlightScheduleAndCabin(Long flightScheduleId, CabinClassEnum cabinClassEnum) {
-        Query query = em.createQuery("SELECT s FROM SeatEntity s WHERE s.flightSchedule = :inFlightSchedule AND s.cabinClassEnum = :incabinClassEnum AND s.passenger IS NULL");
+        Query query = em.createQuery("SELECT s FROM SeatEntity s WHERE s.flightSchedule.flightScheduleId = :inFlightScheduleId AND s.cabinClassEnum = :incabinClassEnum AND s.passenger IS NULL");
 
-        query.setParameter("inFlightSchedule", flightScheduleId);
+        query.setParameter("inFlightScheduleId", flightScheduleId);
         query.setParameter("incabinClassEnum", cabinClassEnum);
 
         return (List<SeatEntity>) query.getResultList();
@@ -175,9 +176,9 @@ public class SeatInventorySessionBean implements SeatInventorySessionBeanRemote,
 
         // track total fare amount
         BigDecimal fareAmount = BigDecimal.ZERO;
+        HashSet<String> fareBasisCodes = new HashSet<>();
 
         for (SeatEntity seat : passenger.getSeats()) {
-
             if (seat.getPassenger() != null) {
                 throw new ReserveSeatException("ReserveSeatException: Seat with seat number " + seat.getSeatNumber() + " already reserved!");
             }
@@ -191,11 +192,14 @@ public class SeatInventorySessionBean implements SeatInventorySessionBeanRemote,
                 }
             }
 
+            if (fareBasisCodes.contains(cheapestFare.getFareBasisCode())) {
+                throw new ReserveSeatException("ReserveSeatException: Passenger has multiple seat reservations within the same flight schedule!");
+            }
+
             seat.setFareBasisCode(cheapestFare.getFareBasisCode());
             seat.setPassenger(passenger);
             fareAmount = fareAmount.add(cheapestFare.getFareAmount());
         }
-
         // update total fare amount
         passenger.setFareAmount(fareAmount);
     }

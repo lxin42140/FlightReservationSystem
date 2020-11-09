@@ -42,17 +42,17 @@ public class FlightReservationEntity implements Serializable {
     @Column(nullable = false, precision = 19, scale = 4)
     private BigDecimal totalAmount;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "userId", nullable = false)
     @NotNull
     private UserEntity user;
 
-    @OneToOne(mappedBy = "flightReservation", optional = false, cascade = {CascadeType.PERSIST})
+    @OneToOne(mappedBy = "flightReservation", optional = false, cascade = {CascadeType.PERSIST}, fetch = FetchType.EAGER)
     @JoinColumn(name = "creditCardId", nullable = false)
     @NotNull
     private CreditCardEntity creditCard;
 
-    @OneToMany(mappedBy = "flightReservation", cascade = {CascadeType.PERSIST}, orphanRemoval = true)
+    @OneToMany(mappedBy = "flightReservation", cascade = {CascadeType.PERSIST}, orphanRemoval = true, fetch = FetchType.EAGER)
     @NotEmpty
     private List<PassengerEntity> passengers;
 

@@ -10,6 +10,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -47,12 +48,12 @@ public class SeatEntity implements Serializable {
     @Column(length = 7)
     private String fareBasisCode;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "FlightScheduleId", nullable = false)
     @NotNull
     private FlightScheduleEntity flightSchedule;
 
-    @ManyToOne(optional = true, cascade = {})
+    @ManyToOne(optional = true, cascade = {}, fetch = FetchType.EAGER)
     @JoinColumn(name = "passengerId")
     private PassengerEntity passenger;
 

@@ -44,7 +44,7 @@ public class PassengerSessionBean implements PassengerSessionBeanRemote, Passeng
                 throw new CreateNewPassengerException(ex.getMessage());
             }
 
-            totalAmount.add(passenger.getFareAmount());
+            totalAmount = totalAmount.add(passenger.getFareAmount());
             validate(passenger);
         }
 
