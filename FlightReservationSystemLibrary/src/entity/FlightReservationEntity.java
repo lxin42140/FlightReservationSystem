@@ -17,7 +17,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -57,8 +56,7 @@ public class FlightReservationEntity implements Serializable {
     @NotEmpty
     private List<PassengerEntity> passengers;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
-    @JoinTable(name = "flightReservationId-flightScheduleId")
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST})
     @NotEmpty
     private List<FlightScheduleEntity> flightSchedules;
 

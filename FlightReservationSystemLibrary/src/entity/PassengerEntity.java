@@ -44,10 +44,9 @@ public class PassengerEntity implements Serializable {
     @Column(length = 32, nullable = false)
     private String lastName;
 
-    @Size(min = 3, max = 7)
-    @Column(length = 7, unique = true, nullable = false)
-    private String fareBasisCode;
-
+//    @Size(min = 3, max = 7)
+//    @Column(length = 7, unique = true, nullable = false)
+//    private String fareBasisCode;
     @Positive
     @Column(nullable = false, precision = 19, scale = 4)
     private BigDecimal fareAmount;
@@ -68,11 +67,19 @@ public class PassengerEntity implements Serializable {
         this.seats = new ArrayList<>();
     }
 
-    public PassengerEntity(String firstName, String lastName, String fareBasisCode, BigDecimal fareAmount, String passportNumber, FlightReservationEntity flightReservation) {
+//    public PassengerEntity(String firstName, String lastName, String fareBasisCode, BigDecimal fareAmount, String passportNumber, FlightReservationEntity flightReservation) {
+//        this();
+//        this.firstName = firstName;
+//        this.lastName = lastName;
+//        this.fareBasisCode = fareBasisCode;
+//        this.fareAmount = fareAmount;
+//        this.passportNumber = passportNumber;
+//        this.flightReservation = flightReservation;
+//    }
+    public PassengerEntity(String firstName, String lastName, BigDecimal fareAmount, String passportNumber, FlightReservationEntity flightReservation) {
         this();
         this.firstName = firstName;
         this.lastName = lastName;
-        this.fareBasisCode = fareBasisCode;
         this.fareAmount = fareAmount;
         this.passportNumber = passportNumber;
         this.flightReservation = flightReservation;
@@ -106,14 +113,13 @@ public class PassengerEntity implements Serializable {
         this.passportNumber = passportNumber;
     }
 
-    public String getFareBasisCode() {
-        return fareBasisCode;
-    }
-
-    public void setFareBasisCode(String fareBasisCode) {
-        this.fareBasisCode = fareBasisCode;
-    }
-
+//    public String getFareBasisCode() {
+//        return fareBasisCode;
+//    }
+//
+//    public void setFareBasisCode(String fareBasisCode) {
+//        this.fareBasisCode = fareBasisCode;
+//    }
     public BigDecimal getFareAmount() {
         return fareAmount;
     }

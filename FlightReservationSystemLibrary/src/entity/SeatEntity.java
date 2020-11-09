@@ -17,6 +17,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import util.enumeration.CabinClassEnum;
 
 /**
@@ -44,6 +45,11 @@ public class SeatEntity implements Serializable {
     @Column(nullable = false, length = 5)
     @NotBlank
     private String seatNumber;
+
+    // track the fare basis code used to book the seat
+    @Size(min = 3, max = 7)
+    @Column(length = 7)
+    private String fareBasisCode;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "FlightScheduleId", nullable = false)
@@ -94,6 +100,14 @@ public class SeatEntity implements Serializable {
 
     public void setSeatNumber(String seatNumber) {
         this.seatNumber = seatNumber;
+    }
+
+    public String getFareBasisCode() {
+        return fareBasisCode;
+    }
+
+    public void setFareBasisCode(String fareBasisCode) {
+        this.fareBasisCode = fareBasisCode;
     }
 
     public PassengerEntity getPassenger() {

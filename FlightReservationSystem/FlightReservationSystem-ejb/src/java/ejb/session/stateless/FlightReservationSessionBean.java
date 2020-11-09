@@ -9,15 +9,17 @@ import entity.CreditCardEntity;
 import entity.FlightReservationEntity;
 import entity.FlightScheduleEntity;
 import entity.PassengerEntity;
+import entity.SeatEntity;
 import entity.UserEntity;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -47,17 +49,35 @@ public class FlightReservationSessionBean implements FlightReservationSessionBea
     private EntityManager em;
 
     @Override
-    public List<FlightReservationEntity> viewFlightReservationsByFlightScheduleId(Long flightScheduleId) {
-        Query query = em.createQuery("SELECT DISTINCT f from FlightReservationEntity f, IN (f.flightSchedules) fs, IN (f.passengers.seats) s WHERE fs.flightScheduleId =:inFlightScheduleId ORDER BY s.seatNumber");
-        query.setParameter("inFlightScheduleId", flightScheduleId);
-        List<FlightReservationEntity> flightReservations = query.getResultList();
+    public List<SeatEntity> viewFlightReservationsByFlightScheduleId(Long flightScheduleId) throws FlightScheduleNotFoundException {
 
-        return flightReservations;
+        FlightScheduleEntity flightSchedule = flightScheduleSessionBeanLocal.retrieveFlightScheduleById(flightScheduleId);
+
+        // get a list of seats that are booked
+        List<SeatEntity> reservedSeats = new ArrayList<>();
+
+        for (SeatEntity seat : flightSchedule.getSeatInventory()) {
+            if (seat.getPassenger() != null) {
+                reservedSeats.add(seat);
+            }
+        }
+
+        // sort base on cabin class
+        reservedSeats.sort(((SeatEntity a, SeatEntity b) -> {
+            a.getCabinClassEnum().compareTo(b.getCabinClassEnum());
+        }));
+
+        // sort base on seat number
+        reservedSeats.sort(((SeatEntity a, SeatEntity b) -> {
+            a.getSeatNumber().compareTo(b.getSeatNumber());
+        }));
+
+        return reservedSeats;
     }
 
     // every passenger needs to have a list of seats FOR EACH FLIGHT SCHEDULE, along with the required information in the attributes
-    @Override
-    public Long createNewFlightReservationForNoReturnFlight(List<Long> flightScheduleIds, List<PassengerEntity> passengers, CreditCardEntity creditCardEntity, UserEntity user) throws CreateNewFlightReservationException {
+    //@Override
+    public Long createNewFlightReservationForNoReturnFlight(HashSet<Long> flightScheduleIds, List<PassengerEntity> passengers, CreditCardEntity creditCardEntity, UserEntity user) throws CreateNewFlightReservationException {
         FlightReservationEntity newFlightReservation = new FlightReservationEntity();
 
         try {
@@ -95,7 +115,7 @@ public class FlightReservationSessionBean implements FlightReservationSessionBea
 
     }
 
-    @Override
+    //@Override
     public Long createNewFlightReservationForReturnFlight(List<Long> toFlightScheduleIds, List<Long> returnFlightScheduleIds, List<PassengerEntity> passengers, CreditCardEntity creditCardEntity, UserEntity user) throws CreateNewFlightReservationException {
         FlightReservationEntity newFlightReservation = new FlightReservationEntity();
 

@@ -10,6 +10,7 @@ import entity.FlightEntity;
 import entity.FlightReservationEntity;
 import entity.FlightScheduleEntity;
 import entity.FlightSchedulePlanEntity;
+import entity.SeatEntity;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -188,21 +189,6 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
         return returnFlightSchedulePlanEntity;
     }
 
-//    // helper method to create retrun flight schedule
-//    private FlightScheduleEntity createReturnFlightSchedule(FlightScheduleEntity flightSchedule) {
-//        Date arrivalDateTime = flightSchedule.getArrivalDateTime(); // arrival time is already calculated based on time zone of destination airport
-//        GregorianCalendar returnDepartureDateTimeCalender = new GregorianCalendar();
-//        returnDepartureDateTimeCalender.setTime(arrivalDateTime);
-//        returnDepartureDateTimeCalender.add(GregorianCalendar.HOUR_OF_DAY, 8); // lay over of 8 hours
-//
-//        Date returnDepartureDateTime = returnDepartureDateTimeCalender.getTime();
-//
-//        FlightScheduleEntity returnFlightSchedule = new FlightScheduleEntity(returnDepartureDateTime, flightSchedule.getEstimatedFlightDuration());
-//
-//        flightSchedule.setReturnFlightSchedule(returnFlightSchedule); // associate flight schedule and its return flight schedule
-//
-//        return returnFlightSchedule;
-//    }
     @Override
     public List<FlightSchedulePlanEntity> retrieveAllFlightSchedulePlans() {
         Query query = em.createQuery("SELECT f from FlightSchedulePlanEntity f WHERE f.isReturnFlightSchedulePlan = FALSE AND f.isDisabled = FALSE ORDER BY f.flight.flightNumber ASC");
@@ -281,7 +267,10 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
                 FlightScheduleEntity existingFlightScheduleEntity = iter.next();
 
                 if (flightScheduleIdsToRemove.contains(existingFlightScheduleEntity.getFlightScheduleId())) {
-                    checkFlightScheduleUsage(existingFlightScheduleEntity);
+
+                    if (!existingFlightScheduleEntity.getFlightReservations().isEmpty()) {
+                        throw new UpdateFlightSchedulePlanFailedException("UpdateFlightSchedulePlanFailedException: Flight schedule has already been reserved!");
+                    }
 
                     // remove complementary return flight schedule if any
                     if (existingFlightScheduleEntity.getReturnFlightSchedule() != null) {
@@ -299,7 +288,7 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
 
             return existingFlightSchedulePlanEntity.getFlightSchedulePlanId();
 
-        } catch (FlightSchedulePlanNotFoundException | FlightSchedulePlanInUseException ex) {
+        } catch (FlightSchedulePlanNotFoundException ex) {
             em.getTransaction().rollback();
             throw new UpdateFlightSchedulePlanFailedException(ex.getMessage());
         }
@@ -318,11 +307,10 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
             FlightScheduleEntity returnFlightSchedule = iter.next();
 
             if (flightScheduleIdsToRemove.contains(returnFlightSchedule.getFlightScheduleId())) {
-                try {
-                    checkFlightScheduleUsage(returnFlightSchedule);
-                } catch (FlightSchedulePlanInUseException ex) {
+
+                if (!returnFlightSchedule.getFlightReservations().isEmpty()) {
                     em.getTransaction().rollback();
-                    throw new UpdateFlightSchedulePlanFailedException(ex.getMessage());
+                    throw new UpdateFlightSchedulePlanFailedException("UpdateFlightSchedulePlanFailedException: Flight schedule has already been reserved!");
                 }
 
                 // remove return flight schedule from parent flight schedule 
@@ -581,11 +569,9 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
 
             if (flightScheduleIdsToRemove.contains(existingFlightScheduleEntity.getFlightScheduleId())) {
 
-                try {
-                    checkFlightScheduleUsage(existingFlightScheduleEntity);
-                } catch (FlightSchedulePlanInUseException ex) {
+                if (!existingFlightScheduleEntity.getFlightReservations().isEmpty()) {
                     em.getTransaction().rollback();
-                    throw new UpdateFlightSchedulePlanFailedException(ex.getMessage());
+                    throw new UpdateFlightSchedulePlanFailedException("UpdateFlightSchedulePlanFailedException: Flight schedule has already been reserved");
                 }
 
                 // remove complementary return flight schedule if any
@@ -618,11 +604,12 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
             FlightScheduleEntity returnFlightSchedule = iter.next();
 
             if (flightScheduleIdsToRemove.contains(returnFlightSchedule.getFlightScheduleId())) {
-                try {
-                    checkFlightScheduleUsage(returnFlightSchedule);
-                } catch (FlightSchedulePlanInUseException ex) {
-                    throw new UpdateFlightSchedulePlanFailedException(ex.getMessage());
+
+                if (!returnFlightSchedule.getFlightReservations().isEmpty()) {
+                    em.getTransaction().rollback();
+                    throw new UpdateFlightSchedulePlanFailedException("UpdateFlightSchedulePlanFailedException: Flight schedule has already been reserved");
                 }
+
                 // remove return flight schedule from parent flight schedule 
                 for (FlightScheduleEntity parentFlightSchedule : parentFlightSchedulePlan.getFlightSchedules()) {
 
@@ -674,39 +661,29 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
     }
 
     private void checkFlightSchedulePlanUsage(FlightSchedulePlanEntity existingFlightSchedulePlanEntity) throws UpdateFlightSchedulePlanFailedException {
-        try {
-            List<FlightScheduleEntity> flightSchedules = existingFlightSchedulePlanEntity.getFlightSchedules();
-            for (FlightScheduleEntity flightSchedule : flightSchedules) {
-                checkFlightScheduleUsage(flightSchedule);
-            }
+        List<FlightScheduleEntity> flightSchedules = existingFlightSchedulePlanEntity.getFlightSchedules();
 
-            if (existingFlightSchedulePlanEntity.getReturnFlightSchedulePlan() != null) {
-                List<FlightScheduleEntity> returnFlightSchedules = existingFlightSchedulePlanEntity.getReturnFlightSchedulePlan().getFlightSchedules();
-                for (FlightScheduleEntity flightSchedule : returnFlightSchedules) {
-                    checkFlightScheduleUsage(flightSchedule);
-                }
+        for (FlightScheduleEntity flightSchedule : flightSchedules) {
+            if (!flightSchedule.getFlightReservations().isEmpty()) {
+                throw new UpdateFlightSchedulePlanFailedException("UpdateFlightSchedulePlanFailedException: Flight schedule has already been reserved!");
             }
-        } catch (FlightSchedulePlanInUseException ex) {
-            throw new UpdateFlightSchedulePlanFailedException(ex.getMessage());
         }
-    }
 
-    private void checkFlightScheduleUsage(FlightScheduleEntity flightScheduleEntity) throws FlightSchedulePlanInUseException {
-        Query query = em.createQuery("SELECT f FROM FlightReservationEntity f");
-
-        List<FlightReservationEntity> flightReservations = (List<FlightReservationEntity>) query.getResultList();
-
-        if (!flightReservations.isEmpty()) {
-            for (FlightReservationEntity flightReservation : flightReservations) {
-                for (FlightScheduleEntity flightSchedule : flightReservation.getFlightSchedules()) {
-                    if (flightSchedule.equals(flightScheduleEntity)) {
-                        throw new FlightSchedulePlanInUseException("FlightSchedulePlanInUseException: Flight schedule has already been reserved!");
-                    }
+        if (existingFlightSchedulePlanEntity.getReturnFlightSchedulePlan() != null) {
+            List<FlightScheduleEntity> returnFlightSchedules = existingFlightSchedulePlanEntity.getReturnFlightSchedulePlan().getFlightSchedules();
+            for (FlightScheduleEntity flightSchedule : returnFlightSchedules) {
+                if (!flightSchedule.getFlightReservations().isEmpty()) {
+                    throw new UpdateFlightSchedulePlanFailedException("UpdateFlightSchedulePlanFailedException: Flight schedule has already been reserved!");
                 }
             }
         }
     }
 
+//    private void checkFlightScheduleUsage(FlightScheduleEntity flightSchedule) throws FlightSchedulePlanInUseException {
+//        if (!flightSchedule.getFlightReservations().isEmpty()) {
+//            throw new FlightSchedulePlanInUseException("FlightSchedulePlanInUseException: Flight schedule has already been reserved!");
+//        }
+//    }
     // update departure date and flight duration
     @Override
     public Long updateFlightScheduleDetailForNonRecurrentFlightSchedulePlan(Long flightSchedulePlanId, List<FlightScheduleEntity> updatedFlightSchedules) throws UpdateFlightSchedulePlanFailedException {
@@ -731,8 +708,9 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
                 for (FlightScheduleEntity existingFlightSchedule : existingFlightSchedules) {
                     if (existingFlightSchedule.equals(updatedFlightSchedule)) {
                         // check that the flight schedule to be updated is not in use
-                        checkFlightScheduleUsage(existingFlightSchedule);
-
+                        if (!existingFlightSchedule.getFlightReservations().isEmpty()) {
+                            throw new FlightSchedulePlanInUseException("FlightSchedulePlanInUseException: Flight schedule has already been reserved!");
+                        }
                         // both departure time and flight duration are updated
                         if (!existingFlightSchedule.getDepartureDate().equals(updatedFlightSchedule.getDepartureDate())
                                 && !existingFlightSchedule.getEstimatedFlightDuration().equals(updatedFlightSchedule.getEstimatedFlightDuration())) {
@@ -861,7 +839,7 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
             fareCheck.put(CabinClassEnum.J, 0);
             fareCheck.put(CabinClassEnum.W, 0);
 
-            // count number of fare for each avail cabin class
+            // count number of fare for each avail cabi
             existingFlightSchedulePlanEntity
                     .getFares()
                     .forEach(x
@@ -874,6 +852,16 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
                 FareEntity fareEntity = iterator.next();
 
                 if (fareIds.contains(fareEntity.getFareId())) {
+
+                    // check whether the fare is being used
+                    String fareBasisCode = fareEntity.getFareBasisCode();
+                    Query query = em.createQuery("SELECT s FROM SeatEntity s WHERE s.fareBasisCode := inFareBasisCode");
+                    query.setParameter("inFareBasisCode", fareBasisCode);
+                    if (!query.getResultList().isEmpty()) {
+                        em.getTransaction().rollback();
+                        throw new UpdateFlightSchedulePlanFailedException("UpdateFlightSchedulePlanFailedException: Fare basis code " + fareBasisCode + " is in use!");
+                    }
+
                     // decre the number of fare for the avail cabin class
                     fareCheck.put(fareEntity.getCabinClass(), (fareCheck.get(fareEntity.getCabinClass()) - 1));
 
@@ -908,17 +896,16 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
         }
 
         for (FlightScheduleEntity flightScheduleEntity : flightSchedulePlanEntity.getFlightSchedules()) {
-            try {
-                checkFlightScheduleUsage(flightScheduleEntity);
-            } catch (FlightSchedulePlanInUseException ex) {
+
+            if (!flightScheduleEntity.getFlightReservations().isEmpty()) {
                 flightSchedulePlanEntity.setIsDisabled(true); // set main to disabled
                 if (flightSchedulePlanEntity.getReturnFlightSchedulePlan() != null) { // set return to disabled
                     flightSchedulePlanEntity.getReturnFlightSchedulePlan().setIsDisabled(true);
                 }
                 em.flush();
-
-                throw new FlightSchedulePlanInUseException("FlightSchedulePlanInUseException: Flight schedule plan has flight schedules that are being reserved!\nFlight schedule plan is marked as disabled!");
+                throw new FlightSchedulePlanInUseException("FlightSchedulePlanInUseException: Flight schedule has already been reserved!");
             }
+
         }
 
         // remove main flight schedule plan from associated flight
@@ -934,7 +921,9 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
 
     private void deleteReturnFlightSchedulePlan(FlightSchedulePlanEntity returnFlightSchedulePlanEntity) throws FlightSchedulePlanInUseException {
         for (FlightScheduleEntity flightScheduleEntity : returnFlightSchedulePlanEntity.getFlightSchedules()) {
-            checkFlightScheduleUsage(flightScheduleEntity);
+            if (!flightScheduleEntity.getFlightReservations().isEmpty()) {
+                throw new FlightSchedulePlanInUseException("FlightSchedulePlanInUseException: Flight schedule has already been reserved!");
+            }
         }
 
         Query query = em.createQuery("SELECT f from FlightSchedulePlanEntity f WHERE f.returnFlightSchedulePlan =:inReturnFlightSchedulePlan");
