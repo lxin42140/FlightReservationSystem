@@ -374,7 +374,7 @@ public class FlightOperationModule {
                 do {
                     System.out.print("Do you want to create more fares? (Y/N)>");
                     createMoreFare = scanner.nextLine().trim();
-                    if (!createMoreFare.equals("Y") || !createMoreFare.equals("N")) {
+                    if (!createMoreFare.equals("Y") && !createMoreFare.equals("N")) {
                         System.out.println("Invalid response! Enter Y/N");
                     }
                     if (createMoreFare.equals("N")) {
@@ -385,7 +385,7 @@ public class FlightOperationModule {
                             // no fare basis code ?
                         }
                     }
-                } while (!createMoreFare.equals("Y") || !createMoreFare.equals("N"));
+                } while (!createMoreFare.equals("Y") && !createMoreFare.equals("N"));
             } while (isCreatingFare);
 
             List<FareEntity> fares = new ArrayList<>();
@@ -409,10 +409,10 @@ public class FlightOperationModule {
                 do {
                     System.out.print("Do you want to create return Flight Schedule Plan? (Y/N)>");
                     returnSchedulePlanResponse = scanner.nextLine().trim();
-                    if (!returnSchedulePlanResponse.equals("Y") || !returnSchedulePlanResponse.equals("N")) {
+                    if (!returnSchedulePlanResponse.equals("Y") && !returnSchedulePlanResponse.equals("N")) {
                         System.out.println("Invalid response! Enter Y/N");
                     }
-                } while (!returnSchedulePlanResponse.equals("Y") || !returnSchedulePlanResponse.equals("N"));
+                } while (!returnSchedulePlanResponse.equals("Y") && !returnSchedulePlanResponse.equals("N"));
             }
 
             Boolean doCreateReturnFlightSchedule = returnSchedulePlanResponse.equals("Y");
@@ -429,12 +429,12 @@ public class FlightOperationModule {
                         do {
                             System.out.print("Do you want to create more Flight Schedules? (Y/N)>");
                             createFlightScheduleResponse = scanner.nextLine().trim();
-                            if (!createFlightScheduleResponse.equals("Y") || !createFlightScheduleResponse.equals("N")) {
+                            if (!createFlightScheduleResponse.equals("Y") && !createFlightScheduleResponse.equals("N")) {
                                 System.out.println("Invalid response! Enter Y/N");
                             } else {
                                 createMoreFlightSchedule = createFlightScheduleResponse.equals("Y");
                             }
-                        } while (!createFlightScheduleResponse.equals("Y") || !createFlightScheduleResponse.equals("N"));
+                        } while (!createFlightScheduleResponse.equals("Y") && !createFlightScheduleResponse.equals("N"));
                     } while (createMoreFlightSchedule);
                 }
 
@@ -519,7 +519,7 @@ public class FlightOperationModule {
         do {
             System.out.print("Enter cabin class (F/J/W/Y)>");
             cabinClass = scanner.nextLine().trim();
-        } while (!cabinClass.equals("F") || !cabinClass.equals("J") || !cabinClass.equals("W") || !cabinClass.equals("Y"));
+        } while (!cabinClass.equals("F") && !cabinClass.equals("J") && !cabinClass.equals("W") && !cabinClass.equals("Y"));
 
         String fareBasisCode = cabinClass;
         do {
@@ -651,10 +651,10 @@ public class FlightOperationModule {
                     do {
                         System.out.print("Do you want to delete more Flight Schedules? (Y/N)>");
                         addMore = scanner.nextLine().trim();
-                        if (!addMore.equals("Y") || !addMore.equals("N")) {
+                        if (!addMore.equals("Y") && !addMore.equals("N")) {
                             System.out.println("Invalid response! Enter Y/N");
                         }
-                    } while (!addMore.equals("Y") || !addMore.equals("N"));
+                    } while (!addMore.equals("Y") && !addMore.equals("N"));
                 } while (addMore.equals("Y"));
 
                 try {
@@ -675,10 +675,10 @@ public class FlightOperationModule {
                     do {
                         System.out.print("Do you want to add more Flight Schedules? (Y/N)>");
                         createMoreFlightSchedules = scanner.nextLine().trim();
-                        if (!createMoreFlightSchedules.equals("Y") || !createMoreFlightSchedules.equals("N")) {
+                        if (!createMoreFlightSchedules.equals("Y") && !createMoreFlightSchedules.equals("N")) {
                             System.out.println("Invalid response! Enter Y/N");
                         }
-                    } while (!createMoreFlightSchedules.equals("Y") || !createMoreFlightSchedules.equals("N"));
+                    } while (!createMoreFlightSchedules.equals("Y") && !createMoreFlightSchedules.equals("N"));
                 } while (createMoreFlightSchedules.equals("Y"));
 
                 String doCreateReturnFlightSchedule = "N";
@@ -686,10 +686,10 @@ public class FlightOperationModule {
                 do {
                     System.out.print("Do you want to create return Flight Schedules? (Y/N)>");
                     doCreateReturnFlightSchedule = scanner.nextLine().trim();
-                    if (!doCreateReturnFlightSchedule.equals("Y") || !doCreateReturnFlightSchedule.equals("N")) {
+                    if (!doCreateReturnFlightSchedule.equals("Y") && !doCreateReturnFlightSchedule.equals("N")) {
                         System.out.println("Invalid response! Enter Y/N");
                     }
-                } while (!doCreateReturnFlightSchedule.equals("Y") || !doCreateReturnFlightSchedule.equals("N"));
+                } while (!doCreateReturnFlightSchedule.equals("Y") && !doCreateReturnFlightSchedule.equals("N"));
 
                 try {
                     flightSchedulePlanSessionBeanRemote.updateAddFlightScheduleToFlightSchedulePlan(flightSchedulePlanId, newFlightSchedules, doCreateReturnFlightSchedule.equals("Y"));
@@ -786,10 +786,10 @@ public class FlightOperationModule {
                         do {
                             System.out.println("Do you want to update more flight schedules? (Y/N)");
                             updateMoreFlightSchedules = scanner.nextLine().trim();
-                            if (!updateMoreFlightSchedules.equals("Y") || !updateMoreFlightSchedules.equals("N")) {
+                            if (!updateMoreFlightSchedules.equals("Y") && !updateMoreFlightSchedules.equals("N")) {
                                 System.out.println("Invalied response! Please enter Y/N");
                             }
-                        } while (!updateMoreFlightSchedules.equals("Y") || !updateMoreFlightSchedules.equals("N"));
+                        } while (!updateMoreFlightSchedules.equals("Y") && !updateMoreFlightSchedules.equals("N"));
                     } catch (FlightScheduleNotFoundException ex) {
                         System.out.println(ex.getMessage());
                     }
@@ -827,10 +827,10 @@ public class FlightOperationModule {
                         do {
                             System.out.println("Do you want to update more fare amounts? (Y/N)");
                             updateMoreFares = scanner.nextLine().trim();
-                            if (!updateMoreFares.equals("Y") || !updateMoreFares.equals("N")) {
+                            if (!updateMoreFares.equals("Y") && !updateMoreFares.equals("N")) {
                                 System.out.println("Invalied response! Please enter Y/N");
                             }
-                        } while (!updateMoreFares.equals("Y") || !updateMoreFares.equals("N"));
+                        } while (!updateMoreFares.equals("Y") && !updateMoreFares.equals("N"));
                     } catch (FlightSchedulePlanNotFoundException | UpdateFlightSchedulePlanFailedException ex) {
                         System.out.println(ex.getMessage());
                     }
@@ -856,10 +856,10 @@ public class FlightOperationModule {
                     do {
                         System.out.println("Do you want to add more fare? (Y/N)");
                         addMoreFares = scanner.nextLine().trim();
-                        if (!addMoreFares.equals("Y") || !addMoreFares.equals("N")) {
+                        if (!addMoreFares.equals("Y") && !addMoreFares.equals("N")) {
                             System.out.println("Invalied response! Please enter Y/N");
                         }
-                    } while (!addMoreFares.equals("Y") || !addMoreFares.equals("N"));
+                    } while (!addMoreFares.equals("Y") && !addMoreFares.equals("N"));
                 } while (addMoreFares.equals("Y"));
 
                 try {
@@ -882,10 +882,10 @@ public class FlightOperationModule {
                     do {
                         System.out.println("Do you want to remove more fares? (Y/N)");
                         removeMoreFares = scanner.nextLine().trim();
-                        if (!removeMoreFares.equals("Y") || !removeMoreFares.equals("N")) {
+                        if (!removeMoreFares.equals("Y") && !removeMoreFares.equals("N")) {
                             System.out.println("Invalied response! Please enter Y/N");
                         }
-                    } while (!removeMoreFares.equals("Y") || !removeMoreFares.equals("N"));
+                    } while (!removeMoreFares.equals("Y") && !removeMoreFares.equals("N"));
                 } while (removeMoreFares.equals("Y"));
 
                 try {

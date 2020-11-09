@@ -65,6 +65,8 @@ public class AircraftConfigurationEntity implements Serializable {
     private List<CabinConfigurationEntity> cabinConfigurations;
 
     public AircraftConfigurationEntity() {
+        this.maximumConfigurationSeatCapacity = 0L;
+        this.numberOfCabins = 0L;
         this.cabinConfigurations = new ArrayList<>();
     }
 

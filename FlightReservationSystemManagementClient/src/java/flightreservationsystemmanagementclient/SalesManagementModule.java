@@ -177,7 +177,7 @@ public class SalesManagementModule {
                     }
                 } while (selectedOption <= 0 || selectedOption > option);
 
-                List<FlightReservationEntity> reservationList = flightReservationSessionBeanRemote.viewFlightReservationsByFlightScheduleId(optionsList.get(selectedOption - 1));
+//                List<FlightReservationEntity> reservationList = flightReservationSessionBeanRemote.viewFlightReservationsByFlightScheduleId(optionsList.get(selectedOption - 1));
                 
                 //flight schedule:
                 //1. For each cabin class, 
@@ -186,12 +186,12 @@ public class SalesManagementModule {
                 //      passenger name
                 //      fare basis code
                 
-                for (FlightReservationEntity reservation : reservationList) {
-                    List<PassengerEntity> passengerList = reservation.getPassengers();
-                    for (PassengerEntity passenger : passengerList) {
-                        System.out.println("Passenger name: " + passenger.getFirstName() + " " + passenger.getLastName());
-                    }
-                }
+//                for (FlightReservationEntity reservation : reservationList) {
+//                    List<PassengerEntity> passengerList = reservation.getPassengers();
+//                    for (PassengerEntity passenger : passengerList) {
+//                        System.out.println("Passenger name: " + passenger.getFirstName() + " " + passenger.getLastName());
+//                    }
+//                }
                 //incomplete
 
             }
