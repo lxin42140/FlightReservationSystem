@@ -7,9 +7,11 @@ package ejb.session.stateless;
 
 import entity.AircraftConfigurationEntity;
 import entity.CabinConfigurationEntity;
+import entity.FareEntity;
 import entity.FlightScheduleEntity;
 import entity.PassengerEntity;
 import entity.SeatEntity;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 import javax.ejb.EJB;
@@ -161,28 +163,41 @@ public class SeatInventorySessionBean implements SeatInventorySessionBeanRemote,
 
         query.setParameter("inFlightSchedule", flightScheduleId);
         query.setParameter("incabinClassEnum", cabinClassEnum);
-        
+
         return (List<SeatEntity>) query.getResultList();
     }
 
-//// DO NOT DELETE
-//    @Override
-//    public void reserveSeatForPassenger(Long flightScheduleId, CabinClassEnum cabinClassEnum, String seatNumber, PassengerEntity passengerEntity) throws SeatNotFoundException, ReserveSeatException {
-//        if (passengerEntity == null) {
-//            throw new ReserveSeatException("ReserveSeatException: Invalid passenger!");
-//        }
-//
-//        SeatEntity seatEntity = this.retrieveSeatFromFlightSchedule(flightScheduleId, cabinClassEnum, seatNumber);
-//
-//        if (seatEntity.getPassenger() != null) {
-//            throw new ReserveSeatException("ReserveSeatException: Seat with seat number " + seatNumber + " already reserved!");
-//        }
-//
-//        //associate passenger with seat
-//        seatEntity.setPassenger(passengerEntity);
-//        //associate seat with passenger
-//        passengerEntity.getSeats().add(seatEntity);
-//
-//        em.merge(seatEntity);
-//    }
+    @Override // local only
+    public void reserveSeatsForCustomer(PassengerEntity passenger) throws ReserveSeatException {
+        if (passenger == null) {
+            throw new ReserveSeatException("ReserveSeatException: Invalid passenger!");
+        }
+
+        // track total fare amount
+        BigDecimal fareAmount = BigDecimal.ZERO;
+
+        for (SeatEntity seat : passenger.getSeats()) {
+
+            if (seat.getPassenger() != null) {
+                throw new ReserveSeatException("ReserveSeatException: Seat with seat number " + seat.getSeatNumber() + " already reserved!");
+            }
+
+            // retrieve cheapest fare associated with the flight schedule and the cabin class of the seat
+            List<FareEntity> fares = seat.getFlightSchedule().getFlightSchedulePlan().getFares();
+            FareEntity cheapestFare = fares.get(0);
+            for (FareEntity fare : fares) {
+                if (fare.getCabinClass().equals(seat.getCabinClassEnum()) && fare.getFareAmount().compareTo(cheapestFare.getFareAmount()) < 0) {
+                    cheapestFare = fare;
+                }
+            }
+
+            seat.setFareBasisCode(cheapestFare.getFareBasisCode());
+            seat.setPassenger(passenger);
+            fareAmount = fareAmount.add(cheapestFare.getFareAmount());
+        }
+
+        // update total fare amount
+        passenger.setFareAmount(fareAmount);
+    }
+
 }

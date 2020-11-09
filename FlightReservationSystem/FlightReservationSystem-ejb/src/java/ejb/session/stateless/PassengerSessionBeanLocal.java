@@ -7,6 +7,7 @@ package ejb.session.stateless;
 
 import entity.FlightReservationEntity;
 import entity.PassengerEntity;
+import java.util.List;
 import javax.ejb.Local;
 import util.exception.CreateNewPassengerException;
 
@@ -17,6 +18,6 @@ import util.exception.CreateNewPassengerException;
 @Local
 public interface PassengerSessionBeanLocal {
 
-    public void createNewPassenger(PassengerEntity passenger, FlightReservationEntity flightReservation) throws CreateNewPassengerException;
-    
+    public void addPassengersToReservation(List<PassengerEntity> passengers, FlightReservationEntity flightReservation) throws CreateNewPassengerException;
+
 }

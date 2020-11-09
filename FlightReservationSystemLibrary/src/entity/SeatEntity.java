@@ -33,10 +33,6 @@ public class SeatEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long seatId;
 
-//    @NotNull
-//    @OneToOne(optional = false)
-//    @JoinColumn(name = "cabinConfigurationId", nullable = false)
-//    private CabinConfigurationEntity cabinConfiguration;
     @NotNull
     @Column(name = "CabinClass", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -69,23 +65,10 @@ public class SeatEntity implements Serializable {
         this.flightSchedule = flightSchedule;
     }
 
-//    public SeatEntity(CabinConfigurationEntity cabinConfiguration, Integer seatRowNumber, Character seatRowLetter, FlightScheduleEntity flightSchedule) {
-//        this.cabinConfiguration = cabinConfiguration;
-//        this.seatRowNumber = seatRowNumber;
-//        this.seatRowLetter = seatRowLetter;
-//        this.flightSchedule = flightSchedule;
-//    }
     public Long getSeatId() {
         return seatId;
     }
 
-//    public CabinConfigurationEntity getCabinConfiguration() {
-//        return cabinConfiguration;
-//    }
-//
-//    public void setCabinConfiguration(CabinConfigurationEntity cabinConfiguration) {
-//        this.cabinConfiguration = cabinConfiguration;
-//    }
     public CabinClassEnum getCabinClassEnum() {
         return cabinClassEnum;
     }

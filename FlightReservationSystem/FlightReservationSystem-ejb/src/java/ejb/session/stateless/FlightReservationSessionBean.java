@@ -74,105 +74,49 @@ public class FlightReservationSessionBean implements FlightReservationSessionBea
 
         return reservedSeats;
     }
-/*
-• Reserve a flight schedule and cabin class offered in the search
-results (see use case 3).
-• For round-trip/return, customer must select a return flight
-schedule and cabin class offered in the search results.
-• You may assume that a customer can only reserve flight ticket(s)
-for one itinerary per transaction.
-• For each outbound and return flight leg, customer should be able
-to select the required seat for each passenger.
-• For each passenger, the system should prompt customer to input
-the passenger first name, last name and passport number.
-• The system should record the credit card details of the customer
-to simulate the completion of the checkout.
 
-    add flight schedule ids to 
-*/
-    // every passenger needs to have a list of seats FOR EACH FLIGHT SCHEDULE, along with the required information in the attributes
-    //@Override
-
-    public Long createNewFlightReservationForNoReturnFlight(HashSet<Long> flightScheduleIds, List<PassengerEntity> passengers, CreditCardEntity creditCardEntity, UserEntity user) throws CreateNewFlightReservationException {
+    /*
+    1. prompt user to enter serial number to retrieve List<FlightScheduleEntity> itinery
+    2. create a list of passenger entities - passengers
+    3.   for each FlightScheduleEntity in itinery
+            for each passenger in passengers
+                1. prompt user to select cabin
+                2. display available seats in the cabin -- retrieveAllAvailableSeatsFromFlightScheduleAndCabin 
+                3. prompt user to select seat by entering seat number -- retrieveAvailableSeatFromFlightScheduleAndCabin    
+                4. add retrieved seat to list of seats in passenger -- ONLY THIS ASSOCIATION
+    4. create credit card entity
+    
+    5. If there is a return flight schedule, follow repeat above process and add the return flight schedules to the same list
+    aka List<FlightScheduleEntity> itinery.addAll(List<FlightScheduleEntity> returnItinery)
+    then call this method
+     */
+    @Override
+    public Long createNewFlightReservation(List<FlightScheduleEntity> itinery, List<PassengerEntity> passengers, CreditCardEntity creditCardEntity, UserEntity user) throws CreateNewFlightReservationException {
         FlightReservationEntity newFlightReservation = new FlightReservationEntity();
 
         try {
-            // add flight schedules to flight reservation
-            for (Long flightScheduleId : flightScheduleIds) {
-                FlightScheduleEntity flightSchedule = flightScheduleSessionBeanLocal.retrieveFlightScheduleById(flightScheduleId);
-                newFlightReservation.getFlightSchedules().add(flightSchedule);
-            }
+            // associate user and flight reservation
+            newFlightReservation.setUser(user);
+            user.getFlightReservations().add(newFlightReservation);
 
-            BigDecimal totalAmount = BigDecimal.ZERO;
-            for (PassengerEntity passenger : passengers) {
-                // associate passenger with flight reservation and check seat
-                passengerSessionBeanLocal.createNewPassenger(passenger, newFlightReservation);
-                // calculate total amount
-                totalAmount = totalAmount.add(passenger.getFareAmount());
+            // associate flight schedule with reservation
+            newFlightReservation.getFlightSchedules().addAll(itinery);
+            for (FlightScheduleEntity flightSchedule : itinery) {
+                flightSchedule.getFlightReservations().add(newFlightReservation);
             }
-            newFlightReservation.setTotalAmount(totalAmount);
-
             // associate credit card and flight reservation
             creditCardSessionBeanLocal.createNewCreditCard(creditCardEntity, newFlightReservation);
 
-            // associate user with new flight reservation
-            newFlightReservation.setUser(user);
-            user.getFlightReservations().add(newFlightReservation);
+            passengerSessionBeanLocal.addPassengersToReservation(passengers, newFlightReservation);
 
             validate(newFlightReservation);
 
             em.persist(newFlightReservation);
             em.flush();
-
             return newFlightReservation.getFlightReservationId();
-        } catch (FlightScheduleNotFoundException | CreateNewPassengerException | CreateNewCreditCardException ex) {
+        } catch (CreateNewPassengerException | CreateNewCreditCardException ex) {
             throw new CreateNewFlightReservationException(ex.getMessage());
         }
-
-    }
-
-    //@Override
-    public Long createNewFlightReservationForReturnFlight(List<Long> toFlightScheduleIds, List<Long> returnFlightScheduleIds, List<PassengerEntity> passengers, CreditCardEntity creditCardEntity, UserEntity user) throws CreateNewFlightReservationException {
-        FlightReservationEntity newFlightReservation = new FlightReservationEntity();
-
-        try {
-            // add flight schedules to flight reservation
-            for (Long toFlightScheduleId : toFlightScheduleIds) {
-                FlightScheduleEntity flightSchedule = flightScheduleSessionBeanLocal.retrieveFlightScheduleById(toFlightScheduleId);
-                newFlightReservation.getFlightSchedules().add(flightSchedule);
-            }
-
-            for (Long returnFlightScheduleId : returnFlightScheduleIds) {
-                FlightScheduleEntity flightSchedule = flightScheduleSessionBeanLocal.retrieveFlightScheduleById(returnFlightScheduleId);
-                newFlightReservation.getFlightSchedules().add(flightSchedule);
-            }
-
-            BigDecimal totalAmount = BigDecimal.ZERO;
-            for (PassengerEntity passenger : passengers) {
-                // associate passenger with flight reservation and check seat
-                passengerSessionBeanLocal.createNewPassenger(passenger, newFlightReservation);
-                // calculate total amount
-                totalAmount = totalAmount.add(passenger.getFareAmount());
-            }
-            newFlightReservation.setTotalAmount(totalAmount);
-
-            // associate credit card and flight reservation
-            creditCardSessionBeanLocal.createNewCreditCard(creditCardEntity, newFlightReservation);
-
-            // associate user with new flight reservation
-            newFlightReservation.setUser(user);
-            user.getFlightReservations().add(newFlightReservation);
-
-            validate(newFlightReservation);
-
-            em.persist(newFlightReservation);
-            em.flush();
-
-            return newFlightReservation.getFlightReservationId();
-        } catch (FlightScheduleNotFoundException | CreateNewPassengerException | CreateNewCreditCardException ex) {
-            throw new CreateNewFlightReservationException(ex.getMessage());
-        }
-
     }
 
     private void validate(FlightReservationEntity flightReservationEntity) throws CreateNewFlightReservationException {
