@@ -121,9 +121,9 @@ public class SalesManagementModule {
 
                 SeatInventory seatInventory = seatInventorySessionBeanRemote.viewSeatsInventoryByFlightScheduleId(optionsList.get(selectedOption - 1));
 
-                System.out.println("Toal number of available seats acroass all cabins: " + seatInventory.getTotalAvailSeats());
-                System.out.println("Toal number of reserved seats acroass all cabins: " + seatInventory.getTotalReservedSeats());
-                System.out.println("Toal number of balance seats acroass all cabins: " + seatInventory.getTotalBalancedSeats() + "\n");
+                System.out.println("Total number of available seats acroass all cabins: " + seatInventory.getTotalAvailSeats());
+                System.out.println("Total number of reserved seats acroass all cabins: " + seatInventory.getTotalReservedSeats());
+                System.out.println("Total number of balance seats acroass all cabins: " + seatInventory.getTotalBalancedSeats() + "\n");
 
                 HashMap<CabinClassEnum, Integer[]> map = seatInventory.getCabinSeatsInventory();
 
