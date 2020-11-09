@@ -74,9 +74,25 @@ public class FlightReservationSessionBean implements FlightReservationSessionBea
 
         return reservedSeats;
     }
+/*
+• Reserve a flight schedule and cabin class offered in the search
+results (see use case 3).
+• For round-trip/return, customer must select a return flight
+schedule and cabin class offered in the search results.
+• You may assume that a customer can only reserve flight ticket(s)
+for one itinerary per transaction.
+• For each outbound and return flight leg, customer should be able
+to select the required seat for each passenger.
+• For each passenger, the system should prompt customer to input
+the passenger first name, last name and passport number.
+• The system should record the credit card details of the customer
+to simulate the completion of the checkout.
 
+    add flight schedule ids to 
+*/
     // every passenger needs to have a list of seats FOR EACH FLIGHT SCHEDULE, along with the required information in the attributes
     //@Override
+
     public Long createNewFlightReservationForNoReturnFlight(HashSet<Long> flightScheduleIds, List<PassengerEntity> passengers, CreditCardEntity creditCardEntity, UserEntity user) throws CreateNewFlightReservationException {
         FlightReservationEntity newFlightReservation = new FlightReservationEntity();
 
