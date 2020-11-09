@@ -744,14 +744,18 @@ public class FlightOperationModule {
             case (4):
                 List<FlightScheduleEntity> updatedFlightSchedules = new ArrayList<>();
                 String updateMoreFlightSchedules = "N";
-                
+
+                String departureDate = "";
+                Boolean checkDate = false;
+                Date newDepartureDate = null;
+
                 do {
                     System.out.print("Enter Flight Schedule Id to update>");
                     Long flightScheduleId = scanner.nextLong();
                     try {
                         FlightScheduleEntity flightSchedule = flightScheduleSessionBeanRemote.retrieveFlightScheduleById(flightScheduleId);
-                        
-                        
+                        System.out.print("Enter new departure date for Flight Schedule>");
+
                     } catch (FlightScheduleNotFoundException ex) {
                         System.out.println(ex.getMessage());
                     }
