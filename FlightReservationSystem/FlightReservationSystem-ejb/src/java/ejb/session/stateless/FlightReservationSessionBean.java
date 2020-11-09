@@ -64,12 +64,12 @@ public class FlightReservationSessionBean implements FlightReservationSessionBea
 
         // sort base on cabin class
         reservedSeats.sort(((SeatEntity a, SeatEntity b) -> {
-            a.getCabinClassEnum().compareTo(b.getCabinClassEnum());
+            return a.getCabinClassEnum().compareTo(b.getCabinClassEnum());
         }));
 
         // sort base on seat number
         reservedSeats.sort(((SeatEntity a, SeatEntity b) -> {
-            a.getSeatNumber().compareTo(b.getSeatNumber());
+            return a.getSeatNumber().compareTo(b.getSeatNumber());
         }));
 
         return reservedSeats;
