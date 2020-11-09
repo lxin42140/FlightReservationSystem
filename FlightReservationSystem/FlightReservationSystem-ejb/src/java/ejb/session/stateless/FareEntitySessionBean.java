@@ -9,10 +9,12 @@ import entity.CabinConfigurationEntity;
 import entity.FareEntity;
 import entity.FlightEntity;
 import entity.FlightSchedulePlanEntity;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -20,7 +22,9 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import util.enumeration.CabinClassEnum;
 import util.exception.CreateNewFareException;
+import util.exception.FlightSchedulePlanNotFoundException;
 import util.exception.InvalidFareException;
+import util.exception.UpdateFlightSchedulePlanFailedException;
 
 /**
  *
@@ -29,7 +33,12 @@ import util.exception.InvalidFareException;
 @Stateless
 public class FareEntitySessionBean implements FareEntitySessionBeanRemote, FareEntitySessionBeanLocal {
 
-    private void createNewFare(FareEntity fare, FlightSchedulePlanEntity flightSchedulePlanEntity) throws CreateNewFareException {
+    @EJB
+    private FlightSchedulePlanSessionBeanLocal flightSchedulePlanSessionBeanLocal;
+
+    @Override
+    // local interface only
+    public void createNewFare(FareEntity fare, FlightSchedulePlanEntity flightSchedulePlanEntity) throws CreateNewFareException {
         // bidirectional association
         fare.setFlightSchedulePlan(flightSchedulePlanEntity);
         flightSchedulePlanEntity.getFares().add(fare);
@@ -52,6 +61,27 @@ public class FareEntitySessionBean implements FareEntitySessionBeanRemote, FareE
         for (FareEntity fareEntity : fares) {
             this.createNewFare(fareEntity, flightSchedulePlanEntity);
         }
+    }
+
+    public FareEntity updateFareAmount(Long flightScheduleId, Long fareId, BigDecimal updatedFareAmount) throws FlightSchedulePlanNotFoundException, UpdateFlightSchedulePlanFailedException {
+        if (updatedFareAmount.doubleValue() <= 0) {
+            throw new UpdateFlightSchedulePlanFailedException("Fare amount must be more than zero!");
+        }
+        
+        try {
+            FlightSchedulePlanEntity flightSchedulePlan = flightSchedulePlanSessionBeanLocal.retrieveFlightSchedulePlanById(flightScheduleId);
+
+            for (FareEntity fare : flightSchedulePlan.getFares()) {
+                if (fare.getFareId().equals(fareId)) {
+                    fare.setFareAmount(updatedFareAmount);
+                    return fare;
+                }
+            }
+        } catch (FlightSchedulePlanNotFoundException ex) {
+            throw new FlightSchedulePlanNotFoundException(ex.getMessage());
+        }
+
+        return null;
     }
 
     private void validateFields(FareEntity fare) throws CreateNewFareException {

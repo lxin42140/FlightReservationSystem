@@ -7,9 +7,12 @@ package ejb.session.stateless;
 
 import entity.FareEntity;
 import entity.FlightSchedulePlanEntity;
+import java.math.BigDecimal;
 import java.util.List;
 import javax.ejb.Remote;
 import util.exception.CreateNewFareException;
+import util.exception.FlightSchedulePlanNotFoundException;
+import util.exception.UpdateFlightSchedulePlanFailedException;
 
 /**
  *
@@ -19,5 +22,7 @@ import util.exception.CreateNewFareException;
 public interface FareEntitySessionBeanRemote {
 
     public void createNewFares(List<FareEntity> fares, FlightSchedulePlanEntity flightSchedulePlanEntity) throws CreateNewFareException;
+    
+    public FareEntity updateFareAmount(Long flightScheduleId, Long fareId, BigDecimal updatedFareAmount) throws FlightSchedulePlanNotFoundException, UpdateFlightSchedulePlanFailedException;
 
 }

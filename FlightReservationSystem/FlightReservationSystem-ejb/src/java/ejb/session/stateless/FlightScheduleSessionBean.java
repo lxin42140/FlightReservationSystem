@@ -8,6 +8,8 @@ package ejb.session.stateless;
 import entity.FlightEntity;
 import entity.FlightScheduleEntity;
 import entity.FlightSchedulePlanEntity;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Set;
 import javax.ejb.EJB;
@@ -68,17 +70,39 @@ public class FlightScheduleSessionBean implements FlightScheduleSessionBeanRemot
         validateFlightSchedule(flightScheduleEntity);
     }
 
+    // helper method to create retrun flight schedule
+    @Override     // local interface only
+    public FlightScheduleEntity createReturnFlightSchedule(FlightScheduleEntity flightSchedule) {
+        Date arrivalDateTime = flightSchedule.getArrivalDateTime(); // arrival time is already calculated based on time zone of destination airport
+        GregorianCalendar returnDepartureDateTimeCalender = new GregorianCalendar();
+        returnDepartureDateTimeCalender.setTime(arrivalDateTime);
+        returnDepartureDateTimeCalender.add(GregorianCalendar.HOUR_OF_DAY, 8); // lay over of 8 hours
+
+        Date returnDepartureDateTime = returnDepartureDateTimeCalender.getTime();
+
+        FlightScheduleEntity returnFlightSchedule = new FlightScheduleEntity(returnDepartureDateTime, flightSchedule.getEstimatedFlightDuration());
+
+        flightSchedule.setReturnFlightSchedule(returnFlightSchedule); // associate flight schedule and its return flight schedule
+
+        return returnFlightSchedule;
+    }
+
     @Override  // local interface only
     public void checkFlightSchedules(FlightScheduleEntity newFlightScheduleEntity, FlightEntity flightEntity) throws CreateNewFlightScheduleException {
         // retrieve all flight schedule plans associated with flight
-        List<FlightSchedulePlanEntity> flightSchedulePlans = flightEntity.getFlightSchedulePlans();
+        List<FlightSchedulePlanEntity> existingFlightSchedulePlans = flightEntity.getFlightSchedulePlans();
 
-        for (FlightSchedulePlanEntity flightSchedulePlanEntity : flightSchedulePlans) {
+        for (FlightSchedulePlanEntity existingFlightSchedulePlan : existingFlightSchedulePlans) {
             // retrieve flight schedule for each flight schedule plan record
-            List<FlightScheduleEntity> flightSchedules = flightSchedulePlanEntity.getFlightSchedules();
+            List<FlightScheduleEntity> existingFlightSchedules = existingFlightSchedulePlan.getFlightSchedules();
             // check if any flight schedule conflict with the new flight schedule
-            for (FlightScheduleEntity flightScheduleEntity : flightSchedules) {
-                if (checkConflictBetweenTwoSchedule(flightScheduleEntity, newFlightScheduleEntity)) {
+            for (FlightScheduleEntity existingFlightSchedule : existingFlightSchedules) {
+                if (existingFlightSchedule.equals(newFlightScheduleEntity)) {
+                    // same flight schedule as existing, in the event when flight schedule details are changed
+                    continue;
+                }
+
+                if (checkConflictBetweenTwoSchedule(existingFlightSchedule, newFlightScheduleEntity)) {
                     throw new CreateNewFlightScheduleException("CreateNewFlightScheduleException: New flight schedule conflicts with existing flight schedule!");
                 }
             }

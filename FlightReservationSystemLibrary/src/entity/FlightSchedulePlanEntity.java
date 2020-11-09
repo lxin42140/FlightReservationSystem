@@ -57,7 +57,7 @@ public class FlightSchedulePlanEntity implements Serializable {
     @NotEmpty
     private List<FlightScheduleEntity> flightSchedules;
 
-    @OneToMany(mappedBy = "flightSchedulePlan", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "flightSchedulePlan", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true, fetch = FetchType.EAGER)
     @NotEmpty
     private List<FareEntity> fares;
 

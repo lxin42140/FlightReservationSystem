@@ -162,6 +162,10 @@ public class FlightSessionBean implements FlightSessionBeanRemote, FlightSession
     @Override
     public String updateFlightNumberForFlight(FlightEntity flightEntity, String newFlightNumber, String returnFlightNumber) throws UpdateFlightFailedException {
 
+        if (!flightEntity.getFlightSchedulePlans().isEmpty()) {
+            throw new UpdateFlightFailedException("UpdateFlightFailedException: Flight already in use and unable to update flight number!");
+        }
+
         if (flightEntity.getReturnFlight() == null && returnFlightNumber != null) {
             throw new UpdateFlightFailedException("UpdateFlightFailedException: Flight has no complementary return flight for update of flight number!");
         }
