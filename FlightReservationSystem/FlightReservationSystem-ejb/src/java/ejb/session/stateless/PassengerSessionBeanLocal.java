@@ -18,6 +18,6 @@ import util.exception.CreateNewPassengerException;
 @Local
 public interface PassengerSessionBeanLocal {
 
-    public void addPassengersToReservation(List<PassengerEntity> passengers, FlightReservationEntity flightReservation) throws CreateNewPassengerException;
+    public void addPassengersToReservation(List<PassengerEntity> passengers, FlightReservationEntity flightReservation, boolean isCustomerReservation) throws CreateNewPassengerException;
 
 }

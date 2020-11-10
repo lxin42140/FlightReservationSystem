@@ -169,6 +169,7 @@ public class SeatInventorySessionBean implements SeatInventorySessionBeanRemote,
     }
 
     @Override // local only
+    // assign cheapest fare
     public void reserveSeatsForCustomer(PassengerEntity passenger) throws ReserveSeatException {
         if (passenger == null) {
             throw new ReserveSeatException("ReserveSeatException: Invalid passenger!");
@@ -176,6 +177,7 @@ public class SeatInventorySessionBean implements SeatInventorySessionBeanRemote,
 
         // track total fare amount
         BigDecimal fareAmount = BigDecimal.ZERO;
+        // track seats that the customer have booked to prevent duplicated seat booking for same passenger in same flight schedule
         HashSet<String> fareBasisCodes = new HashSet<>();
 
         for (SeatEntity seat : passenger.getSeats()) {
@@ -199,6 +201,44 @@ public class SeatInventorySessionBean implements SeatInventorySessionBeanRemote,
             seat.setFareBasisCode(cheapestFare.getFareBasisCode());
             seat.setPassenger(passenger);
             fareAmount = fareAmount.add(cheapestFare.getFareAmount());
+        }
+        // update total fare amount
+        passenger.setFareAmount(fareAmount);
+    }
+
+    @Override // local only
+    // assign most expensive fare
+    public void reserveSeatsForPartner(PassengerEntity passenger) throws ReserveSeatException {
+        if (passenger == null) {
+            throw new ReserveSeatException("ReserveSeatException: Invalid passenger!");
+        }
+
+        // track total fare amount
+        BigDecimal fareAmount = BigDecimal.ZERO;
+        // track seats that the customer have booked to prevent duplicated seat booking for same passenger in same flight schedule
+        HashSet<String> fareBasisCodes = new HashSet<>();
+
+        for (SeatEntity seat : passenger.getSeats()) {
+            if (seat.getPassenger() != null) {
+                throw new ReserveSeatException("ReserveSeatException: Seat with seat number " + seat.getSeatNumber() + " already reserved!");
+            }
+
+            // retrieve most expensive fare associated with the flight schedule and the cabin class of the seat
+            List<FareEntity> fares = seat.getFlightSchedule().getFlightSchedulePlan().getFares();
+            FareEntity expensiveFare = fares.get(0);
+            for (FareEntity fare : fares) {
+                if (fare.getCabinClass().equals(seat.getCabinClassEnum()) && fare.getFareAmount().compareTo(expensiveFare.getFareAmount()) > 0) {
+                    expensiveFare = fare;
+                }
+            }
+
+            if (fareBasisCodes.contains(expensiveFare.getFareBasisCode())) {
+                throw new ReserveSeatException("ReserveSeatException: Passenger has multiple seat reservations within the same flight schedule!");
+            }
+
+            seat.setFareBasisCode(expensiveFare.getFareBasisCode());
+            seat.setPassenger(passenger);
+            fareAmount = fareAmount.add(expensiveFare.getFareAmount());
         }
         // update total fare amount
         passenger.setFareAmount(fareAmount);

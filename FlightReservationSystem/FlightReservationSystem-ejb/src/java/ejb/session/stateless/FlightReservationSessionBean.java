@@ -6,8 +6,10 @@
 package ejb.session.stateless;
 
 import entity.CreditCardEntity;
+import entity.CustomerEntity;
 import entity.FlightReservationEntity;
 import entity.FlightScheduleEntity;
+import entity.PartnerEntity;
 import entity.PassengerEntity;
 import entity.SeatEntity;
 import entity.UserEntity;
@@ -90,6 +92,10 @@ public class FlightReservationSessionBean implements FlightReservationSessionBea
      */
     @Override
     public Long createNewFlightReservation(List<FlightScheduleEntity> itinery, List<PassengerEntity> passengers, CreditCardEntity creditCardEntity, UserEntity user) throws CreateNewFlightReservationException {
+        if (creditCardEntity == null || itinery.isEmpty() || passengers.isEmpty() || user == null) {
+            throw new CreateNewFlightReservationException("CreateNewFlightReservationException: One or more reservation requirements are not provided!");
+        }
+
         FlightReservationEntity newFlightReservation = new FlightReservationEntity();
 
         try {
@@ -102,10 +108,12 @@ public class FlightReservationSessionBean implements FlightReservationSessionBea
             for (FlightScheduleEntity flightSchedule : itinery) {
                 flightSchedule.getFlightReservations().add(newFlightReservation);
             }
+
             // associate credit card and flight reservation
             creditCardSessionBeanLocal.createNewCreditCard(creditCardEntity, newFlightReservation);
 
-            passengerSessionBeanLocal.addPassengersToReservation(passengers, newFlightReservation);
+            // associate selected seats of each passenger with the passenger and the passenger with flight reservation
+            passengerSessionBeanLocal.addPassengersToReservation(passengers, newFlightReservation, user instanceof CustomerEntity);
 
             validate(newFlightReservation);
 
