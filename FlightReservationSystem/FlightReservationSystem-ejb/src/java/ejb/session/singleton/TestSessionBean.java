@@ -119,8 +119,10 @@ public class TestSessionBean {
             //viewSeatInventory();
             //search();
             //
+
             //viewAllFlightReservation();
             //makeReservation();
+
         } catch (Exception ex) {
             System.out.println(ex);
         }

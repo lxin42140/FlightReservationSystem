@@ -58,7 +58,7 @@ public class CabinConfigurationEntity implements Serializable {
 
     @Column(length = 5, nullable = false)
     @NotBlank
-    @Size(min = 5, max = 5)
+    @Size(min = 3, max = 5)
     private String seatingConfiguration;
 
     @NotNull
