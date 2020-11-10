@@ -17,6 +17,4 @@ import util.exception.CreateNewPassengerException;
 @Remote
 public interface PassengerSessionBeanRemote {
 
-    public void createNewPassenger(PassengerEntity passenger, FlightReservationEntity flightReservation) throws CreateNewPassengerException;
-
 }

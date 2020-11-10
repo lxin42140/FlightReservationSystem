@@ -9,6 +9,7 @@ import entity.AircraftConfigurationEntity;
 import entity.FlightScheduleEntity;
 import entity.PassengerEntity;
 import entity.SeatEntity;
+import java.math.BigDecimal;
 import java.util.List;
 import javax.ejb.Local;
 import pojo.SeatInventory;
@@ -35,4 +36,7 @@ public interface SeatInventorySessionBeanLocal {
     public SeatEntity retrieveAvailableSeatFromFlightScheduleAndCabin(Long flightScheduleId, CabinClassEnum cabinClassEnum, String seatNumber) throws SeatNotFoundException, ReserveSeatException;
 
     public List<SeatEntity> retrieveAllAvailableSeatsFromFlightScheduleAndCabin(Long flightScheduleId, CabinClassEnum cabinClassEnum);
+
+    public void reserveSeatsForCustomer(PassengerEntity passenger) throws ReserveSeatException;
+
 }

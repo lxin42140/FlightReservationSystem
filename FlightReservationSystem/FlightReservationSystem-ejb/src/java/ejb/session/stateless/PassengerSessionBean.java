@@ -7,16 +7,17 @@ package ejb.session.stateless;
 
 import entity.FlightReservationEntity;
 import entity.PassengerEntity;
-import entity.SeatEntity;
+import java.math.BigDecimal;
+import java.util.List;
 import java.util.Set;
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import util.exception.CreateNewPassengerException;
+import util.exception.ReserveSeatException;
 
 /**
  *
@@ -24,39 +25,46 @@ import util.exception.CreateNewPassengerException;
  */
 @Stateless
 public class PassengerSessionBean implements PassengerSessionBeanRemote, PassengerSessionBeanLocal {
-    
-//    @PersistenceContext(unitName = "FlightReservationSystem-ejbPU")
-//    private EntityManager em;
-    
-    @Override
-    public void createNewPassenger(PassengerEntity passenger, FlightReservationEntity flightReservation) throws CreateNewPassengerException {
-        passenger.setFlightReservation(flightReservation);
-        flightReservation.getPassengers().add(passenger);
-        
-        for (SeatEntity seatEntity : passenger.getSeats()) {
-            if (seatEntity.getPassenger() != null) {
-                throw new CreateNewPassengerException("CreateNewPassengerException: Selected seat for passenger " + passenger.getFirstName() + " " + passenger.getLastName() + " has already been reserved!");
+
+    @EJB
+    private SeatInventorySessionBeanLocal seatInventorySessionBeanLocal;
+
+    @Override // local oonly
+    public void addPassengersToReservation(List<PassengerEntity> passengers, FlightReservationEntity flightReservation) throws CreateNewPassengerException {
+        BigDecimal totalAmount = BigDecimal.ZERO;
+
+        for (PassengerEntity passenger : passengers) {
+            // associate passenger with reservation
+            passenger.setFlightReservation(flightReservation);
+            flightReservation.getPassengers().add(passenger);
+
+            try {
+                seatInventorySessionBeanLocal.reserveSeatsForCustomer(passenger);
+            } catch (ReserveSeatException ex) {
+                throw new CreateNewPassengerException(ex.getMessage());
             }
-            seatEntity.setPassenger(passenger);
+
+            totalAmount = totalAmount.add(passenger.getFareAmount());
+            validate(passenger);
         }
-        
-        validate(passenger);
+
+        flightReservation.setTotalAmount(totalAmount);
     }
-    
+
     private void validate(PassengerEntity passenger) throws CreateNewPassengerException {
         ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
         Validator validator = validatorFactory.getValidator();
         Set<ConstraintViolation<PassengerEntity>> errors = validator.validate(passenger);
-        
+
         String errorMessage = "";
-        
+
         for (ConstraintViolation error : errors) {
             errorMessage += "\n\t" + error.getPropertyPath() + " - " + error.getInvalidValue() + "; " + error.getMessage();
         }
-        
+
         if (errorMessage.length() > 0) {
             throw new CreateNewPassengerException("CreateNewPassengerException: Invalid inputs!\n" + errorMessage);
         }
     }
-    
+
 }

@@ -31,6 +31,20 @@ public class CreditCardEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long creditCardId;
 
+    @Size(min = 1, max = 16)
+    @Column(nullable = false, length = 16)
+    private String cardNumber;
+
+    @Size(min = 1, max = 32)
+    @Column(length = 32, nullable = false)
+    @NotNull
+    private String firstName;
+
+    @Size(min = 1, max = 32)
+    @Column(length = 32, nullable = false)
+    @NotNull
+    private String lastName;
+
     @NotNull
     @Column(nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
@@ -43,6 +57,41 @@ public class CreditCardEntity implements Serializable {
     @NotNull
     @OneToOne(optional = false)
     private FlightReservationEntity flightReservation;
+
+    public CreditCardEntity() {
+    }
+
+    public CreditCardEntity(String cardNumber, String firstName, String lastName, Date dateOfExpiry, String cvc) {
+        this.cardNumber = cardNumber;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.dateOfExpiry = dateOfExpiry;
+        this.cvc = cvc;
+    }
+
+    public String getCardNumber() {
+        return cardNumber;
+    }
+
+    public void setCardNumber(String cardNumber) {
+        this.cardNumber = cardNumber;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
 
     public Long getCreditCardId() {
         return creditCardId;
