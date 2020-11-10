@@ -82,7 +82,7 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
         } catch (CreateNewFareException | CreateNewFlightScheduleException ex) {
             throw new CreateNewFlightSchedulePlanException(ex.toString());
         }
-        
+
         validateFlightSchedulePlan(newFlightSchedulePlanEntity);
 
         if (doCreateReturnFlightSchedule) {
@@ -185,6 +185,7 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
         } catch (CreateNewFareException | CreateNewFlightScheduleException ex) {
             throw new CreateNewFlightSchedulePlanException(ex.toString());
         }
+        validateFlightSchedulePlan(returnFlightSchedulePlanEntity);
 
         return returnFlightSchedulePlanEntity;
     }

@@ -402,6 +402,7 @@ public class FlightOperationModule {
                     System.out.println("Invalid response! Enter 1-4");
                 }
             } while (response <= 0 || response > 4);
+            scanner.nextLine();
 
             String returnSchedulePlanResponse = "";
             // prompt user only if flight has a return flight
@@ -442,14 +443,14 @@ public class FlightOperationModule {
             } else if (response == 3 || response == 4) {
                 FlightScheduleEntity baseFlightSchedule = createFlightSchedule();
 
-                SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+                SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
                 String dateInput = "";
                 Date endDate = new Date();
                 Boolean dateCheck = false;
 
                 while (!dateCheck) {
                     try {
-                        System.out.print("Enter the end date (DD/MM/YYYY)> ");
+                        System.out.print("Enter the end date (DD/MM/YYYY HH:mm:ss)> ");
                         dateInput = scanner.nextLine().trim();
                         endDate = format.parse(dateInput);
                         dateCheck = true;
@@ -486,14 +487,14 @@ public class FlightOperationModule {
         System.out.print("\n");
         System.out.println("Create Flight Schedule:");
 
-        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         String dateInput = "";
         Date departureDate = new Date();
         Boolean dateCheck = false;
 
         while (!dateCheck) {
             try {
-                System.out.print("Enter the departure date (DD/MM/YYYY)> ");
+                System.out.print("Enter the departure date and time (DD/MM/YYYY HH:mm:ss)> ");
                 dateInput = scanner.nextLine().trim();
                 departureDate = format.parse(dateInput);
                 dateCheck = true;
@@ -514,7 +515,7 @@ public class FlightOperationModule {
     private FareEntity createIndividualFare() {
         Scanner scanner = new Scanner(System.in);
         FareEntity fare = new FareEntity();
-        System.out.println("Create Fare Basis Code (Starts With F/J/W/Y):");
+        System.out.println("Create Fare Basis Code (Starts With F/J/W/Y)");
 
         String cabinClass = "";
         do {
