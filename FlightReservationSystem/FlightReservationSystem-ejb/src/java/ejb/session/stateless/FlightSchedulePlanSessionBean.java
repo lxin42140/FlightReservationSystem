@@ -82,7 +82,7 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
         } catch (CreateNewFareException | CreateNewFlightScheduleException ex) {
             throw new CreateNewFlightSchedulePlanException(ex.toString());
         }
-
+        
         validateFlightSchedulePlan(newFlightSchedulePlanEntity);
 
         if (doCreateReturnFlightSchedule) {
@@ -949,6 +949,7 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
         }
 
         if (errorMessage.length() > 0) {
+            System.out.println(errorMessage);
             throw new CreateNewFlightSchedulePlanException("CreateNewFlightSchedulePlanException: Invalid inputs!\n" + errorMessage);
         }
     }

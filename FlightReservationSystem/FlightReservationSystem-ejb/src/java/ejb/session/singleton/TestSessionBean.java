@@ -112,7 +112,7 @@ public class TestSessionBean {
             //viewSeatInventory();
             //search();
             //
-            viewAllFlightReservation();
+//            viewAllFlightReservation();
         } catch (Exception ex) {
             System.out.println(ex);
         }

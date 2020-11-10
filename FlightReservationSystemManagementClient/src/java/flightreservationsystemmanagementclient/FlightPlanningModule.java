@@ -311,8 +311,9 @@ public class FlightPlanningModule {
                 FlightRouteEntity returnFlightRoute = flightRoute.getReturnFlightRoute();
                 System.out.println("Return Flight Route Origin Airport: " + returnFlightRoute.getOriginAirport().getAirportName());
                 System.out.println("Return Flight Route Destination Airport: " + returnFlightRoute.getDestinationAirport().getAirportName());
-                System.out.println("Return Flight Route Id: " + returnFlightRoute.getFlightRouteId() + "\n");
+                System.out.println("Return Flight Route Id: " + returnFlightRoute.getFlightRouteId());
             }
+            System.out.print("\n");
         }
     }
 

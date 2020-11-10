@@ -39,9 +39,9 @@ public class FlightSearchSessionBean implements FlightSearchSessionBeanRemote, F
 
     // enter null for preferredCabinClass if there is no preference
     // enter null for preferDirectFlight if there is no preference
-    // 1 for to flights, 2 for return flights
+    // 0 for to flights, 1 for return flights
     @Override
-    public HashMap<Integer, List<List<FlightScheduleEntity>>> searchTwoWaysFlights(Long departureAirportId, Long arrivalAirportId, Date departureDate, Date returnDate, Integer numberOfPassengers, Boolean preferDirectFlight, CabinClassEnum preferredCabinClass) throws NoMatchingFlightsException, SearchFlightFailedException {
+    public List<HashMap<Integer, List<FlightScheduleEntity>>> searchTwoWaysFlights(Long departureAirportId, Long arrivalAirportId, Date departureDate, Date returnDate, Integer numberOfPassengers, Boolean preferDirectFlight, CabinClassEnum preferredCabinClass) throws NoMatchingFlightsException, SearchFlightFailedException {
         if (null == departureAirportId || null == arrivalAirportId || null == departureDate || null == returnDate || numberOfPassengers == null || numberOfPassengers <= 0) {
             throw new SearchFlightFailedException("SearchFlightFailedException: Invalid one or more search parameters!");
         }
@@ -68,10 +68,11 @@ public class FlightSearchSessionBean implements FlightSearchSessionBeanRemote, F
         if (toFlights.isEmpty()) {
             throw new NoMatchingFlightsException("NoMatchingFlightsException: No available flights that match the requirements!");
         }
+
         return generateReturnFlights(toFlights, returnDate, numberOfPassengers, preferredCabinClass);
     }
 
-    private HashMap<Integer, List<List<FlightScheduleEntity>>> generateReturnFlights(List<List<FlightScheduleEntity>> toFlights, Date returnDate, Integer numberOfPassengers, CabinClassEnum preferredCabinClass) throws NoMatchingFlightsException {
+    private List<HashMap<Integer, List<FlightScheduleEntity>>> generateReturnFlights(List<List<FlightScheduleEntity>> toFlights, Date returnDate, Integer numberOfPassengers, CabinClassEnum preferredCabinClass) throws NoMatchingFlightsException {
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTime(returnDate);
         cal.add(GregorianCalendar.HOUR_OF_DAY, 3 * 24);
@@ -82,7 +83,7 @@ public class FlightSearchSessionBean implements FlightSearchSessionBeanRemote, F
         Date earlierLimit = cal.getTime(); // get limit date for 3 days prior the required departure date  
 
         HashMap<Integer, List<List<FlightScheduleEntity>>> results = new HashMap<>();
-        List<List<FlightScheduleEntity>> returnFlightSchedules = new ArrayList<>();
+        List<List<FlightScheduleEntity>> returnFlights = new ArrayList<>();
 
         Iterator<List<FlightScheduleEntity>> routeIterator = toFlights.iterator();
 
@@ -141,27 +142,37 @@ public class FlightSearchSessionBean implements FlightSearchSessionBeanRemote, F
                 returnRoutes.add(route.get(i).getReturnFlightSchedule());
             }
 
-            returnFlightSchedules.add(returnRoutes);
+            returnFlights.add(returnRoutes);
         }
 
-        if (returnFlightSchedules.isEmpty()) {
-            throw new NoMatchingFlightsException("NoMatchingFlightsException: No available return flights that match the requirements!");
+        if (toFlights.isEmpty() || returnFlights.isEmpty()) {
+            throw new NoMatchingFlightsException("NoMatchingFlightsException: No available two way flights that match the requirements!");
         }
 
-        results.put(1, toFlights);
-        results.put(2, returnFlightSchedules);
+        List<HashMap<Integer, List<FlightScheduleEntity>>> searchResult = new ArrayList<>();
+        HashMap<Integer, List<FlightScheduleEntity>> toFlightSearchResults = new HashMap<>();
+        HashMap<Integer, List<FlightScheduleEntity>> returnFlightSearchResults = new HashMap<>();
 
-        return results;
+        for (int i = 0; i < toFlights.size(); i++) {
+            toFlightSearchResults.put(i + 1, toFlights.get(i));
+            returnFlightSearchResults.put(i + 1, returnFlights.get(i));
+        }
+
+        searchResult.add(toFlightSearchResults);
+        searchResult.add(returnFlightSearchResults);
+
+        return searchResult;
     }
 
     // enter null for preferredCabinClass if there is no preference
     // enter null for preferDirectFlight if there is no preference
     @Override
-    public List<List<FlightScheduleEntity>> searchOneWayFlights(Long departureAirportId, Long arrivalAirportId, Date departureDate, Integer numberOfPassengers, Boolean preferDirectFlight, CabinClassEnum preferredCabinClass) throws NoMatchingFlightsException, SearchFlightFailedException {
+    public HashMap<Integer, List<FlightScheduleEntity>> searchOneWayFlights(Long departureAirportId, Long arrivalAirportId, Date departureDate, Integer numberOfPassengers, Boolean preferDirectFlight, CabinClassEnum preferredCabinClass) throws NoMatchingFlightsException, SearchFlightFailedException {
         if (null == departureAirportId || null == arrivalAirportId || null == departureDate || numberOfPassengers == null || numberOfPassengers <= 0) {
             throw new SearchFlightFailedException("SearchFlightFailedException: Invalid one or more search parameters!");
         }
 
+        HashMap<Integer, List<FlightScheduleEntity>> searchResult = new HashMap<>();
         List<List<FlightScheduleEntity>> oneWayFlights = new ArrayList<>();
 
         if (preferDirectFlight != null && preferDirectFlight) { // client prefer direct flight 
@@ -187,7 +198,11 @@ public class FlightSearchSessionBean implements FlightSearchSessionBeanRemote, F
             throw new NoMatchingFlightsException("NoMatchingFlightsException: No available flights that match the requirements!");
         }
 
-        return oneWayFlights;
+        for (int i = 0; i < oneWayFlights.size(); i++) {
+            searchResult.put(i + 1, oneWayFlights.get(i));
+        }
+
+        return searchResult;
     }
 
     private List<List<FlightScheduleEntity>> searchDirectFlightSchedules(Long departureAirportId, Long arrivalAirportId, Date departureDate, Integer numberOfPassengers, CabinClassEnum preferredCabinClass) throws NoMatchingFlightsException {
@@ -413,7 +428,7 @@ public class FlightSearchSessionBean implements FlightSearchSessionBeanRemote, F
                 + "WHERE f.departureDate BETWEEN :inMinDepartureDate AND :inMaxDepartureDate "
                 + "AND f.flightSchedulePlan.flight.flightRoute.originAirport.airportId =:inOriginAirportId "
                 + "AND f.flightSchedulePlan.flight.flightRoute.destinationAirport.airportId =:inArrivalAirportId");
-        
+
         query.setParameter("inMinDepartureDate", minDepartureDate);
         query.setParameter("inMaxDepartureDate", maxDepartureDate);
         query.setParameter("inOriginAirportId", originAirportId);
