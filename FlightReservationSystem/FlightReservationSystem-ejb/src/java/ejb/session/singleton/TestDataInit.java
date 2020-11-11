@@ -70,14 +70,11 @@ public class TestDataInit {
 
     @PostConstruct
     public void initData() {
-
         System.out.println("---------------------------------INIT---------------------------------");
-
 //        initEmployee();
 //        initPartner();
 //        initAirport();
 //        initAircraftType();
-
 //        initAircraftConfiguration();
 //        initFlightRoute();
 //        initFlight();
@@ -215,7 +212,6 @@ public class TestDataInit {
 // T 5
 // F 6
 // Sat 7
-
             SimpleDateFormat inputDateFormat = new SimpleDateFormat("d/M/y HH:mm:ss");
 
             //ML711, Recurrent Weekly
