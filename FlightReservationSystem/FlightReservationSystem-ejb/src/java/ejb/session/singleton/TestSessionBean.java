@@ -62,8 +62,8 @@ import util.exception.FlightSchedulePlanNotFoundException;
  */
 @Singleton
 @LocalBean
-@Startup
-@DependsOn({"AircraftTypeInitSessionBean", "AirportInitSessionBean", "EmployeeInitSessionBean", "PartnerInitSessionBean"})
+//@Startup
+//@DependsOn({"AircraftTypeInitSessionBean", "AirportInitSessionBean", "EmployeeInitSessionBean", "PartnerInitSessionBean"})
 public class TestSessionBean {
 
     @EJB(name = "CustomerSessionBeanRemtoe")
