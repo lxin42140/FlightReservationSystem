@@ -57,6 +57,10 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
     @Override
     public Long createNewNonRecurrentFlightSchedulePlan(List<FlightScheduleEntity> flightSchedules, List<FareEntity> fares, String flightNumber, Boolean doCreateReturnFlightSchedule, Integer layoverPeriodForReturnFlight) throws CreateNewFlightSchedulePlanException, FlightNotFoundException {
 
+        if (doCreateReturnFlightSchedule && (layoverPeriodForReturnFlight == null || layoverPeriodForReturnFlight <= 0)) {
+            throw new CreateNewFlightSchedulePlanException("CreateNewFlightSchedulePlanException: Invalid layover duration for return flight schedules!");
+        }
+
         FlightEntity flightEntity = flightSessionBeanLocal.retrieveFlightByFlightNumber(flightNumber);
 
         if (flightEntity.getIsDisabled()) {
@@ -98,6 +102,9 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
 
     @Override
     public Long createRecurrentFlightSchedulePlan(Date endDate, Integer recurrentDaysFrequency, FlightScheduleEntity baseFlightSchedule, List<FareEntity> fares, String flightNumber, Boolean doCreateReturnFlightSchedule, Integer layoverPeriodForReturnFlight) throws CreateNewFlightSchedulePlanException, FlightNotFoundException {
+        if (doCreateReturnFlightSchedule && (layoverPeriodForReturnFlight == null || layoverPeriodForReturnFlight <= 0)) {
+            throw new CreateNewFlightSchedulePlanException("CreateNewFlightSchedulePlanException: Invalid layover duration for return flight schedules!");
+        }
 
         FlightEntity flightEntity = flightSessionBeanLocal.retrieveFlightByFlightNumber(flightNumber);
 
@@ -467,7 +474,7 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
                     if (existingFlightSchedulePlanEntity.getReturnFlightSchedulePlan() != null) {
                         existingFlightSchedulePlanEntity.getReturnFlightSchedulePlan().setRecurrentEndDate(newEndDate);
                     }
-                    
+
                     this.updateAddFlightScheduleToRecurrentFlightSchedulePlan(existingFlightSchedulePlanEntity, autoGenerateFlightSchedules, existingFlightSchedulePlanEntity.getReturnFlightSchedulePlan() != null);
 
                     return existingFlightSchedulePlanEntity.getFlightSchedulePlanId();
