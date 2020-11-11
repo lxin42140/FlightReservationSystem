@@ -173,26 +173,15 @@ public class FlightScheduleEntity implements Serializable {
     // return arrival date time in time of destination country
     public Date getArrivalDateTime() {
         GregorianCalendar departureDateTimeCalender = new GregorianCalendar();
+
+        departureDateTimeCalender.setTimeZone(TimeZone.getTimeZone(this.flightSchedulePlan.getFlight().getFlightRoute().getOriginAirport().getTimeZoneId()));
         departureDateTimeCalender.setTime(this.departureDate);
-        departureDateTimeCalender.add(GregorianCalendar.HOUR, this.estimatedFlightDurationHour); // add hour
+        departureDateTimeCalender.add(GregorianCalendar.HOUR_OF_DAY, this.estimatedFlightDurationHour);
         departureDateTimeCalender.add(GregorianCalendar.MINUTE, this.estimatedFlightDurationMinute); // add minute
 
-        // get arrival time
-        Date arrivalDateTime = departureDateTimeCalender.getTime();
+        departureDateTimeCalender.setTimeZone(TimeZone.getTimeZone(this.flightSchedulePlan.getFlight().getFlightRoute().getDestinationAirport().getTimeZoneId()));
 
-        // convert arrival date time to time zone of arrival country
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm a");
-        String destinationTimeZoneId = this.flightSchedulePlan.getFlight().getFlightRoute().getDestinationAirport().getTimeZoneId();
-        sdf.setTimeZone(TimeZone.getTimeZone(destinationTimeZoneId));
-        String arrivalDate = sdf.format(arrivalDateTime);
-
-        Date arrivalDateInLocalTime = arrivalDateTime;
-        try {
-            arrivalDateInLocalTime = new SimpleDateFormat("dd/MM/yyyy hh:mm a").parse(arrivalDate);
-        } catch (ParseException ex) {
-        }
-
-        return arrivalDateInLocalTime;
+        return departureDateTimeCalender.getTime();
     }
 
     @Override
