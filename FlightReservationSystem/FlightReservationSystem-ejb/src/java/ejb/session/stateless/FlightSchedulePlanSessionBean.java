@@ -277,7 +277,7 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
         //bi directional between return flight and return flight schedule plan
         returnFlightSchedulePlanEntity.setFlight(returnFlight);
         returnFlight.getFlightSchedulePlans().add(returnFlightSchedulePlanEntity);
-        
+
         returnFlightSchedulePlanEntity.setLayoverPeriod(layoverPeriodForReturnFlight);
 
         List<FlightScheduleEntity> returnFlightSchedules = new ArrayList<>(); // store new flight schedules for return flight

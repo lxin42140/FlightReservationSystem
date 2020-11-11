@@ -35,7 +35,7 @@ public interface FlightSchedulePlanSessionBeanRemote {
 
     public FlightSchedulePlanEntity retrieveFlightSchedulePlanById(Long flightSchedulePlanId) throws FlightSchedulePlanNotFoundException;
 
-    // manual, update departure date and flight duration for main only
+    // manual, update departure date and flight duration for main plan only
     public Long updateFlightScheduleDetailForManualFlightSchedulePlan(Long flightSchedulePlanId, List<FlightScheduleEntity> updatedFlightSchedules) throws UpdateFlightSchedulePlanFailedException;
 
     // manual, add for main flight schedule plan only
@@ -47,10 +47,10 @@ public interface FlightSchedulePlanSessionBeanRemote {
     // recurrent, update end date and recurrent frequency for main only
     public Long updateRecurrentNDaysFlightSchedulePlanParameters(Long flightSchedulePlanId, Date newEndDate, Integer newRecurrentFrequency) throws UpdateFlightSchedulePlanFailedException;
 
-    // recurrent weekly
+    // recurrent weekly, update the day of week only
     public Long updateRecurrentWeeklyFlightSchedulePlanDayOfWeek(Long flightSchedulePlanId, Integer newDayOfWeek) throws UpdateFlightSchedulePlanFailedException;
 
-    // recurrent weekly
+    // recurrent weekly, update EITHER start date OR end date, can be earlier start date or later starter or earler end date or later end date
     public Long updateRecurrentWeeklyFlightSchedulePlanRange(Long flightSchedulePlanId, Date newStartDate, Date newEndDate) throws UpdateFlightSchedulePlanFailedException;
 
     // Either for main or return
