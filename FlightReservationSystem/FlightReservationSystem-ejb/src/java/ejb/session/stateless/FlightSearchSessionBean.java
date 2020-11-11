@@ -66,6 +66,7 @@ public class FlightSearchSessionBean implements FlightSearchSessionBeanRemote, F
         }
 
         if (toFlights.isEmpty()) {
+            System.out.println("is toFlights true here? " + toFlights.isEmpty());
             throw new NoMatchingFlightsException("NoMatchingFlightsException: No available flights that match the requirements!");
         }
 
@@ -80,7 +81,7 @@ public class FlightSearchSessionBean implements FlightSearchSessionBeanRemote, F
 
         cal.setTime(returnDate);
         cal.add(GregorianCalendar.HOUR_OF_DAY, -3 * 24);
-        Date earlierLimit = cal.getTime(); // get limit date for 3 days prior the required departure date  
+        Date earlierLimit = cal.getTime(); // get limit date for 3 days prior the required departure date 
 
         HashMap<Integer, List<List<FlightScheduleEntity>>> results = new HashMap<>();
         List<List<FlightScheduleEntity>> returnFlights = new ArrayList<>();
@@ -127,25 +128,30 @@ public class FlightSearchSessionBean implements FlightSearchSessionBeanRemote, F
 
             // to flight routes do not have return flight schedules
             if (!hasReturnFlight) {
+                System.out.println("inside here");
                 routeIterator.remove();
-            }
+            } else {
+                System.out.println("else");
+                FlightScheduleEntity firstToFlightSchedule = route.get(0);
+                // if arrival date of the return schedule is beyond the 3 days window
+                if (firstToFlightSchedule.getReturnFlightSchedule().getDepartureDate().compareTo(earlierLimit) < 0 || firstToFlightSchedule.getReturnFlightSchedule().getDepartureDate().compareTo(afterLimit) > 0) {
+                    routeIterator.remove();
+                } else {
 
-            FlightScheduleEntity firstToFlightSchedule = route.get(0);
-            // if arrival date of the return schedule is beyond the 3 days window
-            if (firstToFlightSchedule.getArrivalDateTime().compareTo(earlierLimit) < 0 || firstToFlightSchedule.getArrivalDateTime().compareTo(afterLimit) > 0) {
-                routeIterator.remove();
-            }
+                    List<FlightScheduleEntity> returnRoutes = new ArrayList<>();
+                    // add return flight schedules in reverse order
+                    for (int i = route.size() - 1; i >= 0; i--) {
+                        returnRoutes.add(route.get(i).getReturnFlightSchedule());
+                    }
 
-            List<FlightScheduleEntity> returnRoutes = new ArrayList<>();
-            // add return flight schedules in reverse order
-            for (int i = route.size() - 1; i >= 0; i--) {
-                returnRoutes.add(route.get(i).getReturnFlightSchedule());
+                    returnFlights.add(returnRoutes);
+                }
             }
-
-            returnFlights.add(returnRoutes);
         }
 
         if (toFlights.isEmpty() || returnFlights.isEmpty()) {
+            System.out.println("toFlight(): " + toFlights.isEmpty());
+            System.out.println("returnFlights: " + returnFlights.isEmpty());
             throw new NoMatchingFlightsException("NoMatchingFlightsException: No available two way flights that match the requirements!");
         }
 

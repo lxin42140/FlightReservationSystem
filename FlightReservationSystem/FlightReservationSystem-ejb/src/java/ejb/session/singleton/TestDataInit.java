@@ -70,11 +70,14 @@ public class TestDataInit {
 
     @PostConstruct
     public void initData() {
+
         System.out.println("---------------------------------INIT---------------------------------");
+
 //        initEmployee();
 //        initPartner();
 //        initAirport();
 //        initAircraftType();
+
 //        initAircraftConfiguration();
 //        initFlightRoute();
 //        initFlight();
