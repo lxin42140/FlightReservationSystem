@@ -71,16 +71,16 @@ public class FlightScheduleSessionBean implements FlightScheduleSessionBeanRemot
     }
 
     // helper method to create retrun flight schedule
-    @Override     // local interface only
-    public FlightScheduleEntity createReturnFlightSchedule(FlightScheduleEntity flightSchedule) {
+    @Override
+    public FlightScheduleEntity createReturnFlightSchedule(FlightScheduleEntity flightSchedule, Integer layoverPeriodForReturnFlight) {
         Date arrivalDateTime = flightSchedule.getArrivalDateTime(); // arrival time is already calculated based on time zone of destination airport
         GregorianCalendar returnDepartureDateTimeCalender = new GregorianCalendar();
         returnDepartureDateTimeCalender.setTime(arrivalDateTime);
-        returnDepartureDateTimeCalender.add(GregorianCalendar.HOUR_OF_DAY, 8); // lay over of 8 hours
+        returnDepartureDateTimeCalender.add(GregorianCalendar.HOUR_OF_DAY, layoverPeriodForReturnFlight); // lay over period is determiend by user
 
-        Date returnDepartureDateTime = returnDepartureDateTimeCalender.getTime();
+        Date returnDepartureDateTime = returnDepartureDateTimeCalender.getTime(); // get return departure time
 
-        FlightScheduleEntity returnFlightSchedule = new FlightScheduleEntity(returnDepartureDateTime, flightSchedule.getEstimatedFlightDuration());
+        FlightScheduleEntity returnFlightSchedule = new FlightScheduleEntity(returnDepartureDateTime, flightSchedule.getEstimatedFlightDurationHour());
 
         flightSchedule.setReturnFlightSchedule(returnFlightSchedule); // associate flight schedule and its return flight schedule
 

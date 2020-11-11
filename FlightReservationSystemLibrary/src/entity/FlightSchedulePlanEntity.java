@@ -22,6 +22,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.Max;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
@@ -42,6 +43,11 @@ public class FlightSchedulePlanEntity implements Serializable {
     private Date recurrentEndDate;
 
     private Integer recurrentFrequency;
+
+    @Max(24)
+//    @Column(nullable = false, precision = 3)
+    @Column(precision = 3)
+    private Integer layoverPeriod;
 
     @Column(nullable = false)
     private Boolean isDisabled;
@@ -140,6 +146,14 @@ public class FlightSchedulePlanEntity implements Serializable {
 
     public void setFares(List<FareEntity> fares) {
         this.fares = fares;
+    }
+
+    public Integer getLayoverPeriod() {
+        return layoverPeriod;
+    }
+
+    public void setLayoverPeriod(Integer layoverPeriod) {
+        this.layoverPeriod = layoverPeriod;
     }
 
     @Override

@@ -5,7 +5,6 @@
  */
 package flightreservationsystemreservationclient;
 
-import ejb.session.stateless.CreditCardSessionBeanRemote;
 import ejb.session.stateless.CustomerSessionBeanRemote;
 import ejb.session.stateless.FlightReservationSessionBeanRemote;
 import ejb.session.stateless.FlightSearchSessionBeanRemote;
@@ -371,7 +370,7 @@ public class MainApp {
         try {
             if (option == 1) { //one way flight
                 HashMap<Integer, List<FlightScheduleEntity>> oneWayFlights = flightSearchSessionBeanRemote.searchOneWayFlights(departureAirportId, arrivalAirportId, departureDate, numberOfPassengers, preferDirectFlight, preferredCabinClass);
-                this.printAvailableFlights(oneWayFlights, preferredCabinClass, numberOfPassengers);
+                this.printAvailableFlights(oneWayFlights, preferredCabinClass, numberOfPassengers, false);
 
                 Integer response = 0;
                 System.out.println("1: Reserve Flight");
@@ -415,10 +414,10 @@ public class MainApp {
 
             } else { //if two way flight
                 HashMap<Integer, List<FlightScheduleEntity>> toFlight = flightSearchSessionBeanRemote.searchTwoWaysFlights(departureAirportId, arrivalAirportId, departureDate, returnDate, numberOfPassengers, preferDirectFlight, preferredCabinClass).get(0);
-                this.printAvailableFlights(toFlight, preferredCabinClass, numberOfPassengers);
+                this.printAvailableFlights(toFlight, preferredCabinClass, numberOfPassengers, false);
 
                 HashMap<Integer, List<FlightScheduleEntity>> returnFlight = flightSearchSessionBeanRemote.searchTwoWaysFlights(departureAirportId, arrivalAirportId, departureDate, returnDate, numberOfPassengers, preferDirectFlight, preferredCabinClass).get(1);
-                this.printAvailableFlights(returnFlight, preferredCabinClass, numberOfPassengers);
+                this.printAvailableFlights(returnFlight, preferredCabinClass, numberOfPassengers, true);
 
                 Integer response = 0;
                 System.out.println("1: Reserve Flight");
@@ -436,7 +435,8 @@ public class MainApp {
 
                     Integer chooseToFlightOption = 0;
                     do {
-                        System.out.println("Select a Flight Schedule option> ");
+                        System.out.print("Select a Flight Schedule option> ");
+                        chooseToFlightOption = scanner.nextInt();
                         if (chooseToFlightOption <= 0 || chooseToFlightOption > toFlight.size()) {
                             System.out.println("Invalid option! Choose again.");
                         }
@@ -444,7 +444,8 @@ public class MainApp {
 
                     Integer chooseReturnFlightOption = 0;
                     do {
-                        System.out.println("Select a Return Flight Schedule option> ");
+                        System.out.print("Select a Return Flight Schedule option> ");
+                        chooseReturnFlightOption = scanner.nextInt();
                         if (chooseReturnFlightOption <= 0 || chooseReturnFlightOption > toFlight.size()) {
                             System.out.println("Invalid option! Choose again.");
                         }
@@ -478,15 +479,21 @@ public class MainApp {
     }
 
     //called from searchFlight() method
-    private void printAvailableFlights(HashMap<Integer, List<FlightScheduleEntity>> oneWayFlights, CabinClassEnum preferredCabinClass, Integer numberOfPassengers) throws FlightScheduleNotFoundException {
+    private void printAvailableFlights(HashMap<Integer, List<FlightScheduleEntity>> oneWayFlights, CabinClassEnum preferredCabinClass, Integer numberOfPassengers, Boolean isReturn) throws FlightScheduleNotFoundException {
         try {
             for (Map.Entry<Integer, List<FlightScheduleEntity>> map : oneWayFlights.entrySet()) {
+                if (isReturn) {
+                    System.out.print("Return Flight ");
+                }
                 System.out.println("Option #" + map.getKey());
                 Double pricePerPassenger = 0.0;
                 Double totalAmount = 0.0;
 
                 if (map.getValue().size() == 1) { //direct flight
                     FlightScheduleEntity flightSchedule = map.getValue().get(0);
+                    if (isReturn) {
+                        System.out.print("Return ");
+                    }
                     System.out.println("Flight Schedule Id: " + flightSchedule.getFlightScheduleId());
                     System.out.println("\tDeparture date: " + flightSchedule.getDepartureDate().toString().substring(0, 10)); //need to change this
                     System.out.println("\tDeparture time: " + flightSchedule.getDepartureDate().toString().substring(10));
@@ -516,11 +523,15 @@ public class MainApp {
                             }
                         }
                     }
+                    System.out.print("\n");
 
                 } else { //has at least one connecting flight 
                     Double fareForSingleCabin = 0.0;
                     HashMap<CabinClassEnum, Double> fareMap = new HashMap<>();
                     for (FlightScheduleEntity connectingFlight : map.getValue()) {
+                        if (isReturn) {
+                            System.out.print("Return ");
+                        }
                         System.out.println("Flight Schedule Id: " + connectingFlight.getFlightScheduleId());
                         System.out.println("\tDeparture date: " + connectingFlight.getDepartureDate().toString().substring(0, 10)); //need to change this
                         System.out.println("\tDeparture time: " + connectingFlight.getDepartureDate().toString().substring(10));

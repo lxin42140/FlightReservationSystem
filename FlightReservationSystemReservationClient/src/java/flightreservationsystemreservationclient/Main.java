@@ -5,7 +5,6 @@
  */
 package flightreservationsystemreservationclient;
 
-import ejb.session.stateless.CreditCardSessionBeanRemote;
 import ejb.session.stateless.CustomerSessionBeanRemote;
 import ejb.session.stateless.FlightReservationSessionBeanRemote;
 import ejb.session.stateless.FlightSearchSessionBeanRemote;

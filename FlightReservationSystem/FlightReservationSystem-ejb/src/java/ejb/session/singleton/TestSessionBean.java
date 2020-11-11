@@ -63,7 +63,7 @@ import util.exception.FlightSchedulePlanNotFoundException;
 @Singleton
 @LocalBean
 @Startup
-@DependsOn({"AircraftTypeInitSessionBean", "AirportInitSessionBean", "EmployeeInitSessionBean", "PartnerInitSessionBean"})
+//@DependsOn({"AircraftTypeInitSessionBean", "AirportInitSessionBean", "EmployeeInitSessionBean", "PartnerInitSessionBean"})
 public class TestSessionBean {
 
     @EJB(name = "CustomerSessionBeanRemtoe")
@@ -120,7 +120,7 @@ public class TestSessionBean {
             //search();
             //
 
-            //viewAllFlightReservation();
+//            viewAllFlightReservation();
             //makeReservation();
         } catch (Exception ex) {
             System.out.println(ex);
@@ -138,9 +138,9 @@ public class TestSessionBean {
         //AircraftConfigurationEntity thirdAircraftConfig = new AircraftConfigurationEntity("SIAPremium");
         AircraftConfigurationEntity fourthAircraftConfig = new AircraftConfigurationEntity("SIABudget");
 
-        CabinConfigurationEntity firstCabinConfig = new CabinConfigurationEntity(2L, 10L, 2L, 20L, "3-4-3", CabinClassEnum.F);
-        CabinConfigurationEntity secondCabinConfig = new CabinConfigurationEntity(2L, 10L, 4L, 40L, "3-4-3", CabinClassEnum.J);
-        CabinConfigurationEntity thirdCabinConfig = new CabinConfigurationEntity(2L, 10L, 8L, 80L, "3-4-3", CabinClassEnum.W);
+        CabinConfigurationEntity firstCabinConfig = new CabinConfigurationEntity(CabinClassEnum.F, 2L, 10L, 2L, "3-4-3", 20L);
+        CabinConfigurationEntity secondCabinConfig = new CabinConfigurationEntity(CabinClassEnum.J,2L, 10L, 4L, "3-4-3", 40L);
+        CabinConfigurationEntity thirdCabinConfig = new CabinConfigurationEntity(CabinClassEnum.W,2L, 10L, 8L, "3-4-3", 80L);
 
         List<CabinConfigurationEntity> firstList = new ArrayList<>();
         firstList.add(firstCabinConfig);
@@ -338,10 +338,9 @@ public class TestSessionBean {
 //            flightSchedulePlanSessionBeanRemote.createNewNonRecurrentFlightSchedulePlan(flightSchedules, fares1, "ML005", true);
 //
             FlightScheduleEntity base = new FlightScheduleEntity();
-//            base.setDepartureDate(inputDateFormat.parse("1/11/2020 00:00:00"));            
-            base.setDepartureDate(inputDateFormat.parse("1/12/2020 00:00:00"));
 
-            base.setEstimatedFlightDuration(1);
+            base.setDepartureDate(inputDateFormat.parse("1/11/2020 00:00:00"));
+            base.setEstimatedFlightDurationHour(1);
 
             FareEntity fareEntity3 = new FareEntity("W001", BigDecimal.valueOf(10.0), CabinClassEnum.W);
             FareEntity fareEntity6 = new FareEntity("W002", BigDecimal.valueOf(20.0), CabinClassEnum.W);
@@ -361,7 +360,8 @@ public class TestSessionBean {
 //            flightSchedulePlanSessionBeanRemote.createRecurrentFlightSchedulePlan(inputDateFormat.parse("5/11/2020 00:00:00"), 1, base, fares1, "ML003", Boolean.TRUE);
 //            flightSchedulePlanSessionBeanRemote.createRecurrentFlightSchedulePlan(inputDateFormat.parse("5/11/2020 00:00:00"), 1, base, fares1, "ML001", Boolean.TRUE);
 //            flightSchedulePlanSessionBeanRemote.createRecurrentFlightSchedulePlan(inputDateFormat.parse("3/11/2020 00:00:00"), 1, base, fares1, "ML005", Boolean.TRUE);
-            flightSchedulePlanSessionBeanRemote.createRecurrentFlightSchedulePlan(inputDateFormat.parse("6/12/2020 00:00:00"), 2, base, fares1, "ML001", Boolean.TRUE);
+            flightSchedulePlanSessionBeanRemote.createRecurrentFlightSchedulePlan(inputDateFormat.parse("6/11/2020 00:00:00"), 2, base, fares1, "ML001", Boolean.TRUE, 8);
+            flightSchedulePlanSessionBeanRemote.createRecurrentFlightSchedulePlan(inputDateFormat.parse("30/12/2020 00:00:00"), 10, base, fares1, "ML003", Boolean.TRUE, 8);
 
         } catch (Exception ex) {
             System.out.println(ex);

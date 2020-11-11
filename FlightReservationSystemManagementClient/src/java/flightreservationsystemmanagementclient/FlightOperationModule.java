@@ -57,14 +57,14 @@ public class FlightOperationModule {
     private FareEntitySessionBeanRemote fareEntitySessionBeanRemote;
     @EJB
     private FlightScheduleSessionBeanRemote flightScheduleSessionBeanRemote;
-    
+
     public FlightOperationModule() {
     }
 
-    public FlightOperationModule(FlightRouteSessionBeanRemote flightRouteSessionBeanRemote, 
-            FlightSessionBeanRemote flightSessionBeanRemote, 
-            FlightSchedulePlanSessionBeanRemote flightSchedulePlanSessionBeanRemote, 
-            FareEntitySessionBeanRemote fareEntitySessionBeanRemote, 
+    public FlightOperationModule(FlightRouteSessionBeanRemote flightRouteSessionBeanRemote,
+            FlightSessionBeanRemote flightSessionBeanRemote,
+            FlightSchedulePlanSessionBeanRemote flightSchedulePlanSessionBeanRemote,
+            FareEntitySessionBeanRemote fareEntitySessionBeanRemote,
             FlightScheduleSessionBeanRemote flightScheduleSessionBeanRemote) {
         this.flightRouteSessionBeanRemote = flightRouteSessionBeanRemote;
         this.flightSessionBeanRemote = flightSessionBeanRemote;
@@ -72,8 +72,6 @@ public class FlightOperationModule {
         this.fareEntitySessionBeanRemote = fareEntitySessionBeanRemote;
         this.flightScheduleSessionBeanRemote = flightScheduleSessionBeanRemote;
     }
-    
-    
 
     public void flightOperationMenu() {
         Scanner scanner = new Scanner(System.in);
@@ -405,6 +403,7 @@ public class FlightOperationModule {
             scanner.nextLine();
 
             String returnSchedulePlanResponse = "";
+            Integer layoverDuration = null;
             // prompt user only if flight has a return flight
             if (flight.getReturnFlight() != null) {
                 do {
@@ -414,6 +413,9 @@ public class FlightOperationModule {
                         System.out.println("Invalid response! Enter Y/N");
                     }
                 } while (!returnSchedulePlanResponse.equals("Y") && !returnSchedulePlanResponse.equals("N"));
+
+                System.out.print("Enter layover duration (Hours) > ");
+                layoverDuration = Integer.parseInt(scanner.nextLine());
             }
 
             Boolean doCreateReturnFlightSchedule = returnSchedulePlanResponse.equals("Y");
@@ -439,7 +441,7 @@ public class FlightOperationModule {
                     } while (createMoreFlightSchedule);
                 }
 
-                flightSchedulePlanSessionBeanRemote.createNewNonRecurrentFlightSchedulePlan(flightSchedules, fares, flightNumber, doCreateReturnFlightSchedule);
+                flightSchedulePlanSessionBeanRemote.createNewNonRecurrentFlightSchedulePlan(flightSchedules, fares, flightNumber, doCreateReturnFlightSchedule, layoverDuration);
             } else if (response == 3 || response == 4) {
                 FlightScheduleEntity baseFlightSchedule = createFlightSchedule();
 
@@ -470,7 +472,7 @@ public class FlightOperationModule {
                     } while (recurrentDaysFrequency <= 0);
                 }
 
-                flightSchedulePlanSessionBeanRemote.createRecurrentFlightSchedulePlan(endDate, recurrentDaysFrequency, baseFlightSchedule, fares, flightNumber, doCreateReturnFlightSchedule);
+                flightSchedulePlanSessionBeanRemote.createRecurrentFlightSchedulePlan(endDate, recurrentDaysFrequency, baseFlightSchedule, fares, flightNumber, doCreateReturnFlightSchedule, layoverDuration);
             }
 
             System.out.println("Flight schedule plan successfully created!");
@@ -504,9 +506,13 @@ public class FlightOperationModule {
         }
         flightSchedule.setDepartureDate(departureDate);
 
-        System.out.print("Enter the estimated flight duration> ");
-        Integer estimatedDuration = scanner.nextInt();
-        flightSchedule.setEstimatedFlightDuration(estimatedDuration);
+        System.out.print("Enter the estimated flight duration hour> ");
+        Integer estimatedDurationHour = Integer.parseInt(scanner.nextLine());
+        flightSchedule.setEstimatedFlightDurationHour(estimatedDurationHour);
+
+        System.out.print("Enter the estimated flight duration minute> ");
+        Integer estimatedDurationMinute = Integer.parseInt(scanner.nextLine());
+        flightSchedule.setEstimatedFlightDurationMinute(estimatedDurationMinute);
 
         return flightSchedule;
     }
@@ -590,7 +596,7 @@ public class FlightOperationModule {
             for (FlightScheduleEntity flightSchedule : flightSchedulesList) {
                 System.out.println("\tFlight Schedule Id: " + flightSchedule.getFlightScheduleId());
                 System.out.println("\t\tDeparture Date: " + flightSchedule.getDepartureDate());
-                System.out.println("\t\tEstimated Flight Duration: " + flightSchedule.getEstimatedFlightDuration());
+                System.out.println("\t\tEstimated Flight Duration: " + flightSchedule.getEstimatedFlightDurationHour());
                 //view estimated arival datetime?
                 //view flight schedule type?
                 //view end date (for recurrent)?
@@ -782,7 +788,7 @@ public class FlightOperationModule {
                         } while (estimatedFlightDuration <= 0);
 
                         flightSchedule.setDepartureDate(newDepartureDate);
-                        flightSchedule.setEstimatedFlightDuration(estimatedFlightDuration);
+                        flightSchedule.setEstimatedFlightDurationHour(estimatedFlightDuration);
                         updatedFlightSchedules.add(flightSchedule);
 
                         do {
