@@ -41,7 +41,6 @@ public class CabinConfigurationEntity implements Serializable {
     @Column(nullable = false)
     private Long numberOfAisles;
 
-    @Min(value = 1)
     @Max(value = 10)
     @Column(nullable = false)
     private Long numberOfSeatsAbreast;

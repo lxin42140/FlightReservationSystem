@@ -101,6 +101,13 @@ public class FlightReservationEntity implements Serializable {
     }
 
     public List<PassengerEntity> getPassengers() {
+        // sort passengers base on last name then first name
+        this.passengers.sort((PassengerEntity a, PassengerEntity b) -> {
+            if (a.getLastName().compareTo(b.getLastName()) == 0) {
+                return a.getFirstName().compareTo(b.getFirstName());
+            }
+            return a.getLastName().compareTo(b.getLastName());
+        });
         return passengers;
     }
 
@@ -109,6 +116,8 @@ public class FlightReservationEntity implements Serializable {
     }
 
     public List<FlightScheduleEntity> getFlightSchedules() {
+        // sort flight schedules base on departure date
+        this.flightSchedules.sort((FlightScheduleEntity a, FlightScheduleEntity b) -> a.getDepartureDate().compareTo(b.getDepartureDate()));
         return flightSchedules;
     }
 

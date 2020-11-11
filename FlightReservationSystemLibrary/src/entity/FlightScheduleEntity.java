@@ -61,7 +61,7 @@ public class FlightScheduleEntity implements Serializable {
 
     private Integer estimatedFlightDurationMinute;
 
-    @OneToMany(mappedBy = "flightSchedule", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "flightSchedule", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true, fetch = FetchType.LAZY)
     @NotEmpty
     private List<SeatEntity> seatInventory;
 

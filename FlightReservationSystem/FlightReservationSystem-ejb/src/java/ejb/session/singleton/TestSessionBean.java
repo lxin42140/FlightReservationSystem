@@ -97,31 +97,31 @@ public class TestSessionBean {
     public void postConstruct() {
         System.out.println("-----------------------TEST------------------------------\n");
         try {
-
 //            createAircraftConfig(); 
-            //viewAllAircraftConfigurations();
+//            viewAllAircraftConfigurations();
             //
 //            createFlightRoute();
-            //viewAllFlightRoute();
-            //deleteFlightRoute();
+//            viewAllFlightRoute();
+//            deleteFlightRoute();
             //            
 //            createFlight();
-            //updateFlight();
-            //viewAllFlights();
-            //deleteFlight();
+//            updateFlight();
+//            viewAllFlights();
+//            deleteFlight();
             //
 //            createFlightSchedulePlan();
-            //viewAllFlightSchedulePlans(); 
-            //updateFlightSchedulePlan();
-            //deleteFlightSchedulePlan();
-            //updateFlightSchedulePlanEntity();
+            viewAllFlightSchedulePlans(); 
+//            updateFlightSchedulePlan();
+//            deleteFlightSchedulePlan();
+//            updateFlightSchedulePlanEntity();
             //
-            //viewSeatInventory();
-            //search();
+//            viewSeatInventory();
+//            search();
             //
 
 //            viewAllFlightReservation();
-            //makeReservation();
+//            makeReservation();
+
         } catch (Exception ex) {
             System.out.println(ex);
         }
@@ -372,26 +372,24 @@ public class TestSessionBean {
         List<FlightSchedulePlanEntity> list = flightSchedulePlanSessionBeanRemote.retrieveAllFlightSchedulePlans();
         for (FlightSchedulePlanEntity flightSchedulePlanEntity : list) {
             System.out.println("Flight schedule plan ID: " + flightSchedulePlanEntity.getFlightSchedulePlanId());
+            if (flightSchedulePlanEntity.getRecurrentEndDate() != null) {
+                System.out.println("Recurrent end date: " + flightSchedulePlanEntity.getRecurrentEndDate());
+                System.out.println("Recurrent frequency: " + flightSchedulePlanEntity.getRecurrentFrequency());
+            }
             System.out.println("\tFlight schedules> ");
             for (FlightScheduleEntity flightScheduleEntity : flightSchedulePlanEntity.getFlightSchedules()) {
-                System.out.println("\tID: " + flightScheduleEntity.getFlightScheduleId() + " Airport: " + flightScheduleEntity.getFlightSchedulePlan().getFlight().getFlightRoute().getOriginAirport().getAirportName() + " Departure date: " + flightScheduleEntity.getDepartureDate() + "-->" + flightScheduleEntity.getFlightSchedulePlan().getFlight().getFlightRoute().getDestinationAirport().getAirportName() + " Arrival date: " + flightScheduleEntity.getArrivalDateTime());
-//                System.out.println("\t\tSeat inventory> ");
-//                List<SeatEntity> seats = flightScheduleEntity.getSeatInventory();
-//                for (SeatEntity seatEntity : seats) {
-//                    System.out.println("\t\tCabin: " + seatEntity.getCabinClassEnum() + " Seat number: " + seatEntity.getSeatNumber());
-//                }
+                System.out.println("\tscheduleID: " + flightScheduleEntity.getFlightScheduleId() + " Airport: " + flightScheduleEntity.getFlightSchedulePlan().getFlight().getFlightRoute().getOriginAirport().getAirportName() + " Departure date: " + flightScheduleEntity.getDepartureDate() + "-->" + flightScheduleEntity.getFlightSchedulePlan().getFlight().getFlightRoute().getDestinationAirport().getAirportName() + " Arrival date: " + flightScheduleEntity.getArrivalDateTime());
+                if (flightScheduleEntity.getReturnFlightSchedule() != null) {
+                    FlightScheduleEntity returnFlightSchedule = flightScheduleEntity.getReturnFlightSchedule();
+                    System.out.println("\t\tReturn scheduleID: " + returnFlightSchedule.getFlightScheduleId() + " Airport: " + returnFlightSchedule.getFlightSchedulePlan().getFlight().getFlightRoute().getOriginAirport().getAirportName() + " Departure date: " + returnFlightSchedule.getDepartureDate() + "-->" + returnFlightSchedule.getFlightSchedulePlan().getFlight().getFlightRoute().getDestinationAirport().getAirportName() + " Arrival date: " + returnFlightSchedule.getArrivalDateTime());
+                }
             }
-
             System.out.println("\tFares> ");
             for (FareEntity fareEntity : flightSchedulePlanEntity.getFares()) {
-                System.out.println("\tFare basis code: " + fareEntity.getFareBasisCode() + " Amount: " + fareEntity.getFareAmount() + " Cabin class: " + fareEntity.getCabinClass());
+                System.out.println("\t\tCabin class: " + fareEntity.getCabinClass() + ", Fare basis code: " + fareEntity.getFareBasisCode() + ", Amount: " + fareEntity.getFareAmount());
             }
-
-            if (flightSchedulePlanEntity.getReturnFlightSchedulePlan() != null) {
-                System.out.println("Return flight schedule plan>");
-                printReturnFlightSchedulePlan(flightSchedulePlanEntity.getReturnFlightSchedulePlan());
-            }
-
+            
+            System.out.println("===============================================================================================");
         }
     }
 

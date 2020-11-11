@@ -21,7 +21,7 @@ import util.enumeration.EmployeeAccessRightEnum;
  */
 @Singleton
 @LocalBean
-@Startup
+//@Startup
 public class EmployeeInitSessionBean {
 
     @PersistenceContext(unitName = "FlightReservationSystem-ejbPU")

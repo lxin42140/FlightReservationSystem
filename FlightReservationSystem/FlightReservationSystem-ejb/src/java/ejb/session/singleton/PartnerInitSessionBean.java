@@ -20,7 +20,7 @@ import javax.persistence.PersistenceContext;
  */
 @Singleton
 @LocalBean
-@Startup
+//@Startup
 public class PartnerInitSessionBean {
 
     @PersistenceContext(unitName = "FlightReservationSystem-ejbPU")

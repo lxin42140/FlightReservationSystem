@@ -77,6 +77,10 @@ public class UserEntity implements Serializable {
     }
 
     public List<FlightReservationEntity> getFlightReservations() {
+        // sort flight reservations based on flight reservation
+        this.flightReservations.sort((FlightReservationEntity a, FlightReservationEntity b) -> {
+            return a.getFlightReservationId().compareTo(b.getFlightReservationId());
+        });
         return flightReservations;
     }
 
