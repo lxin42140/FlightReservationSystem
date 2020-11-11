@@ -506,9 +506,13 @@ public class FlightOperationModule {
         }
         flightSchedule.setDepartureDate(departureDate);
 
-        System.out.print("Enter the estimated flight duration> ");
-        Integer estimatedDuration = scanner.nextInt();
-        flightSchedule.setEstimatedFlightDurationHour(estimatedDuration);
+        System.out.print("Enter the estimated flight duration hour> ");
+        Integer estimatedDurationHour = Integer.parseInt(scanner.nextLine());
+        flightSchedule.setEstimatedFlightDurationHour(estimatedDurationHour);
+
+        System.out.print("Enter the estimated flight duration minute> ");
+        Integer estimatedDurationMinute = Integer.parseInt(scanner.nextLine());
+        flightSchedule.setEstimatedFlightDurationMinute(estimatedDurationMinute);
 
         return flightSchedule;
     }

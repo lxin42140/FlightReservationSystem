@@ -166,7 +166,7 @@ public class FlightScheduleEntity implements Serializable {
     public Date getArrivalDateTime() {
         GregorianCalendar departureDateTimeCalender = new GregorianCalendar();
         departureDateTimeCalender.setTime(this.departureDate);
-        departureDateTimeCalender.add(GregorianCalendar.HOUR, this.estimatedFlightDurationHour); // add hour
+        departureDateTimeCalender.add(GregorianCalendar.HOUR_OF_DAY, this.estimatedFlightDurationHour); // add hour
         departureDateTimeCalender.add(GregorianCalendar.MINUTE, this.estimatedFlightDurationHour); // add minute
 
         // get arrival time
