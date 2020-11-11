@@ -76,11 +76,12 @@ public class FlightScheduleSessionBean implements FlightScheduleSessionBeanRemot
         Date arrivalDateTime = flightSchedule.getArrivalDateTime(); // arrival time is already calculated based on time zone of destination airport
         GregorianCalendar returnDepartureDateTimeCalender = new GregorianCalendar();
         returnDepartureDateTimeCalender.setTime(arrivalDateTime);
+
         returnDepartureDateTimeCalender.add(GregorianCalendar.HOUR_OF_DAY, layoverPeriodForReturnFlight); // lay over period is determiend by user
 
         Date returnDepartureDateTime = returnDepartureDateTimeCalender.getTime(); // get return departure time
 
-        FlightScheduleEntity returnFlightSchedule = new FlightScheduleEntity(returnDepartureDateTime, flightSchedule.getEstimatedFlightDurationHour());
+        FlightScheduleEntity returnFlightSchedule = new FlightScheduleEntity(returnDepartureDateTime, flightSchedule.getEstimatedFlightDurationHour(), flightSchedule.getEstimatedFlightDurationMinute());
 
         flightSchedule.setReturnFlightSchedule(returnFlightSchedule); // associate flight schedule and its return flight schedule
 

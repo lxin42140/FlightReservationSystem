@@ -110,8 +110,8 @@ public class TestSessionBean {
 //            deleteFlight();
             //
 //            createFlightSchedulePlan();
-            viewAllFlightSchedulePlans(); 
 //            updateFlightSchedulePlan();
+//            viewAllFlightSchedulePlans();
 //            deleteFlightSchedulePlan();
 //            updateFlightSchedulePlanEntity();
             //
@@ -366,10 +366,13 @@ public class TestSessionBean {
     private void viewAllFlightSchedulePlans() {
         List<FlightSchedulePlanEntity> list = flightSchedulePlanSessionBeanRemote.retrieveAllFlightSchedulePlans();
         for (FlightSchedulePlanEntity flightSchedulePlanEntity : list) {
-            System.out.println("Flight schedule plan ID: " + flightSchedulePlanEntity.getFlightSchedulePlanId());
+            System.out.println(flightSchedulePlanEntity.getFlightSchedulePlanType().toString());
+            System.out.println("Flight schedule plan ID: " + flightSchedulePlanEntity.getFlightSchedulePlanId() + " Flight number: " + flightSchedulePlanEntity.getFlight().getFlightNumber());
             if (flightSchedulePlanEntity.getRecurrentEndDate() != null) {
+                System.out.println("Recurrent start date " + flightSchedulePlanEntity.getRecurrentStartDate());
                 System.out.println("Recurrent end date: " + flightSchedulePlanEntity.getRecurrentEndDate());
                 System.out.println("Recurrent frequency: " + flightSchedulePlanEntity.getRecurrentFrequency());
+                System.out.println("Layover: " + flightSchedulePlanEntity.getLayoverPeriod());
             }
             System.out.println("\tFlight schedules> ");
             for (FlightScheduleEntity flightScheduleEntity : flightSchedulePlanEntity.getFlightSchedules()) {
@@ -383,7 +386,7 @@ public class TestSessionBean {
             for (FareEntity fareEntity : flightSchedulePlanEntity.getFares()) {
                 System.out.println("\t\tCabin class: " + fareEntity.getCabinClass() + ", Fare basis code: " + fareEntity.getFareBasisCode() + ", Amount: " + fareEntity.getFareAmount());
             }
-            
+
             System.out.println("===============================================================================================");
         }
     }
@@ -413,7 +416,7 @@ public class TestSessionBean {
 //            set.add(10l);
 //
 //            flightSchedulePlanSessionBeanRemote.updateRemoveFlightScheduleFromFlightSchedulePlan(2l, set);
-//            SimpleDateFormat inputDateFormat = new SimpleDateFormat("d/M/y");
+            SimpleDateFormat inputDateFormat = new SimpleDateFormat("d/M/y");
 //
 //            FlightScheduleEntity flightScheduleEntity = new FlightScheduleEntity();
 //            flightScheduleEntity.setDepartureDate(inputDateFormat.parse("05/11/2020"));
@@ -460,6 +463,10 @@ public class TestSessionBean {
 //            fares1.add(fareEntity3);
 //            
 //            flightSchedulePlanSessionBeanRemote.updateAddFareToFlightSchedulePlan(6l, fares1);
+
+//ML311 01
+//            flightSchedulePlanSessionBeanRemote.updateRecurrentWeeklyFlightSchedulePlanDayOfWeek(8l, 3);
+//            flightSchedulePlanSessionBeanRemote.updateRecurrentWeeklyFlightSchedulePlanRange(8l,  inputDateFormat.parse("15/12/2020"), null);
         } catch (Exception ex) {
             System.out.println(ex);
 

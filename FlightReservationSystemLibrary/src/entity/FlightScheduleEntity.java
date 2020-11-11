@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -92,6 +93,12 @@ public class FlightScheduleEntity implements Serializable {
         this.estimatedFlightDurationMinute = estimatedFlightDurationMinute;
     }
 
+    public FlightScheduleEntity(Integer estimatedFlightDurationHour, Integer estimatedFlightDurationMinute) {
+        this();
+        this.estimatedFlightDurationHour = estimatedFlightDurationHour;
+        this.estimatedFlightDurationMinute = estimatedFlightDurationMinute;
+    }
+
     public FlightScheduleEntity getReturnFlightSchedule() {
         return returnFlightSchedule;
     }
@@ -100,13 +107,6 @@ public class FlightScheduleEntity implements Serializable {
         this.returnFlightSchedule = returnFlightSchedule;
     }
 
-//    public Boolean getIsReturnFlightSchedule() {
-//        return isReturnFlightSchedule;
-//    }
-//
-//    public void setIsReturnFlightSchedule(Boolean isReturnFlightSchedule) {
-//        this.isReturnFlightSchedule = isReturnFlightSchedule;
-//    }
     public List<FlightReservationEntity> getFlightReservations() {
         return flightReservations;
     }
@@ -162,12 +162,20 @@ public class FlightScheduleEntity implements Serializable {
         this.seatInventory = seatInventory;
     }
 
+    // retrieve flight duration as date
+    public Date getEstimatedFlightDuration() {
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY, this.getEstimatedFlightDurationHour());
+        cal.set(Calendar.MINUTE, this.getEstimatedFlightDurationMinute());
+        return cal.getTime();
+    }
+
     // return arrival date time in time of destination country
     public Date getArrivalDateTime() {
         GregorianCalendar departureDateTimeCalender = new GregorianCalendar();
         departureDateTimeCalender.setTime(this.departureDate);
-        departureDateTimeCalender.add(GregorianCalendar.HOUR_OF_DAY, this.estimatedFlightDurationHour); // add hour
-        departureDateTimeCalender.add(GregorianCalendar.MINUTE, this.estimatedFlightDurationHour); // add minute
+        departureDateTimeCalender.add(GregorianCalendar.HOUR, this.estimatedFlightDurationHour); // add hour
+        departureDateTimeCalender.add(GregorianCalendar.MINUTE, this.estimatedFlightDurationMinute); // add minute
 
         // get arrival time
         Date arrivalDateTime = departureDateTimeCalender.getTime();

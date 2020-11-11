@@ -6,6 +6,7 @@
 package entity;
 
 import java.io.Serializable;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -53,7 +54,7 @@ public class SeatEntity implements Serializable {
     @NotNull
     private FlightScheduleEntity flightSchedule;
 
-    @ManyToOne(optional = true, cascade = {}, fetch = FetchType.EAGER)
+    @ManyToOne(optional = true, cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
     @JoinColumn(name = "passengerId")
     private PassengerEntity passenger;
 

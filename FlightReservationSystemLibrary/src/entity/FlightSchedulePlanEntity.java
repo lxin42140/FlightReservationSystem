@@ -12,6 +12,8 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -25,6 +27,7 @@ import javax.persistence.TemporalType;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import util.enumeration.FlightSchedulePlanTypeEnum;
 
 /**
  *
@@ -40,10 +43,17 @@ public class FlightSchedulePlanEntity implements Serializable {
     private Long flightSchedulePlanId;
 
     @Temporal(TemporalType.TIMESTAMP)
+    private Date recurrentStartDate;
+
+    @Temporal(TemporalType.TIMESTAMP)
     private Date recurrentEndDate;
 
     @Column(precision = 3)
     private Integer recurrentFrequency;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private FlightSchedulePlanTypeEnum flightSchedulePlanType;
 
     @Max(24)
     @Column(precision = 3)
@@ -81,6 +91,22 @@ public class FlightSchedulePlanEntity implements Serializable {
 
     public Long getFlightSchedulePlanId() {
         return flightSchedulePlanId;
+    }
+
+    public Date getRecurrentStartDate() {
+        return recurrentStartDate;
+    }
+
+    public void setRecurrentStartDate(Date recurrentStartDate) {
+        this.recurrentStartDate = recurrentStartDate;
+    }
+
+    public FlightSchedulePlanTypeEnum getFlightSchedulePlanType() {
+        return flightSchedulePlanType;
+    }
+
+    public void setFlightSchedulePlanType(FlightSchedulePlanTypeEnum flightSchedulePlanType) {
+        this.flightSchedulePlanType = flightSchedulePlanType;
     }
 
     public Date getRecurrentEndDate() {

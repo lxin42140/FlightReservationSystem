@@ -49,7 +49,7 @@ import util.exception.FlightRouteNotFoundException;
  */
 @Singleton
 @LocalBean
-//@Startup
+@Startup
 
 public class TestDataInit {
 
@@ -78,7 +78,7 @@ public class TestDataInit {
 //        initAircraftConfiguration();
 //        initFlightRoute();
 //        initFlight();
-//        initFlightSchedulePlan();
+//        initFlightSchedulePlan(); 
         System.out.println("---------------------------------END INIT---------------------------------");
 
     }
@@ -205,9 +205,18 @@ public class TestDataInit {
 
     private void initFlightSchedulePlan() {
         try {
+// Sun 1
+// M 2
+// T 3
+// W 4
+// T 5
+// F 6
+// Sat 7
+
             SimpleDateFormat inputDateFormat = new SimpleDateFormat("d/M/y HH:mm:ss");
 
-            FlightScheduleEntity f711 = new FlightScheduleEntity(inputDateFormat.parse("01/12/2020 09:00:00"), 14);
+            //ML711, Recurrent Weekly
+            FlightScheduleEntity flight = new FlightScheduleEntity(14, 0);
             List<FareEntity> fares = new ArrayList<>();
             fares.add(new FareEntity("F001", BigDecimal.valueOf(6500.0), CabinClassEnum.F));
             fares.add(new FareEntity("F002", BigDecimal.valueOf(6000.0), CabinClassEnum.F));
@@ -215,47 +224,51 @@ public class TestDataInit {
             fares.add(new FareEntity("J002", BigDecimal.valueOf(3000.0), CabinClassEnum.J));
             fares.add(new FareEntity("Y001", BigDecimal.valueOf(1500.0), CabinClassEnum.Y));
             fares.add(new FareEntity("Y002", BigDecimal.valueOf(1000.0), CabinClassEnum.Y));
-            flightSchedulePlanSessionBeanLocal.createRecurrentFlightSchedulePlan(inputDateFormat.parse("31/12/2020 09:00:00"), 7, f711, fares, "ML711", Boolean.TRUE, 2);
+            flightSchedulePlanSessionBeanLocal.createRecurrentWeeklyFlightSchedulePlan(2, 9, 0, inputDateFormat.parse("01/12/2020 12:00:00"), inputDateFormat.parse("31/12/2020 12:00:00"), flight, fares, "ML711", Boolean.TRUE, 2);
 
             fares.clear();
 
-            FlightScheduleEntity f611 = new FlightScheduleEntity(inputDateFormat.parse("01/12/2020 12:00:00"), 8);
+            //ML611, Recurrent Weekly
+            flight = new FlightScheduleEntity(8, 0);
             fares.add(new FareEntity("F001", BigDecimal.valueOf(3250.0), CabinClassEnum.F));
             fares.add(new FareEntity("F002", BigDecimal.valueOf(3000.0), CabinClassEnum.F));
             fares.add(new FareEntity("J001", BigDecimal.valueOf(1750.0), CabinClassEnum.J));
             fares.add(new FareEntity("J002", BigDecimal.valueOf(1500.0), CabinClassEnum.J));
             fares.add(new FareEntity("Y001", BigDecimal.valueOf(750.0), CabinClassEnum.Y));
             fares.add(new FareEntity("Y002", BigDecimal.valueOf(500.0), CabinClassEnum.Y));
-            flightSchedulePlanSessionBeanLocal.createRecurrentFlightSchedulePlan(inputDateFormat.parse("31/12/2020 12:00:00"), 7, f611, fares, "ML611", Boolean.TRUE, 2);
+            flightSchedulePlanSessionBeanLocal.createRecurrentWeeklyFlightSchedulePlan(1, 12, 0, inputDateFormat.parse("01/12/2020 12:00:00"), inputDateFormat.parse("31/12/2020 12:00:00"), flight, fares, "ML611", Boolean.TRUE, 2);
 
             fares.clear();
 
-            FlightScheduleEntity f621 = new FlightScheduleEntity(inputDateFormat.parse("01/12/2020 10:00:00"), 8);
+            //ML621, Recurrent Weekly
+            flight = new FlightScheduleEntity(8, 0);
             fares.add(new FareEntity("Y001", BigDecimal.valueOf(700.0), CabinClassEnum.Y));
             fares.add(new FareEntity("Y002", BigDecimal.valueOf(700.0), CabinClassEnum.Y));
-            flightSchedulePlanSessionBeanLocal.createRecurrentFlightSchedulePlan(inputDateFormat.parse("31/12/2020 10:00:00"), 7, f621, fares, "ML621", Boolean.TRUE, 2);
+            flightSchedulePlanSessionBeanLocal.createRecurrentWeeklyFlightSchedulePlan(3, 10, 0, inputDateFormat.parse("01/12/2020 12:00:00"), inputDateFormat.parse("31/12/2020 12:00:00"), flight, fares, "ML621", Boolean.TRUE, 2);
 
             fares.clear();
 
-            FlightScheduleEntity f311 = new FlightScheduleEntity(inputDateFormat.parse("01/12/2020 10:00:00"), 6, 30);
+//            ML311, Recurrent Weekly
+            flight = new FlightScheduleEntity(6, 30);
             fares.add(new FareEntity("F001", BigDecimal.valueOf(3350.0), CabinClassEnum.F));
             fares.add(new FareEntity("F002", BigDecimal.valueOf(3100.0), CabinClassEnum.F));
             fares.add(new FareEntity("J001", BigDecimal.valueOf(1850.0), CabinClassEnum.J));
             fares.add(new FareEntity("J002", BigDecimal.valueOf(1600.0), CabinClassEnum.J));
             fares.add(new FareEntity("Y001", BigDecimal.valueOf(850.0), CabinClassEnum.Y));
             fares.add(new FareEntity("Y002", BigDecimal.valueOf(600.0), CabinClassEnum.Y));
-            flightSchedulePlanSessionBeanLocal.createRecurrentFlightSchedulePlan(inputDateFormat.parse("31/12/2020 10:00:00"), 7, f311, fares, "ML311", Boolean.TRUE, 3);
+            flightSchedulePlanSessionBeanLocal.createRecurrentWeeklyFlightSchedulePlan(2, 10, 0, inputDateFormat.parse("01/12/2020 12:00:00"), inputDateFormat.parse("31/12/2020 12:00:00"), flight, fares, "ML311", Boolean.TRUE, 3);
 
             fares.clear();
 
-            FlightScheduleEntity f411 = new FlightScheduleEntity(inputDateFormat.parse("01/12/2020 13:00:00"), 4);
+            //ML411, Recurrent NDay
+            flight = new FlightScheduleEntity(inputDateFormat.parse("1/12/2020 13:00:00"), 4);
             fares.add(new FareEntity("F001", BigDecimal.valueOf(3150.0), CabinClassEnum.F));
             fares.add(new FareEntity("F002", BigDecimal.valueOf(2900.0), CabinClassEnum.F));
             fares.add(new FareEntity("J001", BigDecimal.valueOf(1650.0), CabinClassEnum.J));
             fares.add(new FareEntity("J002", BigDecimal.valueOf(1400.0), CabinClassEnum.J));
             fares.add(new FareEntity("Y001", BigDecimal.valueOf(650.0), CabinClassEnum.Y));
             fares.add(new FareEntity("Y002", BigDecimal.valueOf(400.0), CabinClassEnum.Y));
-            flightSchedulePlanSessionBeanLocal.createRecurrentFlightSchedulePlan(inputDateFormat.parse("31/12/2020 13:00:00"), 2, f411, fares, "ML411", Boolean.TRUE, 4);
+            flightSchedulePlanSessionBeanLocal.createRecurrentNDaysFlightSchedulePlan(inputDateFormat.parse("31/12/2020 13:00:00"), 2, flight, fares, "ML411", Boolean.TRUE, 4);
 
             fares.clear();
 
