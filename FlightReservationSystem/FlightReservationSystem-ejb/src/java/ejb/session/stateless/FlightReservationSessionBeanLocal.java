@@ -6,14 +6,13 @@
 package ejb.session.stateless;
 
 import entity.CreditCardEntity;
+import entity.FlightReservationEntity;
 import entity.FlightScheduleEntity;
 import entity.PassengerEntity;
-import entity.SeatEntity;
 import entity.UserEntity;
 import java.util.List;
 import javax.ejb.Local;
 import util.exception.CreateNewFlightReservationException;
-import util.exception.FlightScheduleNotFoundException;
 
 /**
  *
@@ -22,7 +21,9 @@ import util.exception.FlightScheduleNotFoundException;
 @Local
 public interface FlightReservationSessionBeanLocal {
 
-    public List<SeatEntity> viewFlightReservationsByFlightScheduleId(Long flightScheduleId) throws FlightScheduleNotFoundException;
+    public FlightReservationEntity viewFlightReservationsByFlightScheduleId(Long flightReservationId);
+    
+    public List<FlightReservationEntity> viewFlightReservationByCustomer(Long customerId);
 
     public Long createNewFlightReservation(List<FlightScheduleEntity> itinery, List<PassengerEntity> passengers, CreditCardEntity creditCardEntity, UserEntity user) throws CreateNewFlightReservationException;
 

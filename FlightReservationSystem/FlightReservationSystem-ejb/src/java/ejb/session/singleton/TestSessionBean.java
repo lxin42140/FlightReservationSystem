@@ -122,7 +122,6 @@ public class TestSessionBean {
 
             //viewAllFlightReservation();
             //makeReservation();
-
         } catch (Exception ex) {
             System.out.println(ex);
         }
@@ -339,7 +338,9 @@ public class TestSessionBean {
 //            flightSchedulePlanSessionBeanRemote.createNewNonRecurrentFlightSchedulePlan(flightSchedules, fares1, "ML005", true);
 //
             FlightScheduleEntity base = new FlightScheduleEntity();
-            base.setDepartureDate(inputDateFormat.parse("1/11/2020 00:00:00"));
+//            base.setDepartureDate(inputDateFormat.parse("1/11/2020 00:00:00"));            
+            base.setDepartureDate(inputDateFormat.parse("1/12/2020 00:00:00"));
+
             base.setEstimatedFlightDuration(1);
 
             FareEntity fareEntity3 = new FareEntity("W001", BigDecimal.valueOf(10.0), CabinClassEnum.W);
@@ -359,7 +360,8 @@ public class TestSessionBean {
 
 //            flightSchedulePlanSessionBeanRemote.createRecurrentFlightSchedulePlan(inputDateFormat.parse("5/11/2020 00:00:00"), 1, base, fares1, "ML003", Boolean.TRUE);
 //            flightSchedulePlanSessionBeanRemote.createRecurrentFlightSchedulePlan(inputDateFormat.parse("5/11/2020 00:00:00"), 1, base, fares1, "ML001", Boolean.TRUE);
-            flightSchedulePlanSessionBeanRemote.createRecurrentFlightSchedulePlan(inputDateFormat.parse("3/11/2020 00:00:00"), 1, base, fares1, "ML005", Boolean.TRUE);
+//            flightSchedulePlanSessionBeanRemote.createRecurrentFlightSchedulePlan(inputDateFormat.parse("3/11/2020 00:00:00"), 1, base, fares1, "ML005", Boolean.TRUE);
+            flightSchedulePlanSessionBeanRemote.createRecurrentFlightSchedulePlan(inputDateFormat.parse("6/12/2020 00:00:00"), 2, base, fares1, "ML001", Boolean.TRUE);
 
         } catch (Exception ex) {
             System.out.println(ex);
@@ -559,15 +561,14 @@ public class TestSessionBean {
 
     }
 
-    private void viewAllFlightReservation() {
-        try {
-            List<SeatEntity> seats = flightReservationSessionBeanRemote.viewFlightReservationsByFlightScheduleId(75l);
-            seats.forEach(x -> System.out.println(x.getSeatNumber()));
-        } catch (Exception ex) {
-            System.out.println(ex);
-        }
-    }
-
+//    private void viewAllFlightReservation() {
+//        try {
+//            List<SeatEntity> seats = flightReservationSessionBeanRemote.viewFlightReservationsByFlightScheduleId(75l);
+//            seats.forEach(x -> System.out.println(x.getSeatNumber()));
+//        } catch (Exception ex) {
+//            System.out.println(ex);
+//        }
+//    }
     private void makeReservation() {
         try {
             SimpleDateFormat inputDateFormat = new SimpleDateFormat("d/M/y");
@@ -591,8 +592,7 @@ public class TestSessionBean {
             CreditCardEntity creditCard = new CreditCardEntity("123", "First", "Customer", inputDateFormat.parse("02/11/2020 00:00:00"), "222");
 
             flightReservationSessionBeanRemote.createNewFlightReservation(oneWayFlights.get(1), passengers, creditCard, customer);
-        
-           
+
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
         }

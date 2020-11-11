@@ -20,6 +20,7 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -49,30 +50,46 @@ public class FlightReservationSessionBean implements FlightReservationSessionBea
     private EntityManager em;
 
     @Override
-    public List<SeatEntity> viewFlightReservationsByFlightScheduleId(Long flightScheduleId) throws FlightScheduleNotFoundException {
+    public FlightReservationEntity viewFlightReservationsByFlightScheduleId(Long flightReservationId) {
+        
+        Query query = em.createQuery("SELECT r FROM FlightReservationEntity r WHERE r.flightReservationId = :inFlightReservationId");
+        query.setParameter("inFlightReservationId", flightReservationId);
+        
+        return (FlightReservationEntity) query.getSingleResult();
 
-        FlightScheduleEntity flightSchedule = flightScheduleSessionBeanLocal.retrieveFlightScheduleById(flightScheduleId);
+//        FlightScheduleEntity flightSchedule = flightScheduleSessionBeanLocal.retrieveFlightScheduleById(flightScheduleId);
 
-        // get a list of seats that are booked
-        List<SeatEntity> reservedSeats = new ArrayList<>();
+//        // get a list of seats that are booked
+//        List<SeatEntity> reservedSeats = new ArrayList<>();
+//
+//        for (SeatEntity seat : flightSchedule.getSeatInventory()) {
+//            if (seat.getPassenger() != null) {
+//                reservedSeats.add(seat);
+//            }
+//        }
+//
+//        // sort base on cabin class
+//        reservedSeats.sort(((SeatEntity a, SeatEntity b) -> {
+//            return a.getCabinClassEnum().compareTo(b.getCabinClassEnum());
+//        }));
+//
+//        // sort base on seat number
+//        reservedSeats.sort(((SeatEntity a, SeatEntity b) -> {
+//            return a.getSeatNumber().compareTo(b.getSeatNumber());
+//        }));
+//
+//        return reservedSeats;
+    }
 
-        for (SeatEntity seat : flightSchedule.getSeatInventory()) {
-            if (seat.getPassenger() != null) {
-                reservedSeats.add(seat);
-            }
-        }
+    @Override
+    public List<FlightReservationEntity> viewFlightReservationByCustomer(Long customerId) {
 
-        // sort base on cabin class
-        reservedSeats.sort(((SeatEntity a, SeatEntity b) -> {
-            return a.getCabinClassEnum().compareTo(b.getCabinClassEnum());
-        }));
+        Query query = em.createQuery("SELECT r FROM FlightReservationEntity r WHERE r.user.userId = :inUserId");
+        query.setParameter("inUserId", customerId);
 
-        // sort base on seat number
-        reservedSeats.sort(((SeatEntity a, SeatEntity b) -> {
-            return a.getSeatNumber().compareTo(b.getSeatNumber());
-        }));
-
-        return reservedSeats;
+        List<FlightReservationEntity> flightReservationEntity = (List<FlightReservationEntity>) query.getResultList();
+        
+        return flightReservationEntity;
     }
 
     /*
@@ -114,7 +131,7 @@ public class FlightReservationSessionBean implements FlightReservationSessionBea
 
             // associate selected seats of each passenger with the passenger and the passenger with flight reservation
             passengerSessionBeanLocal.addPassengersToReservation(passengers, newFlightReservation, user instanceof CustomerEntity);
-
+            
             validate(newFlightReservation);
 
             em.persist(newFlightReservation);

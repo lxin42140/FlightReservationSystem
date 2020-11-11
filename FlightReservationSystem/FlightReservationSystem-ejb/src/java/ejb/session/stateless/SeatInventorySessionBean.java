@@ -155,7 +155,7 @@ public class SeatInventorySessionBean implements SeatInventorySessionBeanRemote,
             return seatEntity;
         } catch (NoResultException ex) {
             throw new SeatNotFoundException("SeatNotFoundException: Seat with seat number " + seatNumber + " does not exist!");
-        }
+        } 
     }
 
     @Override
