@@ -7,10 +7,8 @@ package ejb.session.stateless;
 
 import entity.FareEntity;
 import entity.FlightEntity;
-import entity.FlightReservationEntity;
 import entity.FlightScheduleEntity;
 import entity.FlightSchedulePlanEntity;
-import entity.SeatEntity;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -57,7 +55,7 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
     private EntityManager em;
 
     @Override
-    public Long createNewNonRecurrentFlightSchedulePlan(List<FlightScheduleEntity> flightSchedules, List<FareEntity> fares, String flightNumber, Boolean doCreateReturnFlightSchedule) throws CreateNewFlightSchedulePlanException, FlightNotFoundException {
+    public Long createNewNonRecurrentFlightSchedulePlan(List<FlightScheduleEntity> flightSchedules, List<FareEntity> fares, String flightNumber, Boolean doCreateReturnFlightSchedule, Integer layoverPeriodForReturnFlight) throws CreateNewFlightSchedulePlanException, FlightNotFoundException {
 
         FlightEntity flightEntity = flightSessionBeanLocal.retrieveFlightByFlightNumber(flightNumber);
 
@@ -76,17 +74,20 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
         newFlightSchedulePlanEntity.setFlight(flightEntity);
         flightEntity.getFlightSchedulePlans().add(newFlightSchedulePlanEntity);
 
+        // save layover period in flight schedule plan for future update of flight schedule plan
+        newFlightSchedulePlanEntity.setLayoverPeriod(layoverPeriodForReturnFlight);
+
         try {
             flightScheduleSessionBeanLocal.createNewFlightSchedules(newFlightSchedulePlanEntity, flightSchedules);
             fareEntitySessionBeanLocal.createNewFares(fares, newFlightSchedulePlanEntity);
         } catch (CreateNewFareException | CreateNewFlightScheduleException ex) {
             throw new CreateNewFlightSchedulePlanException(ex.toString());
         }
-        
+
         validateFlightSchedulePlan(newFlightSchedulePlanEntity);
 
         if (doCreateReturnFlightSchedule) {
-            newFlightSchedulePlanEntity.setReturnFlightSchedulePlan(createReturnFlightSchedulePlan(newFlightSchedulePlanEntity));
+            newFlightSchedulePlanEntity.setReturnFlightSchedulePlan(createReturnFlightSchedulePlan(newFlightSchedulePlanEntity, layoverPeriodForReturnFlight));
         }
 
         em.persist(newFlightSchedulePlanEntity);
@@ -96,7 +97,7 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
     }
 
     @Override
-    public Long createRecurrentFlightSchedulePlan(Date endDate, Integer recurrentDaysFrequency, FlightScheduleEntity baseFlightSchedule, List<FareEntity> fares, String flightNumber, Boolean doCreateReturnFlightSchedule) throws CreateNewFlightSchedulePlanException, FlightNotFoundException {
+    public Long createRecurrentFlightSchedulePlan(Date endDate, Integer recurrentDaysFrequency, FlightScheduleEntity baseFlightSchedule, List<FareEntity> fares, String flightNumber, Boolean doCreateReturnFlightSchedule, Integer layoverPeriodForReturnFlight) throws CreateNewFlightSchedulePlanException, FlightNotFoundException {
 
         FlightEntity flightEntity = flightSessionBeanLocal.retrieveFlightByFlightNumber(flightNumber);
 
@@ -129,7 +130,7 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
             autoCalender.add(GregorianCalendar.HOUR_OF_DAY, recurrentDaysFrequency * 24);
             startDate = autoCalender.getTime();
             // generate new flight schedule depending on the date
-            autoGenerateFlightSchedules.add(new FlightScheduleEntity(startDate, baseFlightSchedule.getEstimatedFlightDuration()));
+            autoGenerateFlightSchedules.add(new FlightScheduleEntity(startDate, baseFlightSchedule.getEstimatedFlightDurationHour()));
         }
 
         try {
@@ -140,7 +141,7 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
         }
 
         if (doCreateReturnFlightSchedule) {
-            FlightSchedulePlanEntity returnFlightSchedulePlan = createReturnFlightSchedulePlan(newFlightSchedulePlanEntity);
+            FlightSchedulePlanEntity returnFlightSchedulePlan = createReturnFlightSchedulePlan(newFlightSchedulePlanEntity, layoverPeriodForReturnFlight);
             returnFlightSchedulePlan.setRecurrentEndDate(endDate);
             returnFlightSchedulePlan.setRecurrentFrequency(recurrentDaysFrequency);
 
@@ -153,7 +154,7 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
         return newFlightSchedulePlanEntity.getFlightSchedulePlanId();
     }
 
-    private FlightSchedulePlanEntity createReturnFlightSchedulePlan(FlightSchedulePlanEntity newFlightSchedulePlanEntity) throws CreateNewFlightSchedulePlanException {
+    private FlightSchedulePlanEntity createReturnFlightSchedulePlan(FlightSchedulePlanEntity newFlightSchedulePlanEntity, Integer layoverPeriodForReturnFlight) throws CreateNewFlightSchedulePlanException {
         FlightEntity returnFlight = newFlightSchedulePlanEntity.getFlight().getReturnFlight(); // add return flight schedule plan for return flight
 
         if (returnFlight.getIsDisabled()) {
@@ -170,7 +171,7 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
         List<FlightScheduleEntity> returnFlightSchedules = new ArrayList<>(); // store new flight schedules for return flight
 
         for (FlightScheduleEntity flightSchedule : newFlightSchedulePlanEntity.getFlightSchedules()) { // create return flight schedule for each flight schedule
-            returnFlightSchedules.add(flightScheduleSessionBeanLocal.createReturnFlightSchedule(flightSchedule));
+            returnFlightSchedules.add(flightScheduleSessionBeanLocal.createReturnFlightSchedule(flightSchedule, layoverPeriodForReturnFlight));
         }
 
         List<FareEntity> returnFares = new ArrayList<>(); // store new instances of fare for return flight
@@ -371,7 +372,7 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
                 List<FlightScheduleEntity> returnFlightSchedules = new ArrayList<>();
 
                 for (FlightScheduleEntity newFlightScheduleEntity : newFlightSchedules) {
-                    FlightScheduleEntity returnFlightSchedule = flightScheduleSessionBeanLocal.createReturnFlightSchedule(newFlightScheduleEntity);
+                    FlightScheduleEntity returnFlightSchedule = flightScheduleSessionBeanLocal.createReturnFlightSchedule(newFlightScheduleEntity, existingFlightSchedulePlanEntity.getLayoverPeriod());
                     returnFlightSchedule.setFlightSchedulePlan(returnFlightSchedulePlan); // associate return flight schedule with flight schedule plan
                     returnFlightSchedules.add(returnFlightSchedule);
                 }
@@ -441,7 +442,7 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
                             startDate = flightSchedule.getDepartureDate();
                         }
                     }
-                    Integer flightDuration = existingFlightSchedulePlanEntity.getFlightSchedules().get(0).getEstimatedFlightDuration();
+                    Integer flightDuration = existingFlightSchedulePlanEntity.getFlightSchedules().get(0).getEstimatedFlightDurationHour();
 
                     List<FlightScheduleEntity> autoGenerateFlightSchedules = new ArrayList<>(); // store generated flight schedules
 
@@ -465,6 +466,7 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
                     if (existingFlightSchedulePlanEntity.getReturnFlightSchedulePlan() != null) {
                         existingFlightSchedulePlanEntity.getReturnFlightSchedulePlan().setRecurrentEndDate(newEndDate);
                     }
+                    
                     this.updateAddFlightScheduleToRecurrentFlightSchedulePlan(existingFlightSchedulePlanEntity, autoGenerateFlightSchedules, existingFlightSchedulePlanEntity.getReturnFlightSchedulePlan() != null);
 
                     return existingFlightSchedulePlanEntity.getFlightSchedulePlanId();
@@ -480,7 +482,7 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
                         startDate = flightSchedule.getDepartureDate();
                     }
                 }
-                Integer flightDuration = existingFlightSchedulePlanEntity.getFlightSchedules().get(0).getEstimatedFlightDuration();
+                Integer flightDuration = existingFlightSchedulePlanEntity.getFlightSchedules().get(0).getEstimatedFlightDurationHour();
 
                 existingFlightSchedulePlanEntity.getFlightSchedules().clear(); // remove all flight schedules and associated return flight schedules
 
@@ -518,7 +520,7 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
                 if (returnFlightSchedulePlan != null) {
                     List<FlightScheduleEntity> autoGenerateReturnFlightSchedules = new ArrayList<>(); // store generated flight schedules
                     for (FlightScheduleEntity flightSchedule : autoGenerateFlightSchedules) {
-                        FlightScheduleEntity returnFlightSchedule = flightScheduleSessionBeanLocal.createReturnFlightSchedule(flightSchedule);
+                        FlightScheduleEntity returnFlightSchedule = flightScheduleSessionBeanLocal.createReturnFlightSchedule(flightSchedule, existingFlightSchedulePlanEntity.getLayoverPeriod());
                         returnFlightSchedule.setFlightSchedulePlan(returnFlightSchedulePlan); // associate return flight schedule with flight schedule plan
                         autoGenerateReturnFlightSchedules.add(returnFlightSchedule);
                     }
@@ -553,7 +555,6 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
         }
     }
 
-    // can only remove flight schedule from manual flight schedule plan
     private Long removeFlightScheduleFromRecurrentFlightSchedulePlan(FlightSchedulePlanEntity existingFlightSchedulePlanEntity, HashSet<Long> flightScheduleIdsToRemove) throws UpdateFlightSchedulePlanFailedException {
         // removing flight schedules from a return flight schedule plan
         if (existingFlightSchedulePlanEntity.getIsReturnFlightSchedulePlan()) {
@@ -643,7 +644,7 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
                 List<FlightScheduleEntity> returnFlightSchedules = new ArrayList<>();
 
                 for (FlightScheduleEntity newFlightScheduleEntity : newFlightSchedules) {
-                    FlightScheduleEntity returnFlightSchedule = flightScheduleSessionBeanLocal.createReturnFlightSchedule(newFlightScheduleEntity);
+                    FlightScheduleEntity returnFlightSchedule = flightScheduleSessionBeanLocal.createReturnFlightSchedule(newFlightScheduleEntity, existingFlightSchedulePlanEntity.getLayoverPeriod());
                     returnFlightSchedule.setFlightSchedulePlan(returnFlightSchedulePlan); // associate return flight schedule with flight schedule plan
                     returnFlightSchedules.add(returnFlightSchedule);
                 }
@@ -679,11 +680,6 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
         }
     }
 
-//    private void checkFlightScheduleUsage(FlightScheduleEntity flightSchedule) throws FlightSchedulePlanInUseException {
-//        if (!flightSchedule.getFlightReservations().isEmpty()) {
-//            throw new FlightSchedulePlanInUseException("FlightSchedulePlanInUseException: Flight schedule has already been reserved!");
-//        }
-//    }
     // update departure date and flight duration
     @Override
     public Long updateFlightScheduleDetailForNonRecurrentFlightSchedulePlan(Long flightSchedulePlanId, List<FlightScheduleEntity> updatedFlightSchedules) throws UpdateFlightSchedulePlanFailedException {
@@ -713,10 +709,10 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
                         }
                         // both departure time and flight duration are updated
                         if (!existingFlightSchedule.getDepartureDate().equals(updatedFlightSchedule.getDepartureDate())
-                                && !existingFlightSchedule.getEstimatedFlightDuration().equals(updatedFlightSchedule.getEstimatedFlightDuration())) {
+                                && !existingFlightSchedule.getEstimatedFlightDurationHour().equals(updatedFlightSchedule.getEstimatedFlightDurationHour())) {
                             // update departure date and estimated flight duration
                             existingFlightSchedule.setDepartureDate(updatedFlightSchedule.getDepartureDate());
-                            existingFlightSchedule.setEstimatedFlightDuration(updatedFlightSchedule.getEstimatedFlightDuration());
+                            existingFlightSchedule.setEstimatedFlightDurationHour(updatedFlightSchedule.getEstimatedFlightDurationHour());
 
                             // check conflict for updated flight schedule and flight
                             flightScheduleSessionBeanLocal.checkFlightSchedules(existingFlightSchedule, existingFlightSchedulePlanEntity.getFlight());
@@ -730,17 +726,17 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
                                 Date returnDepartureDateTime = returnDepartureDateTimeCalender.getTime();
 
                                 existingFlightSchedule.getReturnFlightSchedule().setDepartureDate(returnDepartureDateTime);
-                                existingFlightSchedule.getReturnFlightSchedule().setEstimatedFlightDuration(existingFlightSchedule.getEstimatedFlightDuration());
+                                existingFlightSchedule.getReturnFlightSchedule().setEstimatedFlightDurationHour(existingFlightSchedule.getEstimatedFlightDurationHour());
                             }
-                        } else if (!existingFlightSchedule.getEstimatedFlightDuration().equals(updatedFlightSchedule.getEstimatedFlightDuration())) {
+                        } else if (!existingFlightSchedule.getEstimatedFlightDurationHour().equals(updatedFlightSchedule.getEstimatedFlightDurationHour())) {
                             // only flight duration is updated
-                            existingFlightSchedule.setEstimatedFlightDuration(updatedFlightSchedule.getEstimatedFlightDuration());
+                            existingFlightSchedule.setEstimatedFlightDurationHour(updatedFlightSchedule.getEstimatedFlightDurationHour());
 
                             // check conflict for updated flight schedule and flight
                             flightScheduleSessionBeanLocal.checkFlightSchedules(existingFlightSchedule, existingFlightSchedulePlanEntity.getFlight());
 
                             if (existingFlightSchedule.getReturnFlightSchedule() != null) {
-                                existingFlightSchedule.getReturnFlightSchedule().setEstimatedFlightDuration(existingFlightSchedule.getEstimatedFlightDuration());
+                                existingFlightSchedule.getReturnFlightSchedule().setEstimatedFlightDurationHour(existingFlightSchedule.getEstimatedFlightDurationHour());
                             }
                         } else if (!existingFlightSchedule.getDepartureDate().equals(updatedFlightSchedule.getDepartureDate())) {
 

@@ -57,7 +57,9 @@ public class FlightScheduleEntity implements Serializable {
     @Positive
     @Max(24)
     @Column(nullable = false, precision = 3)
-    private Integer estimatedFlightDuration;
+    private Integer estimatedFlightDurationHour;
+
+    private Integer estimatedFlightDurationMinute;
 
     @OneToMany(mappedBy = "flightSchedule", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true, fetch = FetchType.EAGER)
     @NotEmpty
@@ -76,16 +78,18 @@ public class FlightScheduleEntity implements Serializable {
         this.flightReservations = new ArrayList<>();
     }
 
-//    public FlightScheduleEntity(Date departureDate, Integer estimatedFlightDuration, FlightSchedulePlanEntity flightSchedulePlan) {
-//        this();
-//        this.departureDate = departureDate;
-//        this.estimatedFlightDuration = estimatedFlightDuration;
-//        this.flightSchedulePlan = flightSchedulePlan;
-//    }
-    public FlightScheduleEntity(Date departureDate, Integer estimatedFlightDuration) {
+    public FlightScheduleEntity(Date departureDate, Integer estimatedFlightDurationHour) {
         this();
         this.departureDate = departureDate;
-        this.estimatedFlightDuration = estimatedFlightDuration;
+        this.estimatedFlightDurationHour = estimatedFlightDurationHour;
+        this.estimatedFlightDurationMinute = 0;
+    }
+
+    public FlightScheduleEntity(Date departureDate, Integer estimatedFlightDurationHour, Integer estimatedFlightDurationMinute) {
+        this();
+        this.departureDate = departureDate;
+        this.estimatedFlightDurationHour = estimatedFlightDurationHour;
+        this.estimatedFlightDurationMinute = estimatedFlightDurationMinute;
     }
 
     public FlightScheduleEntity getReturnFlightSchedule() {
@@ -123,12 +127,20 @@ public class FlightScheduleEntity implements Serializable {
         this.departureDate = departureDate;
     }
 
-    public Integer getEstimatedFlightDuration() {
-        return estimatedFlightDuration;
+    public Integer getEstimatedFlightDurationHour() {
+        return estimatedFlightDurationHour;
     }
 
-    public void setEstimatedFlightDuration(Integer estimatedFlightDuration) {
-        this.estimatedFlightDuration = estimatedFlightDuration;
+    public void setEstimatedFlightDurationHour(Integer estimatedFlightDurationHour) {
+        this.estimatedFlightDurationHour = estimatedFlightDurationHour;
+    }
+
+    public Integer getEstimatedFlightDurationMinute() {
+        return estimatedFlightDurationMinute;
+    }
+
+    public void setEstimatedFlightDurationMinute(Integer estimatedFlightDurationMinute) {
+        this.estimatedFlightDurationMinute = estimatedFlightDurationMinute;
     }
 
     public FlightSchedulePlanEntity getFlightSchedulePlan() {
@@ -154,9 +166,13 @@ public class FlightScheduleEntity implements Serializable {
     public Date getArrivalDateTime() {
         GregorianCalendar departureDateTimeCalender = new GregorianCalendar();
         departureDateTimeCalender.setTime(this.departureDate);
-        departureDateTimeCalender.add(GregorianCalendar.HOUR_OF_DAY, this.estimatedFlightDuration);
+        departureDateTimeCalender.add(GregorianCalendar.HOUR, this.estimatedFlightDurationHour); // add hour
+        departureDateTimeCalender.add(GregorianCalendar.MINUTE, this.estimatedFlightDurationHour); // add minute
+
+        // get arrival time
         Date arrivalDateTime = departureDateTimeCalender.getTime();
 
+        // convert arrival date time to time zone of arrival country
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm a");
         String destinationTimeZoneId = this.flightSchedulePlan.getFlight().getFlightRoute().getDestinationAirport().getTimeZoneId();
         sdf.setTimeZone(TimeZone.getTimeZone(destinationTimeZoneId));

@@ -26,6 +26,6 @@ public interface FlightScheduleSessionBeanLocal {
 
     public void checkFlightSchedules(FlightScheduleEntity newFlightScheduleEntity, FlightEntity flightEntity) throws CreateNewFlightScheduleException;
 
-    public FlightScheduleEntity createReturnFlightSchedule(FlightScheduleEntity flightSchedule);
-
+    // local interface only
+    public FlightScheduleEntity createReturnFlightSchedule(FlightScheduleEntity flightSchedule, Integer layoverPeriodForReturnFlight);
 }

@@ -74,13 +74,13 @@ public class CabinConfigurationEntity implements Serializable {
     public CabinConfigurationEntity() {
     }
 
-    public CabinConfigurationEntity(Long numAisles, Long numAbreast, Long numRows, Long maxSeat, String seatingConfig, CabinClassEnum cabinClass) {
-        numberOfAisles = numAisles;
-        numberOfSeatsAbreast = numAbreast;
-        numberOfRows = numRows;
-        maximumCabinSeatCapacity = maxSeat;
-        seatingConfiguration = seatingConfig;
+    public CabinConfigurationEntity(CabinClassEnum cabinClass, Long NumberOfAisle, Long NumberOfRow, Long NumberOfSeatAbreast, String SeatConfiguration, Long MaxCapacity) {
         this.cabinClass = cabinClass;
+        numberOfAisles = NumberOfAisle;
+        numberOfSeatsAbreast = NumberOfSeatAbreast;
+        numberOfRows = NumberOfRow;
+        maximumCabinSeatCapacity = MaxCapacity;
+        seatingConfiguration = SeatConfiguration;
     }
 
     public Long getCabinConfigurationId() {

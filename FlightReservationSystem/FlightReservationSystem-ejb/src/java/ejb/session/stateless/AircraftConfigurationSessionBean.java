@@ -13,6 +13,7 @@ import java.util.Set;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
@@ -122,5 +123,17 @@ public class AircraftConfigurationSessionBean implements AircraftConfigurationSe
 
         //aircraftConfigurationEntity.getCabinConfigurations().size();
         return aircraftConfigurationEntity;
+    }
+
+    @Override
+    public AircraftConfigurationEntity retrieveAircraftConfigurationByName(String aircraftConfigName) throws AircraftConfigurationNotFoundException {
+        Query query = em.createQuery("SELECT a FROM AircraftConfigurationEntity a WHERE a.aircraftConfigurationName :=inAircraftConfigName");
+        query.setParameter("inAircraftConfigName", aircraftConfigName);
+
+        try {
+            return (AircraftConfigurationEntity) query.getSingleResult();
+        } catch (NoResultException ex) {
+            throw new AircraftConfigurationNotFoundException("AircraftConfigurationNotFoundException: aircraft configuration with name " + aircraftConfigName + " does not exist!");
+        }
     }
 }

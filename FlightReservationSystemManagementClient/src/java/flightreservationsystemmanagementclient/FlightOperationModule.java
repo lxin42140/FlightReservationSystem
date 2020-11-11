@@ -505,7 +505,7 @@ public class FlightOperationModule {
 
         System.out.print("Enter the estimated flight duration> ");
         Integer estimatedDuration = scanner.nextInt();
-        flightSchedule.setEstimatedFlightDuration(estimatedDuration);
+        flightSchedule.setEstimatedFlightDurationHour(estimatedDuration);
 
         return flightSchedule;
     }
@@ -589,7 +589,7 @@ public class FlightOperationModule {
             for (FlightScheduleEntity flightSchedule : flightSchedulesList) {
                 System.out.println("\tFlight Schedule Id: " + flightSchedule.getFlightScheduleId());
                 System.out.println("\t\tDeparture Date: " + flightSchedule.getDepartureDate());
-                System.out.println("\t\tEstimated Flight Duration: " + flightSchedule.getEstimatedFlightDuration());
+                System.out.println("\t\tEstimated Flight Duration: " + flightSchedule.getEstimatedFlightDurationHour());
                 //view estimated arival datetime?
                 //view flight schedule type?
                 //view end date (for recurrent)?
@@ -781,7 +781,7 @@ public class FlightOperationModule {
                         } while (estimatedFlightDuration <= 0);
 
                         flightSchedule.setDepartureDate(newDepartureDate);
-                        flightSchedule.setEstimatedFlightDuration(estimatedFlightDuration);
+                        flightSchedule.setEstimatedFlightDurationHour(estimatedFlightDuration);
                         updatedFlightSchedules.add(flightSchedule);
 
                         do {
