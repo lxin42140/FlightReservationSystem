@@ -16,6 +16,7 @@ import entity.CabinConfigurationEntity;
 import entity.EmployeeEntity;
 import entity.FareEntity;
 import entity.FlightEntity;
+import entity.FlightRouteEntity;
 import entity.FlightScheduleEntity;
 import entity.PartnerEntity;
 import java.math.BigDecimal;
@@ -27,6 +28,7 @@ import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.LocalBean;
+import javax.ejb.Startup;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import util.enumeration.CabinClassEnum;
@@ -68,14 +70,17 @@ public class TestDataInit {
 
     @PostConstruct
     public void initData() {
-        initEmployee();
-        initPartner();
-        initAirport();
-        initAircraftType();
+        System.out.println("---------------------------------INIT---------------------------------");
+//        initEmployee();
+//        initPartner();
+//        initAirport();
+//        initAircraftType();
 //        initAircraftConfiguration();
 //        initFlightRoute();
 //        initFlight();
 //        initFlightSchedulePlan();
+        System.out.println("---------------------------------END INIT---------------------------------");
+
     }
 
     private void initEmployee() {
@@ -137,7 +142,7 @@ public class TestDataInit {
             AircraftConfigurationEntity threeClasses = new AircraftConfigurationEntity("Boeing 737 Three Classes");
             CabinConfigurationEntity f1 = new CabinConfigurationEntity(CabinClassEnum.F, 1l, 5l, 2l, "1-1", 10l);
             CabinConfigurationEntity j1 = new CabinConfigurationEntity(CabinClassEnum.J, 1l, 5l, 4l, "2-2", 20l);
-            CabinConfigurationEntity y1 = new CabinConfigurationEntity(CabinClassEnum.F, 1l, 25l, 6l, "3-3", 150l);
+            CabinConfigurationEntity y1 = new CabinConfigurationEntity(CabinClassEnum.Y, 1l, 25l, 6l, "3-3", 150l);
             list.add(f1);
             list.add(j1);
             list.add(y1);
@@ -155,7 +160,7 @@ public class TestDataInit {
             AircraftConfigurationEntity threeClasses2 = new AircraftConfigurationEntity("Boeing 747 Three Classes");
             CabinConfigurationEntity f2 = new CabinConfigurationEntity(CabinClassEnum.F, 1l, 5l, 2l, "1-1", 10l);
             CabinConfigurationEntity j2 = new CabinConfigurationEntity(CabinClassEnum.J, 2l, 5l, 6l, "2-2-2", 30l);
-            CabinConfigurationEntity y2 = new CabinConfigurationEntity(CabinClassEnum.F, 2l, 32l, 10l, "3-4-3", 320l);
+            CabinConfigurationEntity y2 = new CabinConfigurationEntity(CabinClassEnum.Y, 2l, 32l, 10l, "3-4-3", 320l);
             list.add(f2);
             list.add(j2);
             list.add(y2);

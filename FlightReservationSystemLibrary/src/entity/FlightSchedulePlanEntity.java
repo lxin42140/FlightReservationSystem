@@ -42,10 +42,11 @@ public class FlightSchedulePlanEntity implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     private Date recurrentEndDate;
 
+    @Column(precision = 3)
     private Integer recurrentFrequency;
 
     @Max(24)
-    @Column(nullable = false, precision = 3)
+    @Column(precision = 3)
     private Integer layoverPeriod;
 
     @Column(nullable = false)
@@ -131,7 +132,8 @@ public class FlightSchedulePlanEntity implements Serializable {
     }
 
     public List<FlightScheduleEntity> getFlightSchedules() {
-        this.flightSchedules.sort((FlightScheduleEntity a, FlightScheduleEntity b) -> b.getDepartureDate().compareTo(a.getDepartureDate()));
+        // sort flight schedule in ascending order base on departure date
+        this.flightSchedules.sort((FlightScheduleEntity a, FlightScheduleEntity b) -> a.getDepartureDate().compareTo(b.getDepartureDate()));
         return flightSchedules;
     }
 
@@ -140,6 +142,13 @@ public class FlightSchedulePlanEntity implements Serializable {
     }
 
     public List<FareEntity> getFares() {
+        // sort fares base on cabin class then fare amount
+        this.fares.sort((FareEntity a, FareEntity b) -> {
+            if (a.getCabinClass().compareTo(b.getCabinClass()) == 0) {
+                return a.getFareAmount().compareTo(b.getFareAmount());
+            }
+            return a.getCabinClass().compareTo(b.getCabinClass());
+        });
         return fares;
     }
 

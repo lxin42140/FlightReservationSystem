@@ -8,6 +8,7 @@ package ejb.session.stateless;
 import entity.AircraftConfigurationEntity;
 import entity.AircraftTypeEntity;
 import entity.CabinConfigurationEntity;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.ejb.EJB;
@@ -21,6 +22,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import util.enumeration.CabinClassEnum;
 import util.exception.AircraftConfigurationNotFoundException;
 import util.exception.AircraftTypeNotFoundException;
 import util.exception.CreateNewAircraftConfigurationException;
@@ -83,6 +85,13 @@ public class AircraftConfigurationSessionBean implements AircraftConfigurationSe
             throw new CreateNewAircraftConfigurationException("CreateNewAircraftConfigurationException: Please provide at least one cabin configuration!");
         } else if (cabinConfigurations.size() > 4) {
             throw new CreateNewAircraftConfigurationException("CreateNewAircraftConfigurationException: Please provide at most 4 cabin configuration!");
+        }
+        // check that no duplicated cabin classes are created
+        HashSet<CabinClassEnum> cabinclasses = new HashSet<>();
+        for (CabinConfigurationEntity cabinConfiguration : cabinConfigurations) {
+            if (cabinclasses.contains(cabinConfiguration.getCabinClass())) {
+                throw new CreateNewAircraftConfigurationException("CreateNewAircraftConfigurationException: Duplicated cabin class " + cabinConfiguration.getCabinClass() + " !");
+            }
         }
     }
 
