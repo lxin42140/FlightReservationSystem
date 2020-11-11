@@ -98,19 +98,19 @@ public class TestSessionBean {
         System.out.println("-----------------------TEST------------------------------\n");
         try {
 
-            //createAircraftConfig(); 
+//            createAircraftConfig(); 
             //viewAllAircraftConfigurations();
             //
-            //createFlightRoute();
+//            createFlightRoute();
             //viewAllFlightRoute();
             //deleteFlightRoute();
             //            
-            //createFlight();
+//            createFlight();
             //updateFlight();
             //viewAllFlights();
             //deleteFlight();
             //
-            //createFlightSchedulePlan();
+//            createFlightSchedulePlan();
             //viewAllFlightSchedulePlans(); 
             //updateFlightSchedulePlan();
             //deleteFlightSchedulePlan();
