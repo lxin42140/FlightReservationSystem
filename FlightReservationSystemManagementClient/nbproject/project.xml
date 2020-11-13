@@ -14,5 +14,6 @@
             <included-library dirs="200">libs.javaee-api-8.0.classpath</included-library>
             <included-library dirs="200">file.reference.FlightReservationSystemLibrary.jar</included-library>
         </data>
+        <references xmlns="http://www.netbeans.org/ns/ant-project-references/1"/>
     </configuration>
 </project>

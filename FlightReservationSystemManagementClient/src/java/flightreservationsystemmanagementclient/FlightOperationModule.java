@@ -5,6 +5,7 @@
  */
 package flightreservationsystemmanagementclient;
 
+import ejb.session.stateless.AirportEntitySessionBeanRemote;
 import ejb.session.stateless.FareEntitySessionBeanRemote;
 import ejb.session.stateless.FlightRouteSessionBeanRemote;
 import ejb.session.stateless.FlightSchedulePlanSessionBeanRemote;
@@ -22,7 +23,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -57,6 +57,8 @@ public class FlightOperationModule {
     private FareEntitySessionBeanRemote fareEntitySessionBeanRemote;
     @EJB
     private FlightScheduleSessionBeanRemote flightScheduleSessionBeanRemote;
+//        @EJB
+//    private AirportEntitySessionBeanRemote airportEntitySessionBeanRemote;
 
     public FlightOperationModule() {
     }
@@ -65,12 +67,14 @@ public class FlightOperationModule {
             FlightSessionBeanRemote flightSessionBeanRemote,
             FlightSchedulePlanSessionBeanRemote flightSchedulePlanSessionBeanRemote,
             FareEntitySessionBeanRemote fareEntitySessionBeanRemote,
-            FlightScheduleSessionBeanRemote flightScheduleSessionBeanRemote) {
+            FlightScheduleSessionBeanRemote flightScheduleSessionBeanRemote,
+            AirportEntitySessionBeanRemote airportEntitySessionBeanRemote) {
         this.flightRouteSessionBeanRemote = flightRouteSessionBeanRemote;
         this.flightSessionBeanRemote = flightSessionBeanRemote;
         this.flightSchedulePlanSessionBeanRemote = flightSchedulePlanSessionBeanRemote;
         this.fareEntitySessionBeanRemote = fareEntitySessionBeanRemote;
         this.flightScheduleSessionBeanRemote = flightScheduleSessionBeanRemote;
+//        this.airportEntitySessionBeanRemote= airportEntitySessionBeanRemote;
     }
 
     public void flightOperationMenu() {
@@ -134,7 +138,9 @@ public class FlightOperationModule {
             FlightRouteEntity flightRoute = flightRouteSessionBeanRemote.retrieveFlightRouteById(flightRouteId);
 
             //String originAirportCode = flightRoute.getOriginAirport().getIataAirlineCode();
-            String flightNumber = "ML" + generateRandomNumber(); //flight number needs to begin with ML
+            String flightNumber = "ML"; //flight number needs to begin with ML
+            System.out.print("Enter flight number> ");
+            flightNumber += scanner.nextLine().trim();
             flight.setFlightNumber(flightNumber);
 
             System.out.print("Enter Aircraft Configuration Id> ");
@@ -155,13 +161,15 @@ public class FlightOperationModule {
 
             Boolean createReturnFlight = response.equals("Y");
 
-            String returnFlightNumber = "";
+            String returnFlightNumber = "ML";
             if (createReturnFlight) {
                 //returnFlightNumber = flightRoute.getDestinationAirport().getIataAirlineCode() + generateRandomNumber();
-                returnFlightNumber = "ML" + generateRandomNumber();
-                while (returnFlightNumber.equals(flightNumber)) { // auto generated return flight number should not be same as origin flight number
-                    returnFlightNumber = "ML" + generateRandomNumber();
-                }
+                System.out.print("Enter return flight number> ");
+                returnFlightNumber += scanner.nextLine().trim();
+//                returnFlightNumber = "ML" + generateRandomNumber();
+//                while (returnFlightNumber.equals(flightNumber)) { // auto generated return flight number should not be same as origin flight number
+//                    returnFlightNumber = "ML" + generateRandomNumber();
+//                }
             }
 
             String flightId = flightSessionBeanRemote.createNewFlight(flight, flightRouteId, aircraftConfigurationId, createReturnFlight, returnFlightNumber);
@@ -353,22 +361,22 @@ public class FlightOperationModule {
             FlightEntity flight = flightSessionBeanRemote.retrieveFlightByFlightNumber(flightNumber);
             List<CabinConfigurationEntity> cabinList = flight.getAircraftConfiguration().getCabinConfigurations();
 
-            HashMap<String, HashSet<FareEntity>> fareList = new HashMap<>();
-
+//            HashMap<String, HashSet<FareEntity>> fareList = new HashMap<>();
             boolean isCreatingFare = true;
             String createMoreFare = "";
+            List<FareEntity> fares = new ArrayList<>();
 
             do {
                 FareEntity fare = createIndividualFare();
+                fares.add(fare);
 
-                if (fareList.containsKey(fare.getCabinClass().toString())) {
-                    fareList.get(fare.getCabinClass().toString()).add(fare);
-                } else {
-                    HashSet<FareEntity> list = new HashSet<>();
-                    list.add(fare);
-                    fareList.put(fare.getCabinClass().toString(), list);
-                }
-
+//                if (fareList.containsKey(fare.getCabinClass().toString())) {
+//                    fareList.get(fare.getCabinClass().toString()).add(fare);
+//                } else {
+//                    HashSet<FareEntity> list = new HashSet<>();
+//                    list.add(fare);
+//                    fareList.put(fare.getCabinClass().toString(), list);
+//                }
                 do {
                     System.out.print("Do you want to create more fares? (Y/N)> ");
                     createMoreFare = scanner.nextLine().trim();
@@ -377,20 +385,19 @@ public class FlightOperationModule {
                     }
                     if (createMoreFare.equals("N")) {
                         isCreatingFare = false;
-                        if (fareList.keySet().size() != cabinList.size()) {
-                            isCreatingFare = true;
-                            System.out.println("One or more cabin classes do not have a fare basis code!");
-                            // no fare basis code ?
-                        }
+//                        if (fareList.keySet().size() != cabinList.size()) {
+//                            isCreatingFare = true;
+//                            System.out.println("One or more cabin classes do not have a fare basis code!");
+//                            // no fare basis code ?
+//                        }
                     }
                 } while (!createMoreFare.equals("Y") && !createMoreFare.equals("N"));
             } while (isCreatingFare);
 
-            List<FareEntity> fares = new ArrayList<>();
-            for (HashSet<FareEntity> set : fareList.values()) {
-                fares.addAll(set);
-            }
-
+//            List<FareEntity> fares = new ArrayList<>();
+//            for (HashSet<FareEntity> set : fareList.values()) {
+//                fares.addAll(set);
+//            }
             Integer response = 0;
             do {
                 System.out.println("Schedule Plan types: 1 - Single, 2 - Multiple, 3 - Recurrent every n days, 4 - Recurrent every week");
@@ -484,7 +491,7 @@ public class FlightOperationModule {
                 Integer estimatedDurationMinute = Integer.parseInt(scanner.nextLine());
                 baseFlightSchedule.setEstimatedFlightDurationMinute(estimatedDurationMinute);
 
-                SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
                 String startDateInput = "";
                 String endDateInput = "";
                 Date startDate = new Date();
@@ -494,7 +501,7 @@ public class FlightOperationModule {
 
                 while (!startDateCheck) {
                     try {
-                        System.out.print("Enter the start date (DD/MM/YYYY HH:mm:ss)> ");
+                        System.out.print("Enter the start date (DD/MM/YYYY> ");
                         startDateInput = scanner.nextLine().trim();
                         startDate = format.parse(startDateInput);
                         startDateCheck = true;
@@ -505,7 +512,7 @@ public class FlightOperationModule {
 
                 while (!endDateCheck) {
                     try {
-                        System.out.print("Enter the end date (DD/MM/YYYY HH:mm:ss)> ");
+                        System.out.print("Enter the end date (DD/MM/YYYY)> ");
                         endDateInput = scanner.nextLine().trim();
                         endDate = format.parse(endDateInput);
                         endDateCheck = true;
@@ -517,7 +524,7 @@ public class FlightOperationModule {
                 Integer startDayOfWeek = 0;
                 do {
                     System.out.print("Enter start day (1 for Sunday, 7 for Saturday)> ");
-                    startDayOfWeek = scanner.nextInt();
+                    startDayOfWeek = Integer.parseInt(scanner.nextLine());
                     if (startDayOfWeek <= 0) {
                         System.out.println("Start day must be more than 0!");
                     }
@@ -528,9 +535,9 @@ public class FlightOperationModule {
 
                 do {
                     System.out.print("Enter departure hour > ");
-                    hour = scanner.nextInt();
+                    hour = Integer.parseInt(scanner.nextLine());
                     System.out.print("Enter departure minute > ");
-                    minute = scanner.nextInt();
+                    minute = Integer.parseInt(scanner.nextLine());
                     if (hour < 0 || hour > 23) {
                         System.out.println("Hour must be between 0 and 23!");
                     } else if (minute < 0 || minute > 59) {
@@ -538,6 +545,10 @@ public class FlightOperationModule {
                     }
                 } while ((hour < 0 || hour > 23) && (minute < 0 || minute > 59));
 
+                baseFlightSchedule.setEstimatedFlightDurationHour(hour);
+                baseFlightSchedule.setEstimatedFlightDurationMinute(minute);
+
+                flightSchedulePlanSessionBeanRemote.createRecurrentWeeklyFlightSchedulePlan(startDayOfWeek, hour, minute, startDate, endDate, baseFlightSchedule, fares, flightNumber, doCreateReturnFlightSchedule, layoverDuration);
             }
         } catch (FlightNotFoundException | CreateNewFlightSchedulePlanException ex) {
             System.out.println(ex.getMessage());
@@ -584,7 +595,7 @@ public class FlightOperationModule {
     private FareEntity createIndividualFare() {
         Scanner scanner = new Scanner(System.in);
         FareEntity fare = new FareEntity();
-        System.out.println("Create Fare Basis Code (Starts With F/J/W/Y)");
+        System.out.println("===Create Fare Basis Code (Starts With F/J/W/Y)===");
 
         String cabinClass = "";
         do {
@@ -595,7 +606,7 @@ public class FlightOperationModule {
         String fareBasisCode = cabinClass;
         do {
             System.out.print("Enter fare basis code> ");
-            fareBasisCode = scanner.nextLine().trim();
+            fareBasisCode += scanner.nextLine().trim();
         } while (fareBasisCode.length() <= 0 || fareBasisCode.length() > 6);
 
         BigDecimal fareAmount = new BigDecimal(0);
@@ -621,9 +632,10 @@ public class FlightOperationModule {
             System.out.println("\tFlight Schedule Plan Id: " + flightSchedulePlan.getFlightSchedulePlanId());
             System.out.println("\tFirst departure date/time: " + flightSchedulePlan.getFlightSchedules().get(0).getDepartureDate());
             if (flightSchedulePlan.getReturnFlightSchedulePlan() != null) {
-                System.out.println("Return Flight number: " + flightSchedulePlan.getFlight().getFlightNumber());
-                System.out.println("\tReturn Flight Schedule Plan Id: " + flightSchedulePlan.getFlightSchedulePlanId());
-                System.out.println("\tFirst departure date/time: " + flightSchedulePlan.getFlightSchedules().get(0).getDepartureDate());
+                FlightSchedulePlanEntity returnFlightSchedulePlan = flightSchedulePlan.getReturnFlightSchedulePlan();
+                System.out.println("Return Flight number: " + returnFlightSchedulePlan.getFlight().getFlightNumber());
+                System.out.println("\tReturn Flight Schedule Plan Id: " + returnFlightSchedulePlan.getFlightSchedulePlanId());
+                System.out.println("\tFirst departure date/time: " + returnFlightSchedulePlan.getFlightSchedules().get(0).getDepartureDate());
             }
             System.out.print("\n");
         }
@@ -659,7 +671,7 @@ public class FlightOperationModule {
             for (FlightScheduleEntity flightSchedule : flightSchedulesList) {
                 System.out.println("\tFlight Schedule Id: " + flightSchedule.getFlightScheduleId());
                 System.out.println("\t\tDeparture Date: " + flightSchedule.getDepartureDate());
-                System.out.println("\t\tEstimated Flight Duration: " + flightSchedule.getEstimatedFlightDurationHour());
+                System.out.println("\t\tEstimated Flight Duration: " + flightSchedule.getEstimatedFlightDurationHour() + " hrs " + (flightSchedule.getEstimatedFlightDurationMinute() == null ? "" : flightSchedule.getEstimatedFlightDurationMinute() + " mins"));
                 //view estimated arival datetime?
                 //view flight schedule type?
                 //view end date (for recurrent)?
@@ -897,6 +909,7 @@ public class FlightOperationModule {
 
                         updatedFareAmounts.add(fareEntitySessionBeanRemote.updateFareAmount(flightSchedulePlanId, fareId, new BigDecimal(fareAmount)));
 
+                        scanner.nextLine();
                         do {
                             System.out.println("Do you want to update more fare amounts? (Y/N)");
                             updateMoreFares = scanner.nextLine().trim();

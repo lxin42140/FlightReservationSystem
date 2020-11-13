@@ -177,6 +177,8 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
 //    departureHourOfDay: 0 - 23
     @Override
     public Long createRecurrentWeeklyFlightSchedulePlan(Integer dayOfWeek, Integer departureHourOfDay, Integer departureMinuteOfHour, Date recurrentStartDate, Date recurrentEndDate, FlightScheduleEntity baseFlightSchedule, List<FareEntity> fares, String flightNumber, Boolean doCreateReturnFlightSchedule, Integer layoverPeriodForReturnFlight) throws CreateNewFlightSchedulePlanException, FlightNotFoundException {
+//               System.out.println("=============================");
+
         if (doCreateReturnFlightSchedule && (layoverPeriodForReturnFlight == null || layoverPeriodForReturnFlight <= 0)) {
             throw new CreateNewFlightSchedulePlanException("CreateNewFlightSchedulePlanException: Invalid layover duration for return flight schedules!");
         }
@@ -197,6 +199,7 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
         newFlightSchedulePlanEntity.setRecurrentEndDate(recurrentEndDate); // set recurrent end date
         newFlightSchedulePlanEntity.setFlightSchedulePlanType(FlightSchedulePlanTypeEnum.RECURRENTWEEKLY); // set recurrent weekly
         newFlightSchedulePlanEntity.setLayoverPeriod(layoverPeriodForReturnFlight);
+//        newFlightSchedulePlanEntity.setRecurrentFrequency(7);
 
         //associate flight schedule with flight
         newFlightSchedulePlanEntity.setFlight(flightEntity);
@@ -243,7 +246,8 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
             flightScheduleSessionBeanLocal.createNewFlightSchedules(newFlightSchedulePlanEntity, autoGenerateFlightSchedules);
             fareEntitySessionBeanLocal.createNewFares(fares, newFlightSchedulePlanEntity);
         } catch (CreateNewFareException | CreateNewFlightScheduleException ex) {
-            throw new CreateNewFlightSchedulePlanException(ex.toString());
+//            System.out.println("EX HERE ___   "+ ex.getMessage());
+            throw new CreateNewFlightSchedulePlanException(ex.getMessage());
         }
 
         if (doCreateReturnFlightSchedule) {
@@ -254,8 +258,23 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
             newFlightSchedulePlanEntity.setReturnFlightSchedulePlan(returnFlightSchedulePlan);
         }
 
+//        System.out.println("HERE");
+//        System.out.println(newFlightSchedulePlanEntity.getFares());
+//        System.out.println(newFlightSchedulePlanEntity.getFlight());
+////        System.out.println(newFlightSchedulePlanEntity.getFlightSchedulePlanId());
+//        System.out.println(newFlightSchedulePlanEntity.getFlightSchedulePlanType());
+//        System.out.println(newFlightSchedulePlanEntity.getIsDisabled());
+//        System.out.println(newFlightSchedulePlanEntity.getIsReturnFlightSchedulePlan());
+//        System.out.println(newFlightSchedulePlanEntity.getRecurrentEndDate());
+//        System.out.println(newFlightSchedulePlanEntity.getRecurrentFrequency());
+//        System.out.println(newFlightSchedulePlanEntity.getRecurrentStartDate());
+//        System.out.println(newFlightSchedulePlanEntity.getReturnFlightSchedulePlan());
+
+//                System.out.println("BEFORE PERSISS");
+
         em.persist(newFlightSchedulePlanEntity);
         em.flush();
+//               System.out.println("=============================");
 
         return newFlightSchedulePlanEntity.getFlightSchedulePlanId();
     }
@@ -273,6 +292,7 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
         returnFlightSchedulePlanEntity.setIsReturnFlightSchedulePlan(true); // set return flight schedule plan as true
         returnFlightSchedulePlanEntity.setFlightSchedulePlanType(newFlightSchedulePlanEntity.getFlightSchedulePlanType());
         returnFlightSchedulePlanEntity.setLayoverPeriod(layoverPeriodForReturnFlight); // set lay over
+        returnFlightSchedulePlanEntity.setRecurrentFrequency(newFlightSchedulePlanEntity.getRecurrentFrequency());
 
         //bi directional between return flight and return flight schedule plan
         returnFlightSchedulePlanEntity.setFlight(returnFlight);

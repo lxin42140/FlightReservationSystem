@@ -155,17 +155,24 @@ public class SeatInventorySessionBean implements SeatInventorySessionBeanRemote,
             return seatEntity;
         } catch (NoResultException ex) {
             throw new SeatNotFoundException("SeatNotFoundException: Seat with seat number " + seatNumber + " does not exist!");
-        } 
+        }
     }
 
     @Override
     public List<SeatEntity> retrieveAllAvailableSeatsFromFlightScheduleAndCabin(Long flightScheduleId, CabinClassEnum cabinClassEnum) {
-        Query query = em.createQuery("SELECT s FROM SeatEntity s WHERE s.flightSchedule.flightScheduleId = :inFlightScheduleId AND s.cabinClassEnum = :incabinClassEnum AND s.passenger IS NULL");
+        if (cabinClassEnum == null) {
+            Query query = em.createQuery("SELECT s FROM SeatEntity s WHERE s.flightSchedule.flightScheduleId = :inFlightScheduleId AND s.passenger IS NULL");
 
-        query.setParameter("inFlightScheduleId", flightScheduleId);
-        query.setParameter("incabinClassEnum", cabinClassEnum);
+            query.setParameter("inFlightScheduleId", flightScheduleId);
+            return (List<SeatEntity>) query.getResultList();
 
-        return (List<SeatEntity>) query.getResultList();
+        } else {
+            Query query = em.createQuery("SELECT s FROM SeatEntity s WHERE s.flightSchedule.flightScheduleId = :inFlightScheduleId AND s.cabinClassEnum = :incabinClassEnum AND s.passenger IS NULL");
+
+            query.setParameter("inFlightScheduleId", flightScheduleId);
+            query.setParameter("incabinClassEnum", cabinClassEnum);
+            return (List<SeatEntity>) query.getResultList();
+        }
     }
 
     @Override // local only
@@ -181,12 +188,14 @@ public class SeatInventorySessionBean implements SeatInventorySessionBeanRemote,
         HashSet<String> fareBasisCodes = new HashSet<>();
 
         for (SeatEntity seat : passenger.getSeats()) {
-            if (seat.getPassenger() != null) {
+            SeatEntity managedSeat = em.find(SeatEntity.class, seat.getSeatId());
+            
+            if (managedSeat.getPassenger() != null) {
                 throw new ReserveSeatException("ReserveSeatException: Seat with seat number " + seat.getSeatNumber() + " already reserved!");
             }
 
             // retrieve cheapest fare associated with the flight schedule and the cabin class of the seat
-            List<FareEntity> fares = seat.getFlightSchedule().getFlightSchedulePlan().getFares();
+            List<FareEntity> fares = managedSeat.getFlightSchedule().getFlightSchedulePlan().getFares();
             FareEntity cheapestFare = fares.get(0);
             for (FareEntity fare : fares) {
                 if (fare.getCabinClass().equals(seat.getCabinClassEnum()) && fare.getFareAmount().compareTo(cheapestFare.getFareAmount()) < 0) {
@@ -198,8 +207,9 @@ public class SeatInventorySessionBean implements SeatInventorySessionBeanRemote,
                 throw new ReserveSeatException("ReserveSeatException: Passenger has multiple seat reservations within the same flight schedule!");
             }
 
-            seat.setFareBasisCode(cheapestFare.getFareBasisCode());
-            seat.setPassenger(passenger);
+            //em.persist(seat);
+            managedSeat.setFareBasisCode(cheapestFare.getFareBasisCode());
+            managedSeat.setPassenger(passenger);
             fareAmount = fareAmount.add(cheapestFare.getFareAmount());
         }
         // update total fare amount
@@ -236,6 +246,7 @@ public class SeatInventorySessionBean implements SeatInventorySessionBeanRemote,
                 throw new ReserveSeatException("ReserveSeatException: Passenger has multiple seat reservations within the same flight schedule!");
             }
 
+            em.merge(seat);
             seat.setFareBasisCode(expensiveFare.getFareBasisCode());
             seat.setPassenger(passenger);
             fareAmount = fareAmount.add(expensiveFare.getFareAmount());

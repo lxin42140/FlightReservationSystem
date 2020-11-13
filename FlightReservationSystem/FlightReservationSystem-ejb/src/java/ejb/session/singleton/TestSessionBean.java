@@ -116,7 +116,7 @@
 ////            updateFlightSchedulePlanEntity();
 //            //
 ////            viewSeatInventory();
-////            search();
+//            search();
 //            //
 //
 ////            viewAllFlightReservation();
@@ -527,39 +527,39 @@
 //            //one way test
 //            SimpleDateFormat inputDateFormat = new SimpleDateFormat("d/M/y");
 //
-//            HashMap<Integer, List<FlightScheduleEntity>> oneWayFlights = flightSearchSessionBeanRemote.searchOneWayFlights(1l, 6l, inputDateFormat.parse("02/11/2020"), 1, null, null);
-//            for (int i = 1; i <= oneWayFlights.size(); i++) {
-//                System.out.print("S/N: " + i);
-//                List<FlightScheduleEntity> routes = oneWayFlights.get(i);
-//                for (FlightScheduleEntity flightSchedule : routes) {
-//                    System.out.print("[" + flightSchedule.getFlightScheduleId() + "] " + flightSchedule.getFlightSchedulePlan().getFlight().getFlightRoute().getOriginAirport().getAirportName() + "-->" + flightSchedule.getFlightSchedulePlan().getFlight().getFlightRoute().getDestinationAirport().getAirportName());
+////            HashMap<Integer, List<FlightScheduleEntity>> oneWayFlights = flightSearchSessionBeanRemote.searchOneWayFlights(5l, 4l, inputDateFormat.parse("09/12/2020"), 1, null, null);
+////            for (int i = 1; i <= oneWayFlights.size(); i++) {
+////                System.out.print("S/N: " + i);
+////                List<FlightScheduleEntity> routes = oneWayFlights.get(i);
+////                for (FlightScheduleEntity flightSchedule : routes) {
+////                    System.out.print("[" + flightSchedule.getFlightScheduleId() + "] " + flightSchedule.getFlightSchedulePlan().getFlight().getFlightRoute().getOriginAirport().getAirportName() + "-->" + flightSchedule.getFlightSchedulePlan().getFlight().getFlightRoute().getDestinationAirport().getAirportName());
+////                }
+////                System.out.println("========================");
+////            }
+//
+//            List<HashMap<Integer, List<FlightScheduleEntity>>> twoWayFlights = flightSearchSessionBeanRemote.searchTwoWaysFlights(1l, 6l, inputDateFormat.parse("02/11/2020"), inputDateFormat.parse("03/11/2020"), 1, null, null);
+//            HashMap<Integer, List<FlightScheduleEntity>> toFlights = twoWayFlights.get(0);
+//            HashMap<Integer, List<FlightScheduleEntity>> returnFlights = twoWayFlights.get(1);
+//
+//            System.out.println("TO========================================");
+//            for (int i = 1; i <= toFlights.size(); i++) {
+//                System.out.print(i + " ");
+//                List<FlightScheduleEntity> routes = toFlights.get(i);
+//                for (FlightScheduleEntity route : routes) {
+//                    System.out.print(route.getFlightScheduleId() + " -> ");
 //                }
-//                System.out.println("========================");
+//                System.out.println("-------------------------");
 //            }
 //
-////            HashMap<Integer, List<List<FlightScheduleEntity>>> twoWayFlights = flightSearchSessionBeanRemote.searchTwoWaysFlights(1l, 6l, inputDateFormat.parse("02/11/2020"), inputDateFormat.parse("03/11/2020"), 1, null, null);
-////            List<List<FlightScheduleEntity>> toFlights = twoWayFlights.get(1);
-////            List<List<FlightScheduleEntity>> returnFlights = twoWayFlights.get(2);
-////
-////            System.out.println("TO========================================");
-////            for (int i = 0; i < toFlights.size(); i++) {
-////                System.out.print(i + " ");
-////                List<FlightScheduleEntity> routes = toFlights.get(i);
-////                for (FlightScheduleEntity route : routes) {
-////                    System.out.print(route.getFlightScheduleId() + " -> ");
-////                }
-////                System.out.println("-------------------------");
-////            }
-////
-////            System.out.println("RETURN==========================");
-////            for (int i = 0; i < returnFlights.size(); i++) {
-////                System.out.print(i + " ");
-////                List<FlightScheduleEntity> routes = returnFlights.get(i);
-////                for (FlightScheduleEntity route : routes) {
-////                    System.out.print(route.getFlightScheduleId() + " -> ");
-////                }
-////                System.out.println("-------------------------");
-////            }
+//            System.out.println("RETURN==========================");
+//            for (int i = 1; i <= returnFlights.size(); i++) {
+//                System.out.print(i + " ");
+//                List<FlightScheduleEntity> routes = returnFlights.get(i);
+//                for (FlightScheduleEntity route : routes) {
+//                    System.out.print(route.getFlightScheduleId() + " -> ");
+//                }
+//                System.out.println("-------------------------");
+//            }
 //        } catch (Exception ex) {
 //            System.out.println(ex);
 //        }

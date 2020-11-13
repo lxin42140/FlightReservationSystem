@@ -60,7 +60,7 @@ public class SalesManagementModule {
             while (response < 1 || response > 3) {
                 System.out.print("> ");
 
-                response = scanner.nextInt();
+                response = Integer.parseInt(scanner.nextLine().trim());
 
                 if (response == 1) {
                     viewSeatsInventory();
@@ -82,8 +82,9 @@ public class SalesManagementModule {
     private void viewSeatsInventory() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("*** Sales Managemnet Module: View Seats Inventory ***\n");
-        System.out.print("Enter flight number>");
+        System.out.print("Enter flight number> ");
         String flightNumber = scanner.nextLine().trim();
+        System.out.println("flight number " + flightNumber);
 
         //flight number -> FlightEntity -> FlightSchedulePlan -> flight schedule
         try {
