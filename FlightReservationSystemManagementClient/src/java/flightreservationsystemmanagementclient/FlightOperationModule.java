@@ -442,7 +442,7 @@ public class FlightOperationModule {
                 }
 
                 flightSchedulePlanSessionBeanRemote.createNewNonRecurrentFlightSchedulePlan(flightSchedules, fares, flightNumber, doCreateReturnFlightSchedule, layoverDuration);
-            } else if (response == 3 || response == 4) {
+            } else if (response == 3) {
                 FlightScheduleEntity baseFlightSchedule = createFlightSchedule();
 
                 SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
@@ -472,17 +472,80 @@ public class FlightOperationModule {
                     } while (recurrentDaysFrequency <= 0);
                 }
 
-//                flightSchedulePlanSessionBeanRemote.createRecurrentFlightSchedulePlan(endDate, recurrentDaysFrequency, baseFlightSchedule, fares, flightNumber, doCreateReturnFlightSchedule, layoverDuration);
+                flightSchedulePlanSessionBeanRemote.createRecurrentNDaysFlightSchedulePlan(endDate, recurrentDaysFrequency, baseFlightSchedule, fares, flightNumber, doCreateReturnFlightSchedule, layoverDuration);
+            } else if (response == 4) {
+                FlightScheduleEntity baseFlightSchedule = new FlightScheduleEntity();
+
+                System.out.print("Enter the estimated flight duration hour> ");
+                Integer estimatedDurationHour = Integer.parseInt(scanner.nextLine());
+                baseFlightSchedule.setEstimatedFlightDurationHour(estimatedDurationHour);
+
+                System.out.print("Enter the estimated flight duration minute> ");
+                Integer estimatedDurationMinute = Integer.parseInt(scanner.nextLine());
+                baseFlightSchedule.setEstimatedFlightDurationMinute(estimatedDurationMinute);
+
+                SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                String startDateInput = "";
+                String endDateInput = "";
+                Date startDate = new Date();
+                Date endDate = new Date();
+                Boolean startDateCheck = false;
+                Boolean endDateCheck = false;
+
+                while (!startDateCheck) {
+                    try {
+                        System.out.print("Enter the start date (DD/MM/YYYY HH:mm:ss)> ");
+                        startDateInput = scanner.nextLine().trim();
+                        startDate = format.parse(startDateInput);
+                        startDateCheck = true;
+                    } catch (ParseException ex) {
+                        System.out.println("Wrong format for date!");
+                    }
+                }
+
+                while (!endDateCheck) {
+                    try {
+                        System.out.print("Enter the end date (DD/MM/YYYY HH:mm:ss)> ");
+                        endDateInput = scanner.nextLine().trim();
+                        endDate = format.parse(endDateInput);
+                        endDateCheck = true;
+                    } catch (ParseException ex) {
+                        System.out.println("Wrong format for date!");
+                    }
+                }
+
+                Integer startDayOfWeek = 0;
+                do {
+                    System.out.print("Enter start day (1 for Sunday, 7 for Saturday)> ");
+                    startDayOfWeek = scanner.nextInt();
+                    if (startDayOfWeek <= 0) {
+                        System.out.println("Start day must be more than 0!");
+                    }
+                } while (startDayOfWeek <= 0);
+
+                Integer hour = 0;
+                Integer minute = 0;
+
+                do {
+                    System.out.print("Enter departure hour > ");
+                    hour = scanner.nextInt();
+                    System.out.print("Enter departure minute > ");
+                    minute = scanner.nextInt();
+                    if (hour < 0 || hour > 23) {
+                        System.out.println("Hour must be between 0 and 23!");
+                    } else if (minute < 0 || minute > 59) {
+                        System.out.println("Minute must be between 0 and 59!");
+                    }
+                } while ((hour < 0 || hour > 23) && (minute < 0 || minute > 59));
+
             }
-
-            System.out.println("Flight schedule plan successfully created!");
-
         } catch (FlightNotFoundException | CreateNewFlightSchedulePlanException ex) {
             System.out.println(ex.getMessage());
         }
+
     }
 
-    //called from createFlightSchedulePlan()
+//called from createFlightSchedulePlan()
     private FlightScheduleEntity createFlightSchedule() {
         Scanner scanner = new Scanner(System.in);
         FlightScheduleEntity flightSchedule = new FlightScheduleEntity();
@@ -640,272 +703,274 @@ public class FlightOperationModule {
             System.out.println("5: Update fare amount in Flight Schedule Plan");
             System.out.println("6: Add fare to Flight Schedule Plan");
             System.out.println("7: Remove fare from Flight Schedule Plan");
+            System.out.println("8: Update day of week for weekly recurrent");
+            System.out.println("9: Update start date / end date for weekly recurrent");
 
             System.out.print("> ");
             response = scanner.nextInt();
-            if (response <= 0 || response > 7) {
+            if (response <= 0 || response > 9) {
                 System.out.println("Invalid response! Enter 1-7");
             }
-        } while (response <= 0 || response > 7);
+        } while (response <= 0 || response > 9);
 
-//        switch (response) {
-//            case (1):
-//                HashSet<Long> flightScheduleIds = new HashSet<>();
-//                String addMore = "Y";
-//                do {
-//                    System.out.print("Enter Flight Schedule Id to remove> ");
-//                    flightScheduleIds.add(scanner.nextLong());
-//
-//                    do {
-//                        System.out.print("Do you want to delete more Flight Schedules? (Y/N)> ");
-//                        addMore = scanner.nextLine().trim();
-//                        if (!addMore.equals("Y") && !addMore.equals("N")) {
-//                            System.out.println("Invalid response! Enter Y/N");
-//                        }
-//                    } while (!addMore.equals("Y") && !addMore.equals("N"));
-//                } while (addMore.equals("Y"));
-//
-//                try {
-//                    flightSchedulePlanSessionBeanRemote.updateRemoveFlightScheduleFromFlightSchedulePlan(flightSchedulePlanId, flightScheduleIds);
-//                    System.out.println("Flight Schedules successfully removed from Flight Schedule Plan " + flightSchedulePlanId);
-//                } catch (UpdateFlightSchedulePlanFailedException ex) {
-//                    System.out.println(ex.getMessage());
-//                }
-//                break;
-//
-//            case (2):
-//                List<FlightScheduleEntity> newFlightSchedules = new ArrayList<>();
-//
-//                String createMoreFlightSchedules = "Y";
-//                do {
-//                    newFlightSchedules.add(this.createFlightSchedule());
-//
-//                    do {
-//                        System.out.print("Do you want to add more Flight Schedules? (Y/N)> ");
-//                        createMoreFlightSchedules = scanner.nextLine().trim();
-//                        if (!createMoreFlightSchedules.equals("Y") && !createMoreFlightSchedules.equals("N")) {
-//                            System.out.println("Invalid response! Enter Y/N");
-//                        }
-//                    } while (!createMoreFlightSchedules.equals("Y") && !createMoreFlightSchedules.equals("N"));
-//                } while (createMoreFlightSchedules.equals("Y"));
-//
-//                String doCreateReturnFlightSchedule = "N";
-//
-//                do {
-//                    System.out.print("Do you want to create return Flight Schedules? (Y/N)> ");
-//                    doCreateReturnFlightSchedule = scanner.nextLine().trim();
-//                    if (!doCreateReturnFlightSchedule.equals("Y") && !doCreateReturnFlightSchedule.equals("N")) {
-//                        System.out.println("Invalid response! Enter Y/N");
-//                    }
-//                } while (!doCreateReturnFlightSchedule.equals("Y") && !doCreateReturnFlightSchedule.equals("N"));
-//
-//                try {
-//                    flightSchedulePlanSessionBeanRemote.updateAddFlightScheduleToFlightSchedulePlan(flightSchedulePlanId, newFlightSchedules, doCreateReturnFlightSchedule.equals("Y"));
-//                    System.out.println("Flight Schedules are successfully added into Flight Schedule Plan " + flightSchedulePlanId);
-//                } catch (UpdateFlightSchedulePlanFailedException ex) {
-//                    System.out.println(ex.getMessage());
-//                }
-//                break;
-//
-//            case (3):
-//                String date = "";
-//                Boolean dateCheck = false;
-//                Date newEndDate = null;
-//                Integer newRecurrentFrequency = null;
-//
-//                do {
-//                    try {
-//                        System.out.print("Enter new end date for recurrent Flight Schedule Plan (DD/MM/YYYY), or \"-\" if not applicable> ");
-//                        date = scanner.nextLine().trim();
-//                        if (date.equals("-")) { //if user does not want to change end date
-//                            newEndDate = null;
-//                            break;
-//                        }
-//
-//                        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
-//                        date = scanner.nextLine().trim();
-//                        newEndDate = format.parse(date);
-//                        dateCheck = true;
-//                    } catch (ParseException ex) {
-//                        System.out.println("Wrong format for date!");
-//                    }
-//                } while (!dateCheck);
-//
-//                do {
-//                    System.out.print("Enter new recurrent frequency, or \"-\" if not applicable> ");
-//                    newRecurrentFrequency = scanner.nextInt();
-//                    if (newRecurrentFrequency.equals("-")) {
-//                        newRecurrentFrequency = null;
-//                        break;
-//                    }
-//                    if (newRecurrentFrequency <= 0) {
-//                        System.out.println("Invalid response! Recurrent frequency must be more than 0.");
-//                    }
-//                } while (newRecurrentFrequency <= 0);
-//
-//                try {
-//                    flightSchedulePlanSessionBeanRemote.updateRecurrentFlightSchedulePlanParameters(flightSchedulePlanId, newEndDate, newRecurrentFrequency);
-//                    System.out.println("Flight Schedule Plan successfully updated!");
-//                } catch (UpdateFlightSchedulePlanFailedException ex) {
-//                    System.out.println(ex.getMessage());
-//                }
-//                break;
-//
-//            case (4):
-//                List<FlightScheduleEntity> updatedFlightSchedules = new ArrayList<>();
-//                String updateMoreFlightSchedules = "N";
-//
-//                String departureDate = "";
-//                Boolean checkDate = false;
-//                Date newDepartureDate = null;
-//
-//                Integer estimatedFlightDuration = 0;
-//
-//                do {
-//                    System.out.print("Enter Flight Schedule Id to update> ");
-//                    Long flightScheduleId = scanner.nextLong();
-//
-//                    try {
-//                        FlightScheduleEntity flightSchedule = flightScheduleSessionBeanRemote.retrieveFlightScheduleById(flightScheduleId);
-//                        do {
-//                            System.out.print("Enter new departure date for Flight Schedule (DD/MM/YYYY)> ");
-//                            try {
-//                                SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
-//                                departureDate = scanner.nextLine().trim();
-//                                newDepartureDate = format.parse(departureDate);
-//                                checkDate = true;
-//                            } catch (ParseException ex) {
-//                                System.out.println("Wrong format for date!");
-//                            }
-//                        } while (!checkDate);
-//
-//                        do {
-//                            System.out.print("Enter new flight duration> ");
-//                            estimatedFlightDuration = scanner.nextInt();
-//                            if (estimatedFlightDuration <= 0) {
-//                                System.out.println("Invalid response! Flight duration must be greater than 0.");
-//                            }
-//                        } while (estimatedFlightDuration <= 0);
-//
-//                        flightSchedule.setDepartureDate(newDepartureDate);
-//                        flightSchedule.setEstimatedFlightDurationHour(estimatedFlightDuration);
-//                        updatedFlightSchedules.add(flightSchedule);
-//
-//                        do {
-//                            System.out.println("Do you want to update more flight schedules? (Y/N)");
-//                            updateMoreFlightSchedules = scanner.nextLine().trim();
-//                            if (!updateMoreFlightSchedules.equals("Y") && !updateMoreFlightSchedules.equals("N")) {
-//                                System.out.println("Invalied response! Please enter Y/N");
-//                            }
-//                        } while (!updateMoreFlightSchedules.equals("Y") && !updateMoreFlightSchedules.equals("N"));
-//                    } catch (FlightScheduleNotFoundException ex) {
-//                        System.out.println(ex.getMessage());
-//                    }
-//                } while (updateMoreFlightSchedules.equals("Y"));
-//
-//                try {
-//                    flightSchedulePlanSessionBeanRemote.updateFlightScheduleDetailForNonRecurrentFlightSchedulePlan(flightSchedulePlanId, updatedFlightSchedules);
-//                    System.out.println("Flight Schedules successfully added!");
-//                } catch (UpdateFlightSchedulePlanFailedException ex) {
-//                    System.out.println(ex.getMessage());
-//                }
-//                break;
-//
-//            case (5):
-//                List<FareEntity> updatedFareAmounts = new ArrayList<>();
-//                String updateMoreFares = "N";
-//
-//                do {
-//                    System.out.print("Enter Fare Id to update> ");
-//                    Long fareId = scanner.nextLong();
-//
-//                    try {
-//                        Double fareAmount = 0.0;
-//
-//                        do {
-//                            System.out.print("Enter new Fare amount for Flight Schedule Plan> ");
-//                            fareAmount = scanner.nextDouble();
-//                            if (fareAmount <= 0) {
-//                                System.out.println("Fare amount must be greater than zero!");
-//                            }
-//                        } while (fareAmount <= 0);
-//
-//                        updatedFareAmounts.add(fareEntitySessionBeanRemote.updateFareAmount(flightSchedulePlanId, fareId, new BigDecimal(fareAmount)));
-//
-//                        do {
-//                            System.out.println("Do you want to update more fare amounts? (Y/N)");
-//                            updateMoreFares = scanner.nextLine().trim();
-//                            if (!updateMoreFares.equals("Y") && !updateMoreFares.equals("N")) {
-//                                System.out.println("Invalied response! Please enter Y/N");
-//                            }
-//                        } while (!updateMoreFares.equals("Y") && !updateMoreFares.equals("N"));
-//                    } catch (FlightSchedulePlanNotFoundException | UpdateFlightSchedulePlanFailedException ex) {
-//                        System.out.println(ex.getMessage());
-//                    }
-//                } while (updateMoreFares.equals("Y"));
-//
-//                try {
-//                    flightSchedulePlanSessionBeanRemote.updateFareAmountInFlightSchedulePlan(flightSchedulePlanId, updatedFareAmounts);
-//                    System.out.println("Fare amounts successfully added!");
-//                } catch (UpdateFlightSchedulePlanFailedException ex) {
-//                    System.out.println(ex.getMessage());
-//                }
-//                break;
-//
-//            case (6):
-//                List<FareEntity> addFares = new ArrayList<>();
-//                String addMoreFares = "N";
-//
-//                do {
-//                    System.out.println("Create new Fare:");
-//
-//                    addFares.add(createIndividualFare());
-//
-//                    do {
-//                        System.out.println("Do you want to add more fare? (Y/N)");
-//                        addMoreFares = scanner.nextLine().trim();
-//                        if (!addMoreFares.equals("Y") && !addMoreFares.equals("N")) {
-//                            System.out.println("Invalied response! Please enter Y/N");
-//                        }
-//                    } while (!addMoreFares.equals("Y") && !addMoreFares.equals("N"));
-//                } while (addMoreFares.equals("Y"));
-//
-//                try {
-//                    flightSchedulePlanSessionBeanRemote.updateAddFareToFlightSchedulePlan(flightSchedulePlanId, addFares);
-//                    System.out.println("Fares successfully added!");
-//                } catch (UpdateFlightSchedulePlanFailedException ex) {
-//                    System.out.println(ex.getMessage());
-//                }
-//                break;
-//
-//            case (7):
-//                HashSet<Long> removeFares = new HashSet<>();
-//                String removeMoreFares = "N";
-//
-//                do {
-//                    System.out.print("Enter Fare Id for fare to be removed> ");
-//
-//                    removeFares.add(scanner.nextLong());
-//
-//                    do {
-//                        System.out.println("Do you want to remove more fares? (Y/N)");
-//                        removeMoreFares = scanner.nextLine().trim();
-//                        if (!removeMoreFares.equals("Y") && !removeMoreFares.equals("N")) {
-//                            System.out.println("Invalied response! Please enter Y/N");
-//                        }
-//                    } while (!removeMoreFares.equals("Y") && !removeMoreFares.equals("N"));
-//                } while (removeMoreFares.equals("Y"));
-//
-//                try {
-//                    flightSchedulePlanSessionBeanRemote.updateRemoveFareFromFlightSchedulePlan(flightSchedulePlanId, removeFares);
-//                    System.out.println("Fares successfully removed!");
-//                } catch (UpdateFlightSchedulePlanFailedException ex) {
-//                    System.out.println(ex.getMessage());
-//                }
-//                break;
-//            default:
-//                break;
-//        }
+        switch (response) {
+            case (1):
+                HashSet<Long> flightScheduleIds = new HashSet<>();
+                String addMore = "Y";
+                do {
+                    System.out.print("Enter Flight Schedule Id to remove> ");
+                    flightScheduleIds.add(scanner.nextLong());
+
+                    do {
+                        System.out.print("Do you want to delete more Flight Schedules? (Y/N)> ");
+                        addMore = scanner.nextLine().trim();
+                        if (!addMore.equals("Y") && !addMore.equals("N")) {
+                            System.out.println("Invalid response! Enter Y/N");
+                        }
+                    } while (!addMore.equals("Y") && !addMore.equals("N"));
+                } while (addMore.equals("Y"));
+
+                try {
+                    flightSchedulePlanSessionBeanRemote.updateRemoveFlightScheduleFromManualFlightSchedulePlan(flightSchedulePlanId, flightScheduleIds);
+                    System.out.println("Flight Schedules successfully removed from Flight Schedule Plan " + flightSchedulePlanId);
+                } catch (UpdateFlightSchedulePlanFailedException ex) {
+                    System.out.println(ex.getMessage());
+                }
+                break;
+
+            case (2):
+                List<FlightScheduleEntity> newFlightSchedules = new ArrayList<>();
+
+                String createMoreFlightSchedules = "Y";
+                do {
+                    newFlightSchedules.add(this.createFlightSchedule());
+
+                    do {
+                        System.out.print("Do you want to add more Flight Schedules? (Y/N)> ");
+                        createMoreFlightSchedules = scanner.nextLine().trim();
+                        if (!createMoreFlightSchedules.equals("Y") && !createMoreFlightSchedules.equals("N")) {
+                            System.out.println("Invalid response! Enter Y/N");
+                        }
+                    } while (!createMoreFlightSchedules.equals("Y") && !createMoreFlightSchedules.equals("N"));
+                } while (createMoreFlightSchedules.equals("Y"));
+
+                String doCreateReturnFlightSchedule = "N";
+
+                do {
+                    System.out.print("Do you want to create return Flight Schedules? (Y/N)> ");
+                    doCreateReturnFlightSchedule = scanner.nextLine().trim();
+                    if (!doCreateReturnFlightSchedule.equals("Y") && !doCreateReturnFlightSchedule.equals("N")) {
+                        System.out.println("Invalid response! Enter Y/N");
+                    }
+                } while (!doCreateReturnFlightSchedule.equals("Y") && !doCreateReturnFlightSchedule.equals("N"));
+
+                try {
+                    flightSchedulePlanSessionBeanRemote.updateAddFlightScheduleToManualFlightSchedulePlan(flightSchedulePlanId, newFlightSchedules, doCreateReturnFlightSchedule.equals("Y"));
+                    System.out.println("Flight Schedules are successfully added into Flight Schedule Plan " + flightSchedulePlanId);
+                } catch (UpdateFlightSchedulePlanFailedException ex) {
+                    System.out.println(ex.getMessage());
+                }
+                break;
+
+            case (3):
+                String date = "";
+                Boolean dateCheck = false;
+                Date newEndDate = null;
+                Integer newRecurrentFrequency = null;
+
+                do {
+                    try {
+                        System.out.print("Enter new end date for recurrent Flight Schedule Plan (DD/MM/YYYY), or \"-\" if not applicable> ");
+                        date = scanner.nextLine().trim();
+                        if (date.equals("-")) { //if user does not want to change end date
+                            newEndDate = null;
+                            break;
+                        }
+
+                        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+                        date = scanner.nextLine().trim();
+                        newEndDate = format.parse(date);
+                        dateCheck = true;
+                    } catch (ParseException ex) {
+                        System.out.println("Wrong format for date!");
+                    }
+                } while (!dateCheck);
+
+                do {
+                    System.out.print("Enter new recurrent frequency, or \"-\" if not applicable> ");
+                    newRecurrentFrequency = scanner.nextInt();
+                    if (newRecurrentFrequency.equals("-")) {
+                        newRecurrentFrequency = null;
+                        break;
+                    }
+                    if (newRecurrentFrequency <= 0) {
+                        System.out.println("Invalid response! Recurrent frequency must be more than 0.");
+                    }
+                } while (newRecurrentFrequency <= 0);
+
+                try {
+                    flightSchedulePlanSessionBeanRemote.updateRecurrentNDaysFlightSchedulePlanParameters(flightSchedulePlanId, newEndDate, newRecurrentFrequency);
+                    System.out.println("Flight Schedule Plan successfully updated!");
+                } catch (UpdateFlightSchedulePlanFailedException ex) {
+                    System.out.println(ex.getMessage());
+                }
+                break;
+
+            case (4):
+                List<FlightScheduleEntity> updatedFlightSchedules = new ArrayList<>();
+                String updateMoreFlightSchedules = "N";
+
+                String departureDate = "";
+                Boolean checkDate = false;
+                Date newDepartureDate = null;
+
+                Integer estimatedFlightDuration = 0;
+
+                do {
+                    System.out.print("Enter Flight Schedule Id to update> ");
+                    Long flightScheduleId = scanner.nextLong();
+
+                    try {
+                        FlightScheduleEntity flightSchedule = flightScheduleSessionBeanRemote.retrieveFlightScheduleById(flightScheduleId);
+                        do {
+                            System.out.print("Enter new departure date for Flight Schedule (DD/MM/YYYY)> ");
+                            try {
+                                SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+                                departureDate = scanner.nextLine().trim();
+                                newDepartureDate = format.parse(departureDate);
+                                checkDate = true;
+                            } catch (ParseException ex) {
+                                System.out.println("Wrong format for date!");
+                            }
+                        } while (!checkDate);
+
+                        do {
+                            System.out.print("Enter new flight duration> ");
+                            estimatedFlightDuration = scanner.nextInt();
+                            if (estimatedFlightDuration <= 0) {
+                                System.out.println("Invalid response! Flight duration must be greater than 0.");
+                            }
+                        } while (estimatedFlightDuration <= 0);
+
+                        flightSchedule.setDepartureDate(newDepartureDate);
+                        flightSchedule.setEstimatedFlightDurationHour(estimatedFlightDuration);
+                        updatedFlightSchedules.add(flightSchedule);
+
+                        do {
+                            System.out.println("Do you want to update more flight schedules? (Y/N)");
+                            updateMoreFlightSchedules = scanner.nextLine().trim();
+                            if (!updateMoreFlightSchedules.equals("Y") && !updateMoreFlightSchedules.equals("N")) {
+                                System.out.println("Invalied response! Please enter Y/N");
+                            }
+                        } while (!updateMoreFlightSchedules.equals("Y") && !updateMoreFlightSchedules.equals("N"));
+                    } catch (FlightScheduleNotFoundException ex) {
+                        System.out.println(ex.getMessage());
+                    }
+                } while (updateMoreFlightSchedules.equals("Y"));
+
+                try {
+                    flightSchedulePlanSessionBeanRemote.updateFlightScheduleDetailForManualFlightSchedulePlan(flightSchedulePlanId, updatedFlightSchedules);
+                    System.out.println("Flight Schedules successfully added!");
+                } catch (UpdateFlightSchedulePlanFailedException ex) {
+                    System.out.println(ex.getMessage());
+                }
+                break;
+
+            case (5):
+                List<FareEntity> updatedFareAmounts = new ArrayList<>();
+                String updateMoreFares = "N";
+
+                do {
+                    System.out.print("Enter Fare Id to update> ");
+                    Long fareId = scanner.nextLong();
+
+                    try {
+                        Double fareAmount = 0.0;
+
+                        do {
+                            System.out.print("Enter new Fare amount for Flight Schedule Plan> ");
+                            fareAmount = scanner.nextDouble();
+                            if (fareAmount <= 0) {
+                                System.out.println("Fare amount must be greater than zero!");
+                            }
+                        } while (fareAmount <= 0);
+
+                        updatedFareAmounts.add(fareEntitySessionBeanRemote.updateFareAmount(flightSchedulePlanId, fareId, new BigDecimal(fareAmount)));
+
+                        do {
+                            System.out.println("Do you want to update more fare amounts? (Y/N)");
+                            updateMoreFares = scanner.nextLine().trim();
+                            if (!updateMoreFares.equals("Y") && !updateMoreFares.equals("N")) {
+                                System.out.println("Invalied response! Please enter Y/N");
+                            }
+                        } while (!updateMoreFares.equals("Y") && !updateMoreFares.equals("N"));
+                    } catch (FlightSchedulePlanNotFoundException | UpdateFlightSchedulePlanFailedException ex) {
+                        System.out.println(ex.getMessage());
+                    }
+                } while (updateMoreFares.equals("Y"));
+
+                try {
+                    flightSchedulePlanSessionBeanRemote.updateFareAmountInFlightSchedulePlan(flightSchedulePlanId, updatedFareAmounts);
+                    System.out.println("Fare amounts successfully added!");
+                } catch (UpdateFlightSchedulePlanFailedException ex) {
+                    System.out.println(ex.getMessage());
+                }
+                break;
+
+            case (6):
+                List<FareEntity> addFares = new ArrayList<>();
+                String addMoreFares = "N";
+
+                do {
+                    System.out.println("Create new Fare:");
+
+                    addFares.add(createIndividualFare());
+
+                    do {
+                        System.out.println("Do you want to add more fare? (Y/N)");
+                        addMoreFares = scanner.nextLine().trim();
+                        if (!addMoreFares.equals("Y") && !addMoreFares.equals("N")) {
+                            System.out.println("Invalied response! Please enter Y/N");
+                        }
+                    } while (!addMoreFares.equals("Y") && !addMoreFares.equals("N"));
+                } while (addMoreFares.equals("Y"));
+
+                try {
+                    flightSchedulePlanSessionBeanRemote.updateAddFareToFlightSchedulePlan(flightSchedulePlanId, addFares);
+                    System.out.println("Fares successfully added!");
+                } catch (UpdateFlightSchedulePlanFailedException ex) {
+                    System.out.println(ex.getMessage());
+                }
+                break;
+
+            case (7):
+                HashSet<Long> removeFares = new HashSet<>();
+                String removeMoreFares = "N";
+
+                do {
+                    System.out.print("Enter Fare Id for fare to be removed> ");
+
+                    removeFares.add(scanner.nextLong());
+
+                    do {
+                        System.out.println("Do you want to remove more fares? (Y/N)");
+                        removeMoreFares = scanner.nextLine().trim();
+                        if (!removeMoreFares.equals("Y") && !removeMoreFares.equals("N")) {
+                            System.out.println("Invalied response! Please enter Y/N");
+                        }
+                    } while (!removeMoreFares.equals("Y") && !removeMoreFares.equals("N"));
+                } while (removeMoreFares.equals("Y"));
+
+                try {
+                    flightSchedulePlanSessionBeanRemote.updateRemoveFareFromFlightSchedulePlan(flightSchedulePlanId, removeFares);
+                    System.out.println("Fares successfully removed!");
+                } catch (UpdateFlightSchedulePlanFailedException ex) {
+                    System.out.println(ex.getMessage());
+                }
+                break;
+            default:
+                break;
+        }
     }
 
     //called from viewFlightSchedulePlanDetails()
