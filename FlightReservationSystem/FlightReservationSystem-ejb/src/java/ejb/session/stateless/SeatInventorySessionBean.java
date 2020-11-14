@@ -8,10 +8,13 @@ package ejb.session.stateless;
 import entity.AircraftConfigurationEntity;
 import entity.CabinConfigurationEntity;
 import entity.FareEntity;
+import entity.FlightEntity;
 import entity.FlightScheduleEntity;
+import entity.FlightSchedulePlanEntity;
 import entity.PassengerEntity;
 import entity.SeatEntity;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -28,6 +31,7 @@ import javax.validation.ValidatorFactory;
 import pojo.SeatInventory;
 import util.enumeration.CabinClassEnum;
 import util.exception.CreateNewSeatInventoryException;
+import util.exception.FlightNotFoundException;
 import util.exception.FlightScheduleNotFoundException;
 import util.exception.SeatNotFoundException;
 import util.exception.ReserveSeatException;
@@ -38,6 +42,9 @@ import util.exception.ReserveSeatException;
  */
 @Stateless
 public class SeatInventorySessionBean implements SeatInventorySessionBeanRemote, SeatInventorySessionBeanLocal {
+
+    @EJB
+    private FlightSessionBeanLocal flightSessionBeanLocal;
 
     @EJB
     private FlightScheduleSessionBeanLocal flightScheduleSessionBeanLocal;
@@ -91,6 +98,20 @@ public class SeatInventorySessionBean implements SeatInventorySessionBeanRemote,
             throw new CreateNewSeatInventoryException("CreateNewSeatInventoryException: Invalid inputs!\n" + errorMessage);
         }
     }
+
+//    @Override
+//    public SeatInventory viewSeatsInventoryByFlightNumberAndDate(String flightNumber, Date date) throws FlightNotFoundException {
+//        FlightEntity flight = flightSessionBeanLocal.retrieveFlightByFlightNumber(flightNumber);
+//
+//        for (FlightSchedulePlanEntity flightSchedulePlan : flight.getFlightSchedulePlans()) {
+//            for (FlightScheduleEntity flightSchedule : flightSchedulePlan.getFlightSchedules()) {
+//                // retrieve unique cabins from seat inventory
+//                Query query = em.createQuery("SELECT DISTINCT s.cabinClassEnum FROM SeatEntity s WHERE s.flightSchedule.flightScheduleId =:inFlightScheduleId AND s.flightSchedule.departureDate ");
+//                query.setParameter("inFlightScheduleId", flightSchedule.getFlightScheduleId());
+//                List<CabinClassEnum> cabinClasses = (List<CabinClassEnum>) query.getResultList();
+//            }
+//        }
+//    }
 
     @Override
     public SeatInventory viewSeatsInventoryByFlightScheduleId(Long flightScheduleId) throws FlightScheduleNotFoundException {
@@ -155,7 +176,7 @@ public class SeatInventorySessionBean implements SeatInventorySessionBeanRemote,
             return seatEntity;
         } catch (NoResultException ex) {
             throw new SeatNotFoundException("SeatNotFoundException: Seat with seat number " + seatNumber + " does not exist!");
-        } 
+        }
     }
 
     @Override

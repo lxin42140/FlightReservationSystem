@@ -25,14 +25,14 @@ import util.exception.ReserveSeatException;
  */
 @Stateless
 public class PassengerSessionBean implements PassengerSessionBeanRemote, PassengerSessionBeanLocal {
-    
+
     @EJB
     private SeatInventorySessionBeanLocal seatInventorySessionBeanLocal;
-    
+
     @Override // local oonly
     public void addPassengersToReservation(List<PassengerEntity> passengers, FlightReservationEntity flightReservation, boolean isCustomerReservation) throws CreateNewPassengerException {
         BigDecimal totalAmount = BigDecimal.ZERO;
-        
+
         for (PassengerEntity passenger : passengers) {
 
             // passenger must have seats chosen
@@ -43,7 +43,7 @@ public class PassengerSessionBean implements PassengerSessionBeanRemote, Passeng
             // associate passenger with reservation
             passenger.setFlightReservation(flightReservation);
             flightReservation.getPassengers().add(passenger);
-            
+
             try {
                 if (isCustomerReservation) {
                     seatInventorySessionBeanLocal.reserveSeatsForCustomer(passenger);
@@ -53,28 +53,38 @@ public class PassengerSessionBean implements PassengerSessionBeanRemote, Passeng
             } catch (ReserveSeatException ex) {
                 throw new CreateNewPassengerException(ex.getMessage());
             }
-            
+
             totalAmount = totalAmount.add(passenger.getFareAmount());
             validate(passenger);
         }
-        
+
         flightReservation.setTotalAmount(totalAmount);
     }
-    
+
     private void validate(PassengerEntity passenger) throws CreateNewPassengerException {
         ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
         Validator validator = validatorFactory.getValidator();
         Set<ConstraintViolation<PassengerEntity>> errors = validator.validate(passenger);
-        
+
         String errorMessage = "";
-        
+
         for (ConstraintViolation error : errors) {
             errorMessage += "\n\t" + error.getPropertyPath() + " - " + error.getInvalidValue() + "; " + error.getMessage();
         }
-        
+
         if (errorMessage.length() > 0) {
             throw new CreateNewPassengerException("CreateNewPassengerException: Invalid inputs!\n" + errorMessage);
         }
     }
-    
+
+    public PassengerEntity createNewPassenger(String firstName, String lastName, String passportNumber) {
+        PassengerEntity passenger = new PassengerEntity();
+
+        passenger.setFirstName(firstName);
+        passenger.setLastName(lastName);
+        passenger.setPassportNumber(passportNumber);
+
+        return passenger;
+    }
+
 }

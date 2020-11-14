@@ -86,74 +86,74 @@ public class FlightSearchSessionBean implements FlightSearchSessionBeanRemote, F
         HashMap<Integer, List<List<FlightScheduleEntity>>> results = new HashMap<>();
         List<List<FlightScheduleEntity>> returnFlights = new ArrayList<>();
 
-        Iterator<List<FlightScheduleEntity>> routeIterator = toFlights.iterator();
-
-        while (routeIterator.hasNext()) {
-            List<FlightScheduleEntity> route = routeIterator.next();
-
-            boolean hasReturnFlight = true;
-            for (FlightScheduleEntity toFlightSchedule : route) {
-                FlightScheduleEntity returnFlightSchedule = toFlightSchedule.getReturnFlightSchedule(); // get return flight schedule
-
-                // make sure return flight schedule exists
-                if (returnFlightSchedule == null) {
-                    hasReturnFlight = false;
-                    break;
-                }
-
-                try {
-                    // make sure return flight schedule has enough seats
-                    SeatInventory seatInventory = seatInventorySessionBeanLocal.viewSeatsInventoryByFlightScheduleId(returnFlightSchedule.getFlightScheduleId());
-
-                    // not enough seats for return flight 
-                    if (seatInventory.getTotalAvailSeats() < numberOfPassengers) {
-                        hasReturnFlight = false;
-                        break;
-                    }
-
-                    // not enogh seats for the preferred cabin
-                    if (preferredCabinClass != null) {
-                        HashMap<CabinClassEnum, Integer[]> cabinSeatsInventory = seatInventory.getCabinSeatsInventory();
-                        if (cabinSeatsInventory.get(preferredCabinClass)[2] < numberOfPassengers) {
-                            hasReturnFlight = false;
-                            break;
-                        }
-                    }
-                } catch (FlightScheduleNotFoundException ex) {
-                    hasReturnFlight = false;
-                    break;
-                }
-
-            }
-
-            // to flight routes do not have return flight schedules
-            if (!hasReturnFlight) {
-                System.out.println("inside here");
-                routeIterator.remove();
-            } else {
-                System.out.println("else");
-                FlightScheduleEntity firstToFlightSchedule = route.get(0);
-                // if arrival date of the return schedule is beyond the 3 days window
-                if (firstToFlightSchedule.getReturnFlightSchedule().getDepartureDate().compareTo(earlierLimit) < 0 || firstToFlightSchedule.getReturnFlightSchedule().getDepartureDate().compareTo(afterLimit) > 0) {
-                    routeIterator.remove();
-                } else {
-
-                    List<FlightScheduleEntity> returnRoutes = new ArrayList<>();
-                    // add return flight schedules in reverse order
-                    for (int i = route.size() - 1; i >= 0; i--) {
-                        returnRoutes.add(route.get(i).getReturnFlightSchedule());
-                    }
-
-                    returnFlights.add(returnRoutes);
-                }
-            }
-        }
-
-        if (toFlights.isEmpty() || returnFlights.isEmpty()) {
-            System.out.println("toFlight(): " + toFlights.isEmpty());
-            System.out.println("returnFlights: " + returnFlights.isEmpty());
-            throw new NoMatchingFlightsException("NoMatchingFlightsException: No available two way flights that match the requirements!");
-        }
+//        Iterator<List<FlightScheduleEntity>> routeIterator = toFlights.iterator();
+//
+//        while (routeIterator.hasNext()) {
+//            List<FlightScheduleEntity> route = routeIterator.next();
+//
+//            boolean hasReturnFlight = true;
+//            for (FlightScheduleEntity toFlightSchedule : route) {
+//                FlightScheduleEntity returnFlightSchedule = toFlightSchedule.getReturnFlightSchedule(); // get return flight schedule
+//
+//                // make sure return flight schedule exists
+//                if (returnFlightSchedule == null) {
+//                    hasReturnFlight = false;
+//                    break;
+//                }
+//
+//                try {
+//                    // make sure return flight schedule has enough seats
+//                    SeatInventory seatInventory = seatInventorySessionBeanLocal.viewSeatsInventoryByFlightScheduleId(returnFlightSchedule.getFlightScheduleId());
+//
+//                    // not enough seats for return flight 
+//                    if (seatInventory.getTotalAvailSeats() < numberOfPassengers) {
+//                        hasReturnFlight = false;
+//                        break;
+//                    }
+//
+//                    // not enogh seats for the preferred cabin
+//                    if (preferredCabinClass != null) {
+//                        HashMap<CabinClassEnum, Integer[]> cabinSeatsInventory = seatInventory.getCabinSeatsInventory();
+//                        if (cabinSeatsInventory.get(preferredCabinClass)[2] < numberOfPassengers) {
+//                            hasReturnFlight = false;
+//                            break;
+//                        }
+//                    }
+//                } catch (FlightScheduleNotFoundException ex) {
+//                    hasReturnFlight = false;
+//                    break;
+//                }
+//
+//            }
+//
+//            // to flight routes do not have return flight schedules
+//            if (!hasReturnFlight) {
+////                System.out.println("inside here");
+//                routeIterator.remove();
+//            } else {
+////                System.out.println("else");
+//                FlightScheduleEntity firstToFlightSchedule = route.get(0);
+//                // if arrival date of the return schedule is beyond the 3 days window
+//                if (firstToFlightSchedule.getReturnFlightSchedule().getDepartureDate().compareTo(earlierLimit) < 0 || firstToFlightSchedule.getReturnFlightSchedule().getDepartureDate().compareTo(afterLimit) > 0) {
+//                    routeIterator.remove();
+//                } else {
+//
+//                    List<FlightScheduleEntity> returnRoutes = new ArrayList<>();
+//                    // add return flight schedules in reverse order
+//                    for (int i = route.size() - 1; i >= 0; i--) {
+//                        returnRoutes.add(route.get(i).getReturnFlightSchedule());
+//                    }
+//
+//                    returnFlights.add(returnRoutes);
+//                }
+//            }
+//        }
+//
+//        if (toFlights.isEmpty() || returnFlights.isEmpty()) {
+//            System.out.println("toFlight(): " + toFlights.isEmpty());
+//            System.out.println("returnFlights: " + returnFlights.isEmpty());
+//            throw new NoMatchingFlightsException("NoMatchingFlightsException: No available two way flights that match the requirements!");
+//        }
 
         List<HashMap<Integer, List<FlightScheduleEntity>>> searchResult = new ArrayList<>();
         HashMap<Integer, List<FlightScheduleEntity>> toFlightSearchResults = new HashMap<>();
