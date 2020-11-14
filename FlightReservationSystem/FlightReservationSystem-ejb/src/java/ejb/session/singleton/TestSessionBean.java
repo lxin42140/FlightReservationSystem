@@ -27,6 +27,7 @@
 //import entity.FlightSchedulePlanEntity;
 //import entity.PassengerEntity;
 //import entity.SeatEntity;
+//import entity.UserEntity;
 //import java.math.BigDecimal;
 //import java.text.SimpleDateFormat;
 //import java.util.HashMap;
@@ -47,6 +48,7 @@
 //import util.exception.CreateNewAircraftConfigurationException;
 //import util.exception.AircraftConfigurationNotFoundException;
 //import util.exception.CreateNewFlightException;
+//import util.exception.CreateNewFlightReservationException;
 //import util.exception.CreateNewFlightRouteException;
 //import util.exception.FlightInUseException;
 //import util.exception.FlightNotFoundException;
@@ -65,6 +67,9 @@
 //@Startup
 ////@DependsOn({"AircraftTypeInitSessionBean", "AirportInitSessionBean", "EmployeeInitSessionBean", "PartnerInitSessionBean"})
 //public class TestSessionBean {
+//
+//    @EJB(name = "CustomerSessionBeanRemote")
+//    private CustomerSessionBeanRemote customerSessionBeanRemote;
 //
 //    @EJB(name = "CustomerSessionBeanRemtoe")
 //    private CustomerSessionBeanRemote customerSessionBeanRemtoe;
@@ -111,7 +116,7 @@
 //            //
 ////            createFlightSchedulePlan();
 ////            updateFlightSchedulePlan();
-//            viewAllFlightSchedulePlans(); 
+//            viewAllFlightSchedulePlans();
 ////            deleteFlightSchedulePlan();
 ////            updateFlightSchedulePlanEntity();
 //            //
@@ -139,8 +144,8 @@
 //        AircraftConfigurationEntity fourthAircraftConfig = new AircraftConfigurationEntity("SIABudget");
 //
 //        CabinConfigurationEntity firstCabinConfig = new CabinConfigurationEntity(CabinClassEnum.F, 2L, 10L, 2L, "3-4-3", 20L);
-//        CabinConfigurationEntity secondCabinConfig = new CabinConfigurationEntity(CabinClassEnum.J,2L, 10L, 4L, "3-4-3", 40L);
-//        CabinConfigurationEntity thirdCabinConfig = new CabinConfigurationEntity(CabinClassEnum.W,2L, 10L, 8L, "3-4-3", 80L);
+//        CabinConfigurationEntity secondCabinConfig = new CabinConfigurationEntity(CabinClassEnum.J, 2L, 10L, 4L, "3-4-3", 40L);
+//        CabinConfigurationEntity thirdCabinConfig = new CabinConfigurationEntity(CabinClassEnum.W, 2L, 10L, 8L, "3-4-3", 80L);
 //
 //        List<CabinConfigurationEntity> firstList = new ArrayList<>();
 //        firstList.add(firstCabinConfig);
@@ -373,6 +378,7 @@
 //        for (FlightSchedulePlanEntity flightSchedulePlanEntity : list) {
 //            System.out.println(flightSchedulePlanEntity.getFlightSchedulePlanType().toString());
 //            System.out.println("Flight schedule plan ID: " + flightSchedulePlanEntity.getFlightSchedulePlanId() + " Flight number: " + flightSchedulePlanEntity.getFlight().getFlightNumber());
+//            System.out.println("Route: " + flightSchedulePlanEntity.getFlight().getFlightRoute().getOriginAirport().getAirportId() + "-->" + flightSchedulePlanEntity.getFlight().getFlightRoute().getDestinationAirport().getAirportId());
 //            if (flightSchedulePlanEntity.getRecurrentEndDate() != null) {
 //                System.out.println("Recurrent start date " + flightSchedulePlanEntity.getRecurrentStartDate());
 //                System.out.println("Recurrent end date: " + flightSchedulePlanEntity.getRecurrentEndDate());
@@ -392,6 +398,9 @@
 //                System.out.println("\t\tCabin class: " + fareEntity.getCabinClass() + ", Fare basis code: " + fareEntity.getFareBasisCode() + ", Amount: " + fareEntity.getFareAmount());
 //            }
 //
+//            if (flightSchedulePlanEntity.getReturnFlightSchedulePlan() != null) {
+//                printReturnFlightSchedulePlan(flightSchedulePlanEntity.getReturnFlightSchedulePlan());
+//            }
 //            System.out.println("===============================================================================================");
 //        }
 //    }
@@ -527,39 +536,38 @@
 //            //one way test
 //            SimpleDateFormat inputDateFormat = new SimpleDateFormat("d/M/y");
 //
-//            HashMap<Integer, List<FlightScheduleEntity>> oneWayFlights = flightSearchSessionBeanRemote.searchOneWayFlights(1l, 6l, inputDateFormat.parse("02/11/2020"), 1, null, null);
-//            for (int i = 1; i <= oneWayFlights.size(); i++) {
-//                System.out.print("S/N: " + i);
-//                List<FlightScheduleEntity> routes = oneWayFlights.get(i);
-//                for (FlightScheduleEntity flightSchedule : routes) {
-//                    System.out.print("[" + flightSchedule.getFlightScheduleId() + "] " + flightSchedule.getFlightSchedulePlan().getFlight().getFlightRoute().getOriginAirport().getAirportName() + "-->" + flightSchedule.getFlightSchedulePlan().getFlight().getFlightRoute().getDestinationAirport().getAirportName());
+////            HashMap<Integer, List<FlightScheduleEntity>> oneWayFlights = flightSearchSessionBeanRemote.searchOneWayFlights(5l, 4l, inputDateFormat.parse("09/12/2020"), 1, null, null);
+////            for (int i = 1; i <= oneWayFlights.size(); i++) {
+////                System.out.print("S/N: " + i);
+////                List<FlightScheduleEntity> routes = oneWayFlights.get(i);
+////                for (FlightScheduleEntity flightSchedule : routes) {
+////                    System.out.print("[" + flightSchedule.getFlightScheduleId() + "] " + flightSchedule.getFlightSchedulePlan().getFlight().getFlightRoute().getOriginAirport().getAirportName() + "-->" + flightSchedule.getFlightSchedulePlan().getFlight().getFlightRoute().getDestinationAirport().getAirportName());
+////                }
+////                System.out.println("========================");
+////            }
+//            List<HashMap<Integer, List<FlightScheduleEntity>>> twoWayFlights = flightSearchSessionBeanRemote.searchTwoWaysFlights(1l, 6l, inputDateFormat.parse("02/11/2020"), inputDateFormat.parse("03/11/2020"), 1, null, null);
+//            HashMap<Integer, List<FlightScheduleEntity>> toFlights = twoWayFlights.get(0);
+//            HashMap<Integer, List<FlightScheduleEntity>> returnFlights = twoWayFlights.get(1);
+//
+//            System.out.println("TO========================================");
+//            for (int i = 1; i <= toFlights.size(); i++) {
+//                System.out.print(i + " ");
+//                List<FlightScheduleEntity> routes = toFlights.get(i);
+//                for (FlightScheduleEntity route : routes) {
+//                    System.out.print(route.getFlightScheduleId() + " -> ");
 //                }
-//                System.out.println("========================");
+//                System.out.println("-------------------------");
 //            }
 //
-////            HashMap<Integer, List<List<FlightScheduleEntity>>> twoWayFlights = flightSearchSessionBeanRemote.searchTwoWaysFlights(1l, 6l, inputDateFormat.parse("02/11/2020"), inputDateFormat.parse("03/11/2020"), 1, null, null);
-////            List<List<FlightScheduleEntity>> toFlights = twoWayFlights.get(1);
-////            List<List<FlightScheduleEntity>> returnFlights = twoWayFlights.get(2);
-////
-////            System.out.println("TO========================================");
-////            for (int i = 0; i < toFlights.size(); i++) {
-////                System.out.print(i + " ");
-////                List<FlightScheduleEntity> routes = toFlights.get(i);
-////                for (FlightScheduleEntity route : routes) {
-////                    System.out.print(route.getFlightScheduleId() + " -> ");
-////                }
-////                System.out.println("-------------------------");
-////            }
-////
-////            System.out.println("RETURN==========================");
-////            for (int i = 0; i < returnFlights.size(); i++) {
-////                System.out.print(i + " ");
-////                List<FlightScheduleEntity> routes = returnFlights.get(i);
-////                for (FlightScheduleEntity route : routes) {
-////                    System.out.print(route.getFlightScheduleId() + " -> ");
-////                }
-////                System.out.println("-------------------------");
-////            }
+//            System.out.println("RETURN==========================");
+//            for (int i = 1; i <= returnFlights.size(); i++) {
+//                System.out.print(i + " ");
+//                List<FlightScheduleEntity> routes = returnFlights.get(i);
+//                for (FlightScheduleEntity route : routes) {
+//                    System.out.print(route.getFlightScheduleId() + " -> ");
+//                }
+//                System.out.println("-------------------------");
+//            }
 //        } catch (Exception ex) {
 //            System.out.println(ex);
 //        }
@@ -578,26 +586,25 @@
 //        try {
 //            SimpleDateFormat inputDateFormat = new SimpleDateFormat("d/M/y");
 //
-//            HashMap<Integer, List<FlightScheduleEntity>> oneWayFlights = flightSearchSessionBeanRemote.searchOneWayFlights(1l, 6l, inputDateFormat.parse("01/11/2020"), 1, null, null);
-//            for (int i = 1; i <= oneWayFlights.size(); i++) {
-//                System.out.print("S/N: " + i);
-//                List<FlightScheduleEntity> routes = oneWayFlights.get(i);
-//                for (FlightScheduleEntity flightSchedule : routes) {
-//                    System.out.print("[" + flightSchedule.getFlightScheduleId() + "] " + flightSchedule.getFlightSchedulePlan().getFlight().getFlightRoute().getOriginAirport().getAirportName() + "-->" + flightSchedule.getFlightSchedulePlan().getFlight().getFlightRoute().getDestinationAirport().getAirportName());
-//                }
-//                System.out.println("========================");
+//            //    public CustomerEntity(String firstName, String lastName, String email, String mobilePhoneNumber, String address, String userName, String password) {
+////            customerSessionBeanRemote.registerNewCustomer(new CustomerEntity("Li", "xx", "xx@xx.com", "88888888", "afsfsdfdfdsf", "customer1", "password"));
+//            CustomerEntity customerEntity = customerSessionBeanRemote.retrieveCustomerByUsernameAndPassword("customer1", "password");
+////    public Long createNewFlightReservation(List<FlightScheduleEntity> itinery, List<PassengerEntity> passengers, CreditCardEntity creditCardEntity, UserEntity user) throws CreateNewFlightReservationException {
+//            HashMap<Integer, List<FlightScheduleEntity>> searchOneWayFlights = flightSearchSessionBeanRemote.searchOneWayFlights(2l, 4l, inputDateFormat.parse("01/12/2020"), 1, null, null);
+//            for (int i = 1; i <= searchOneWayFlights.size(); i++) {
+//                searchOneWayFlights.get(i).forEach(x -> System.out.print(x.getFlightScheduleId() + "->"));
+//                System.out.println("===");
 //            }
 //
-//            CustomerEntity customer = customerSessionBeanRemtoe.retrieveCustomerByUsernameAndPassword("Li Xin", "111");
+//            CreditCardEntity creditCard = new CreditCardEntity("11111", "Li", "Xin", inputDateFormat.parse("01/12/2020"), "333");
+//            PassengerEntity passenger = new PassengerEntity("asdsd", "sdsda", "xxxx");
 //            List<PassengerEntity> passengers = new ArrayList<>();
-//            PassengerEntity passenger1 = new PassengerEntity("First", "Customer", "000000");
-//            passenger1.getSeats().add(seatInventorySessionBeanRemote.retrieveAvailableSeatFromFlightScheduleAndCabin(2l, CabinClassEnum.J, "1B"));
-//            passenger1.getSeats().add(seatInventorySessionBeanRemote.retrieveAvailableSeatFromFlightScheduleAndCabin(2l, CabinClassEnum.W, "2B"));
-//            passengers.add(passenger1);
-//            CreditCardEntity creditCard = new CreditCardEntity("123", "First", "Customer", inputDateFormat.parse("02/11/2020 00:00:00"), "222");
+//            passengers.add(passenger);
+//            List<SeatEntity> seats = seatInventorySessionBeanRemote.retrieveAllAvailableSeatsFromFlightScheduleAndCabin(3l, CabinClassEnum.F);
+//            SeatEntity seat1 = seats.get(1);
+//            passenger.getSeats().add(seat1);
 //
-//            flightReservationSessionBeanRemote.createNewFlightReservation(oneWayFlights.get(1), passengers, creditCard, customer);
-//
+//            flightReservationSessionBeanRemote.createNewFlightReservation(searchOneWayFlights.get(1), passengers, creditCard, customerEntity);
 //        } catch (Exception ex) {
 //            System.out.println(ex.getMessage());
 //        }

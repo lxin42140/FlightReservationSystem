@@ -6,12 +6,15 @@
 package flightreservationsystemmanagementclient;
 
 import ejb.session.stateless.AircraftConfigurationSessionBeanRemote;
+import ejb.session.stateless.AirportEntitySessionBeanRemote;
 import ejb.session.stateless.EmployeeEntitySessionBeanRemote;
 import ejb.session.stateless.FareEntitySessionBeanRemote;
+import ejb.session.stateless.FlightReservationSessionBeanRemote;
 import ejb.session.stateless.FlightRouteSessionBeanRemote;
 import ejb.session.stateless.FlightSchedulePlanSessionBeanRemote;
 import ejb.session.stateless.FlightScheduleSessionBeanRemote;
 import ejb.session.stateless.FlightSessionBeanRemote;
+import ejb.session.stateless.SeatInventorySessionBeanRemote;
 import javax.ejb.EJB;
 
 /**
@@ -34,12 +37,29 @@ public class Main {
     private static FareEntitySessionBeanRemote fareEntitySessionBeanRemote;
     @EJB
     private static FlightScheduleSessionBeanRemote flightScheduleSessionBeanRemote;
+    @EJB
+    private static SeatInventorySessionBeanRemote seatInventorySessionBeanRemote;
+    @EJB
+    private static FlightReservationSessionBeanRemote flightReservationSessionBeanRemote;
+    @EJB
+    private static AirportEntitySessionBeanRemote airportEntitySessionBeanRemote;
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        MainApp mainApp = new MainApp(employeeEntitySessionBeanRemote, aircraftConfigurationSessionBeanRemote, flightRouteSessionBeanRemote, flightSessionBeanRemote, flightSchedulePlanSessionBeanRemote, fareEntitySessionBeanRemote, flightScheduleSessionBeanRemote);
+        MainApp mainApp = new MainApp(
+                employeeEntitySessionBeanRemote, 
+                aircraftConfigurationSessionBeanRemote, 
+                flightRouteSessionBeanRemote, 
+                flightSessionBeanRemote, 
+                flightSchedulePlanSessionBeanRemote, 
+                fareEntitySessionBeanRemote, 
+                flightScheduleSessionBeanRemote, 
+                seatInventorySessionBeanRemote, 
+                flightReservationSessionBeanRemote,
+                airportEntitySessionBeanRemote
+        );
         mainApp.runApp();
     }
 

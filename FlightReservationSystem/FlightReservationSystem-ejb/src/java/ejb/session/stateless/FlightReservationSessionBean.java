@@ -9,11 +9,8 @@ import entity.CreditCardEntity;
 import entity.CustomerEntity;
 import entity.FlightReservationEntity;
 import entity.FlightScheduleEntity;
-import entity.PartnerEntity;
 import entity.PassengerEntity;
-import entity.SeatEntity;
 import entity.UserEntity;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import javax.ejb.EJB;
@@ -28,7 +25,6 @@ import javax.validation.ValidatorFactory;
 import util.exception.CreateNewCreditCardException;
 import util.exception.CreateNewFlightReservationException;
 import util.exception.CreateNewPassengerException;
-import util.exception.FlightScheduleNotFoundException;
 
 /**
  *
@@ -51,14 +47,13 @@ public class FlightReservationSessionBean implements FlightReservationSessionBea
 
     @Override
     public FlightReservationEntity viewFlightReservationsByFlightScheduleId(Long flightReservationId) {
-        
+
         Query query = em.createQuery("SELECT r FROM FlightReservationEntity r WHERE r.flightReservationId = :inFlightReservationId");
         query.setParameter("inFlightReservationId", flightReservationId);
-        
+
         return (FlightReservationEntity) query.getSingleResult();
 
 //        FlightScheduleEntity flightSchedule = flightScheduleSessionBeanLocal.retrieveFlightScheduleById(flightScheduleId);
-
 //        // get a list of seats that are booked
 //        List<SeatEntity> reservedSeats = new ArrayList<>();
 //
@@ -88,7 +83,7 @@ public class FlightReservationSessionBean implements FlightReservationSessionBea
         query.setParameter("inUserId", customerId);
 
         List<FlightReservationEntity> flightReservationEntity = (List<FlightReservationEntity>) query.getResultList();
-        
+
         return flightReservationEntity;
     }
 
@@ -131,7 +126,7 @@ public class FlightReservationSessionBean implements FlightReservationSessionBea
 
             // associate selected seats of each passenger with the passenger and the passenger with flight reservation
             passengerSessionBeanLocal.addPassengersToReservation(passengers, newFlightReservation, user instanceof CustomerEntity);
-            
+
             validate(newFlightReservation);
 
             em.persist(newFlightReservation);

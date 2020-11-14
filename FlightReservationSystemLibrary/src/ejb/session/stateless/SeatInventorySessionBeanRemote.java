@@ -29,10 +29,10 @@ public interface SeatInventorySessionBeanRemote {
 
     public SeatInventory viewSeatsInventoryByFlightScheduleId(Long flightScheduleId) throws FlightScheduleNotFoundException;
 
-    //public void reserveSeatForPassenger(Long flightScheduleId, CabinClassEnum cabinClassEnum, Long rowNumber, Character rowLetter, PassengerEntity passengerEntity) throws SeatNotFoundException, ReserveSeatException;
-    //public SeatEntity retrieveSeatFromFlightSchedule(Long flightScheduleId, CabinClassEnum cabinClassEnum, Long rowNumber, Character rowLetter) throws SeatNotFoundException;
-    public SeatEntity retrieveAvailableSeatFromFlightScheduleAndCabin(Long flightScheduleId, CabinClassEnum cabinClassEnum, String seatNumber) throws SeatNotFoundException, ReserveSeatException;
-
+//    public void reserveSeatForPassenger(Long flightScheduleId, CabinClassEnum cabinClassEnum, Long rowNumber, Character rowLetter, PassengerEntity passengerEntity) throws SeatNotFoundException, ReserveSeatException;
+//
+//    public SeatEntity retrieveSeatFromFlightSchedule(Long flightScheduleId, CabinClassEnum cabinClassEnum, Long rowNumber, Character rowLetter) throws SeatNotFoundException;
+//    public SeatEntity retrieveAvailableSeatFromFlightScheduleAndCabin(Long flightScheduleId, CabinClassEnum cabinClassEnum, String seatNumber) throws SeatNotFoundException, ReserveSeatException;
     public List<SeatEntity> retrieveAllAvailableSeatsFromFlightScheduleAndCabin(Long flightScheduleId, CabinClassEnum cabinClassEnum);
 
 }

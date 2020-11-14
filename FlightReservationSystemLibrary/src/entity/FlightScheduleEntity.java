@@ -62,7 +62,7 @@ public class FlightScheduleEntity implements Serializable {
 
     private Integer estimatedFlightDurationMinute;
 
-    @OneToMany(mappedBy = "flightSchedule", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "flightSchedule", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true, fetch = FetchType.EAGER)
     @NotEmpty
     private List<SeatEntity> seatInventory;
 
@@ -163,13 +163,12 @@ public class FlightScheduleEntity implements Serializable {
     }
 
     // retrieve flight duration as date
-    public Date getEstimatedFlightDuration() {
-        Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.HOUR_OF_DAY, this.getEstimatedFlightDurationHour());
-        cal.set(Calendar.MINUTE, this.getEstimatedFlightDurationMinute());
-        return cal.getTime();
-    }
-
+//    public Date getEstimatedFlightDuration() {
+//        Calendar cal = Calendar.getInstance();
+//        cal.set(Calendar.HOUR_OF_DAY, this.getEstimatedFlightDurationHour());
+//        cal.set(Calendar.MINUTE, this.getEstimatedFlightDurationMinute());
+//        return cal.getTime();
+//    }
     // return arrival date time in time of destination country
     public Date getArrivalDateTime() {
         GregorianCalendar departureDateTimeCalender = new GregorianCalendar();

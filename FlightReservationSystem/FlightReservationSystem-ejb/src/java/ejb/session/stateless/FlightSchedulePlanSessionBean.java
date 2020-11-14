@@ -243,7 +243,7 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
             flightScheduleSessionBeanLocal.createNewFlightSchedules(newFlightSchedulePlanEntity, autoGenerateFlightSchedules);
             fareEntitySessionBeanLocal.createNewFares(fares, newFlightSchedulePlanEntity);
         } catch (CreateNewFareException | CreateNewFlightScheduleException ex) {
-            throw new CreateNewFlightSchedulePlanException(ex.toString());
+            throw new CreateNewFlightSchedulePlanException(ex.getMessage());
         }
 
         if (doCreateReturnFlightSchedule) {
@@ -273,6 +273,7 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
         returnFlightSchedulePlanEntity.setIsReturnFlightSchedulePlan(true); // set return flight schedule plan as true
         returnFlightSchedulePlanEntity.setFlightSchedulePlanType(newFlightSchedulePlanEntity.getFlightSchedulePlanType());
         returnFlightSchedulePlanEntity.setLayoverPeriod(layoverPeriodForReturnFlight); // set lay over
+        returnFlightSchedulePlanEntity.setRecurrentFrequency(newFlightSchedulePlanEntity.getRecurrentFrequency());
 
         //bi directional between return flight and return flight schedule plan
         returnFlightSchedulePlanEntity.setFlight(returnFlight);

@@ -47,14 +47,23 @@ public class FlightSearchSessionBean implements FlightSearchSessionBeanRemote, F
         }
 
         List<List<FlightScheduleEntity>> toFlights = new ArrayList<>();
+        List<List<FlightScheduleEntity>> returnFlights = new ArrayList<>();
+
         if (preferDirectFlight != null && preferDirectFlight) {
             toFlights = searchDirectFlightSchedules(departureAirportId, arrivalAirportId, departureDate, numberOfPassengers, preferredCabinClass);
+            returnFlights = searchDirectFlightSchedules(arrivalAirportId, departureAirportId, returnDate, numberOfPassengers, preferredCabinClass);
         } else if (preferDirectFlight != null && !preferDirectFlight) {
             List<List<FlightScheduleEntity>> toOneTransistFlights = searchOneTransistConnectingFlights(departureAirportId, arrivalAirportId, departureDate, numberOfPassengers, preferredCabinClass);
             List<List<FlightScheduleEntity>> toTwoTransistFlights = searchTwoTransistConnectingFlights(departureAirportId, arrivalAirportId, departureDate, numberOfPassengers, preferredCabinClass);
 
             toFlights.addAll(toOneTransistFlights);
             toFlights.addAll(toTwoTransistFlights);
+
+            List<List<FlightScheduleEntity>> returnOneTransistFlights = searchOneTransistConnectingFlights(arrivalAirportId, departureAirportId, returnDate, numberOfPassengers, preferredCabinClass);
+            List<List<FlightScheduleEntity>> returnTwoTransistFlights = searchTwoTransistConnectingFlights(arrivalAirportId, departureAirportId, returnDate, numberOfPassengers, preferredCabinClass);
+
+            returnFlights.addAll(returnOneTransistFlights);
+            returnFlights.addAll(returnTwoTransistFlights);
         } else {
             List<List<FlightScheduleEntity>> toDirectFlights = searchDirectFlightSchedules(departureAirportId, arrivalAirportId, departureDate, numberOfPassengers, preferredCabinClass);
             List<List<FlightScheduleEntity>> toOneTransistFlights = searchOneTransistConnectingFlights(departureAirportId, arrivalAirportId, departureDate, numberOfPassengers, preferredCabinClass);
@@ -63,29 +72,53 @@ public class FlightSearchSessionBean implements FlightSearchSessionBeanRemote, F
             toFlights.addAll(toDirectFlights);
             toFlights.addAll(toOneTransistFlights);
             toFlights.addAll(toTwoTransistFlights);
+
+            List<List<FlightScheduleEntity>> returnDirectFlights = searchDirectFlightSchedules(arrivalAirportId, departureAirportId, returnDate, numberOfPassengers, preferredCabinClass);
+            List<List<FlightScheduleEntity>> returnOneTransistFlights = searchOneTransistConnectingFlights(arrivalAirportId, departureAirportId, returnDate, numberOfPassengers, preferredCabinClass);
+            List<List<FlightScheduleEntity>> returnTwoTransistFlights = searchTwoTransistConnectingFlights(arrivalAirportId, departureAirportId, returnDate, numberOfPassengers, preferredCabinClass);
+
+            returnFlights.addAll(returnDirectFlights);
+            returnFlights.addAll(returnOneTransistFlights);
+            returnFlights.addAll(returnTwoTransistFlights);
+
         }
 
         if (toFlights.isEmpty()) {
-            System.out.println("is toFlights true here? " + toFlights.isEmpty());
             throw new NoMatchingFlightsException("NoMatchingFlightsException: No available flights that match the requirements!");
+        } else if (returnFlights.isEmpty()) {
+            throw new NoMatchingFlightsException("NoMatchingFlightsException: No available return flights that match the requirements!");
         }
 
-        return generateReturnFlights(toFlights, returnDate, numberOfPassengers, preferredCabinClass);
+        List<HashMap<Integer, List<FlightScheduleEntity>>> searchResult = new ArrayList<>();
+        HashMap<Integer, List<FlightScheduleEntity>> toFlightSearchResults = new HashMap<>();
+        HashMap<Integer, List<FlightScheduleEntity>> returnFlightSearchResults = new HashMap<>();
+
+        for (int i = 0; i < toFlights.size(); i++) {
+            toFlightSearchResults.put(i + 1, toFlights.get(i));
+            returnFlightSearchResults.put(i + 1, returnFlights.get(i));
+        }
+
+        searchResult.add(toFlightSearchResults);
+        searchResult.add(returnFlightSearchResults);
+
+        return searchResult;
+
+//        return generateReturnFlights(toFlights, returnDate, numberOfPassengers, preferredCabinClass);
     }
 
-    private List<HashMap<Integer, List<FlightScheduleEntity>>> generateReturnFlights(List<List<FlightScheduleEntity>> toFlights, Date returnDate, Integer numberOfPassengers, CabinClassEnum preferredCabinClass) throws NoMatchingFlightsException {
-        GregorianCalendar cal = new GregorianCalendar();
-        cal.setTime(returnDate);
-        cal.add(GregorianCalendar.HOUR_OF_DAY, 3 * 24);
-        Date afterLimit = cal.getTime(); // get limit date for 3 days after the required departure date
-
-        cal.setTime(returnDate);
-        cal.add(GregorianCalendar.HOUR_OF_DAY, -3 * 24);
-        Date earlierLimit = cal.getTime(); // get limit date for 3 days prior the required departure date 
-
-        HashMap<Integer, List<List<FlightScheduleEntity>>> results = new HashMap<>();
-        List<List<FlightScheduleEntity>> returnFlights = new ArrayList<>();
-
+//    private List<HashMap<Integer, List<FlightScheduleEntity>>> generateReturnFlights(List<List<FlightScheduleEntity>> toFlights, Date returnDate, Integer numberOfPassengers, CabinClassEnum preferredCabinClass) throws NoMatchingFlightsException {
+//        GregorianCalendar cal = new GregorianCalendar();
+//        cal.setTime(returnDate);
+//        cal.add(GregorianCalendar.HOUR_OF_DAY, 3 * 24);
+//        Date afterLimit = cal.getTime(); // get limit date for 3 days after the required departure date
+//
+//        cal.setTime(returnDate);
+//        cal.add(GregorianCalendar.HOUR_OF_DAY, -3 * 24);
+//        Date earlierLimit = cal.getTime(); // get limit date for 3 days prior the required departure date 
+//
+//        HashMap<Integer, List<List<FlightScheduleEntity>>> results = new HashMap<>();
+//        List<List<FlightScheduleEntity>> returnFlights = new ArrayList<>();
+//
 //        Iterator<List<FlightScheduleEntity>> routeIterator = toFlights.iterator();
 //
 //        while (routeIterator.hasNext()) {
@@ -128,10 +161,10 @@ public class FlightSearchSessionBean implements FlightSearchSessionBeanRemote, F
 //
 //            // to flight routes do not have return flight schedules
 //            if (!hasReturnFlight) {
-////                System.out.println("inside here");
+//                System.out.println("inside here");
 //                routeIterator.remove();
 //            } else {
-////                System.out.println("else");
+//                System.out.println("else");
 //                FlightScheduleEntity firstToFlightSchedule = route.get(0);
 //                // if arrival date of the return schedule is beyond the 3 days window
 //                if (firstToFlightSchedule.getReturnFlightSchedule().getDepartureDate().compareTo(earlierLimit) < 0 || firstToFlightSchedule.getReturnFlightSchedule().getDepartureDate().compareTo(afterLimit) > 0) {
@@ -154,22 +187,21 @@ public class FlightSearchSessionBean implements FlightSearchSessionBeanRemote, F
 //            System.out.println("returnFlights: " + returnFlights.isEmpty());
 //            throw new NoMatchingFlightsException("NoMatchingFlightsException: No available two way flights that match the requirements!");
 //        }
-
-        List<HashMap<Integer, List<FlightScheduleEntity>>> searchResult = new ArrayList<>();
-        HashMap<Integer, List<FlightScheduleEntity>> toFlightSearchResults = new HashMap<>();
-        HashMap<Integer, List<FlightScheduleEntity>> returnFlightSearchResults = new HashMap<>();
-
-        for (int i = 0; i < toFlights.size(); i++) {
-            toFlightSearchResults.put(i + 1, toFlights.get(i));
-            returnFlightSearchResults.put(i + 1, returnFlights.get(i));
-        }
-
-        searchResult.add(toFlightSearchResults);
-        searchResult.add(returnFlightSearchResults);
-
-        return searchResult;
-    }
-
+//
+//        List<HashMap<Integer, List<FlightScheduleEntity>>> searchResult = new ArrayList<>();
+//        HashMap<Integer, List<FlightScheduleEntity>> toFlightSearchResults = new HashMap<>();
+//        HashMap<Integer, List<FlightScheduleEntity>> returnFlightSearchResults = new HashMap<>();
+//
+//        for (int i = 0; i < toFlights.size(); i++) {
+//            toFlightSearchResults.put(i + 1, toFlights.get(i));
+//            returnFlightSearchResults.put(i + 1, returnFlights.get(i));
+//        }
+//
+//        searchResult.add(toFlightSearchResults);
+//        searchResult.add(returnFlightSearchResults);
+//
+//        return searchResult;
+//    }
     // enter null for preferredCabinClass if there is no preference
     // enter null for preferDirectFlight if there is no preference
     @Override
@@ -189,7 +221,6 @@ public class FlightSearchSessionBean implements FlightSearchSessionBeanRemote, F
 
             oneWayFlights.addAll(oneTransistFlights);
             oneWayFlights.addAll(twoTransistFlights);
-
         } else { // retrieve both connecting and direct
             List<List<FlightScheduleEntity>> directFlights = searchDirectFlightSchedules(departureAirportId, arrivalAirportId, departureDate, numberOfPassengers, preferredCabinClass);
             List<List<FlightScheduleEntity>> oneTransistFlights = searchOneTransistConnectingFlights(departureAirportId, arrivalAirportId, departureDate, numberOfPassengers, preferredCabinClass);
@@ -199,7 +230,6 @@ public class FlightSearchSessionBean implements FlightSearchSessionBeanRemote, F
             oneWayFlights.addAll(oneTransistFlights);
             oneWayFlights.addAll(twoTransistFlights);
         }
-
         if (oneWayFlights.isEmpty()) {
             throw new NoMatchingFlightsException("NoMatchingFlightsException: No available flights that match the requirements!");
         }

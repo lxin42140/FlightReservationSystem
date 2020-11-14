@@ -6,15 +6,22 @@
 package flightreservationsystemmanagementclient;
 
 import ejb.session.stateless.AircraftConfigurationSessionBeanRemote;
+import ejb.session.stateless.AirportEntitySessionBeanRemote;
 import ejb.session.stateless.FlightRouteSessionBeanRemote;
 import entity.AircraftConfigurationEntity;
+import entity.AirportEntity;
 import entity.CabinConfigurationEntity;
 import entity.FlightRouteEntity;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import javax.ejb.EJB;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import util.enumeration.CabinClassEnum;
 import util.enumeration.EmployeeAccessRightEnum;
 import util.exception.AircraftConfigurationNotFoundException;
@@ -35,13 +42,17 @@ public class FlightPlanningModule {
     private AircraftConfigurationSessionBeanRemote aircraftConfigurationSessionBeanRemote;
     @EJB
     private FlightRouteSessionBeanRemote flightRouteSessionBeanRemote;
+    @EJB
+    private AirportEntitySessionBeanRemote airportEntitySessionBeanRemote;
 
+    
     public FlightPlanningModule() {
     }
 
-    public FlightPlanningModule(AircraftConfigurationSessionBeanRemote aircraftConfigurationSessionBeanRemote, FlightRouteSessionBeanRemote flightRouteSessionBeanRemote) {
+    public FlightPlanningModule(AircraftConfigurationSessionBeanRemote aircraftConfigurationSessionBeanRemote, FlightRouteSessionBeanRemote flightRouteSessionBeanRemote, AirportEntitySessionBeanRemote airportEntitySessionBeanRemote) {
         this.aircraftConfigurationSessionBeanRemote = aircraftConfigurationSessionBeanRemote;
         this.flightRouteSessionBeanRemote = flightRouteSessionBeanRemote;
+        this.airportEntitySessionBeanRemote = airportEntitySessionBeanRemote;
     }
 
     public void flightPlanningMenu(EmployeeAccessRightEnum employeeAccessRightEnum) {
@@ -271,6 +282,14 @@ public class FlightPlanningModule {
         Scanner scanner = new Scanner(System.in);
         System.out.println("*** Flight Planning Module: Create Flight Route ***\n");
 
+//        List<AirportEntity> listAirport = airportEntitySessionBeanRemote.retrieveAllAirports();
+//        
+//        for (AirportEntity airport : listAirport) {
+//            System.out.println("Airport name: " + airport.getAirportName() + ", id: " + airport.getAirportId());
+//        }
+        
+        List<FlightRouteEntity> list = flightRouteSessionBeanRemote.retrieveAllFlightRoutes();
+        
         System.out.print("Enter origin airport Id> ");
         Long originAirportId = scanner.nextLong();
         System.out.print("Enter destination airport Id> ");
@@ -331,4 +350,6 @@ public class FlightPlanningModule {
             System.out.println(ex.getMessage());
         }
     }
+
+
 }
