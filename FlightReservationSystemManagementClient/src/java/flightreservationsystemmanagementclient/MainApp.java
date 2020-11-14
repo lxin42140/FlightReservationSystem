@@ -100,7 +100,7 @@ public class MainApp {
                         System.out.println("Login successful!\n");
 
                         flightPlanningModule = new FlightPlanningModule(aircraftConfigurationSessionBeanRemote, flightRouteSessionBeanRemote, airportEntitySessionBeanRemote);
-                        flightOperationModule = new FlightOperationModule(flightRouteSessionBeanRemote, flightSessionBeanRemote, flightSchedulePlanSessionBeanRemote, fareEntitySessionBeanRemote, flightScheduleSessionBeanRemote, airportEntitySessionBeanRemote);
+                        flightOperationModule = new FlightOperationModule(flightRouteSessionBeanRemote, flightSessionBeanRemote, flightSchedulePlanSessionBeanRemote, fareEntitySessionBeanRemote, flightScheduleSessionBeanRemote, airportEntitySessionBeanRemote,aircraftConfigurationSessionBeanRemote);
                         salesManagementModule = new SalesManagementModule(flightSessionBeanRemote, seatInventorySessionBeanRemote, flightReservationSessionBeanRemote);
 
                         menuMain();

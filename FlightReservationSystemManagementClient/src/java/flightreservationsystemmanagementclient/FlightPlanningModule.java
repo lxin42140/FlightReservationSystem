@@ -45,7 +45,6 @@ public class FlightPlanningModule {
     @EJB
     private AirportEntitySessionBeanRemote airportEntitySessionBeanRemote;
 
-    
     public FlightPlanningModule() {
     }
 
@@ -158,7 +157,7 @@ public class FlightPlanningModule {
                 System.out.println("Number of cabins should be between 1 and 4!");
             }
         } while (numCabinClasses <= 0 || numCabinClasses > 4);
-        
+
         List<CabinConfigurationEntity> cabinConfigurations = new ArrayList<>();
         for (int i = 0; i < numCabinClasses; i++) {
             cabinConfigurations.add(createCabinConfiguration(scanner, i + 1));
@@ -204,7 +203,7 @@ public class FlightPlanningModule {
         System.out.print("Enter number of seats abreast (must be between 7-10)> ");
         numberOfSeatsAbreast = scanner.nextLong();
         cabinConfigurationEntity.setNumberOfSeatsAbreast(numberOfSeatsAbreast);
-        
+
         scanner.nextLine();
 
         String pattern = "[1-9]";
@@ -252,8 +251,9 @@ public class FlightPlanningModule {
         System.out.println("*** Flight Planning Module: View Aircraft Configuration Detail ***\n");
 
         Scanner scanner = new Scanner(System.in);
+        viewAllAircraftConfigurations();
         System.out.print("Enter Aircraft Configuration ID> ");
-        Long aircraftConfigurationId = scanner.nextLong();
+        Long aircraftConfigurationId = Long.parseLong(scanner.nextLine());
         AircraftConfigurationEntity aircraftConfiguration;
         try {
             aircraftConfiguration = aircraftConfigurationSessionBeanRemote.retrieveAircraftConfigurationById(aircraftConfigurationId);
@@ -282,20 +282,12 @@ public class FlightPlanningModule {
         Scanner scanner = new Scanner(System.in);
         System.out.println("*** Flight Planning Module: Create Flight Route ***\n");
 
-//        List<AirportEntity> listAirport = airportEntitySessionBeanRemote.retrieveAllAirports();
-//        
-//        for (AirportEntity airport : listAirport) {
-//            System.out.println("Airport name: " + airport.getAirportName() + ", id: " + airport.getAirportId());
-//        }
-        
-        List<FlightRouteEntity> list = flightRouteSessionBeanRemote.retrieveAllFlightRoutes();
-        
+        printAirports();
         System.out.print("Enter origin airport Id> ");
-        Long originAirportId = scanner.nextLong();
+        Long originAirportId = Long.parseLong(scanner.nextLine());
         System.out.print("Enter destination airport Id> ");
-        Long destinationAirportId = scanner.nextLong();
-        scanner.nextLine();
-        
+        Long destinationAirportId = Long.parseLong(scanner.nextLine());
+
         String response;
 
         do {
@@ -336,12 +328,27 @@ public class FlightPlanningModule {
         }
     }
 
+    private void printFlightRoutes() {
+        List<FlightRouteEntity> flightRoutes = flightRouteSessionBeanRemote.retrieveAllFlightRoutes();
+        for (FlightRouteEntity flightRoute : flightRoutes) {
+            System.out.println("ID: " + flightRoute.getFlightRouteId() + ", Origin: " + flightRoute.getOriginAirport().getIataAirlineCode() + ", Destination: " + flightRoute.getDestinationAirport().getIataAirlineCode());
+        }
+    }
+
+    private void printAirports() {
+        List<AirportEntity> airports = airportEntitySessionBeanRemote.retrieveAllAirports();
+        for (AirportEntity airport : airports) {
+            System.out.println("ID: " + airport.getAirportId() + ", IATA code: " + airport.getIataAirlineCode());
+        }
+    }
+
     private void deleteFlightRoute() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("*** Flight Planning Module: Delete Flight Route ***\n");
 
+        printFlightRoutes();
         System.out.print("Enter Flight Route Id> ");
-        Long flightRouteId = scanner.nextLong();
+        Long flightRouteId = Long.parseLong(scanner.nextLine());
 
         try {
             flightRouteSessionBeanRemote.deleteFlightRouteById(flightRouteId);
@@ -350,6 +357,5 @@ public class FlightPlanningModule {
             System.out.println(ex.getMessage());
         }
     }
-
 
 }
