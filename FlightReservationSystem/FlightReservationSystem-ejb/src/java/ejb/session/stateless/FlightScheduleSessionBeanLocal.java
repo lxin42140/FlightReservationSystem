@@ -5,6 +5,7 @@
  */
 package ejb.session.stateless;
 
+import entity.FareEntity;
 import entity.FlightEntity;
 import entity.FlightScheduleEntity;
 import entity.FlightSchedulePlanEntity;
@@ -33,5 +34,5 @@ public interface FlightScheduleSessionBeanLocal {
 
     public HashMap<CabinClassEnum, Double> getLowestFaresForCabin(Long flightScheduleId) throws FlightScheduleNotFoundException;
 
-    public HashMap<CabinClassEnum, Double> getHighestFaresForCabin(Long flightScheduleId) throws FlightScheduleNotFoundException;
+    public HashMap<CabinClassEnum, FareEntity> getHighestFaresForCabin(Long flightScheduleId) throws FlightScheduleNotFoundException;
 }

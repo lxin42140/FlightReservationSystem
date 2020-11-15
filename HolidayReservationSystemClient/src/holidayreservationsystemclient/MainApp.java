@@ -60,7 +60,6 @@ public class MainApp {
                 } else if (response == 2) {
                     searchFlight();
                 } else if (response == 3) {
-
                     break;
                 } else {
                     System.out.println("Invalid option, please try again!\n");
@@ -93,6 +92,9 @@ public class MainApp {
     }
 
     private void menuMain() {
+        if (this.username == null || this.password == null) {
+            return;
+        }
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
 
@@ -312,6 +314,8 @@ public class MainApp {
                         if (flight.getItineryNumber() == itineryNumber) {
                             toFlightSchedules.add(flight.getFlightScheduleID());
 
+                            retrieveFaresForFlightSchedule(flight.getFlightScheduleID());
+
                             System.out.println("Select preferred cabin class F/J/W/Y> ");
                             String preferredCabin = sc.nextLine();// select cabin
 
@@ -467,6 +471,8 @@ public class MainApp {
                             System.out.println("Choosing seat for flight " + flight.getFlightNumber());
                             toFlightSchedules.add(flight.getFlightScheduleID());
 
+                            retrieveFaresForFlightSchedule(flight.getFlightScheduleID());
+
                             System.out.println("Select preferred cabin class for to flight F/J/W/Y> ");
                             String preferredCabin = sc.nextLine();// select cabin
 
@@ -490,6 +496,8 @@ public class MainApp {
                         if (flight.getItineryNumber() == returnItineryNumber) {
                             System.out.println("Choosing seat for flight " + flight.getFlightNumber());
                             returnFlightSchedules.add(flight.getFlightScheduleID());
+
+                            retrieveFaresForFlightSchedule(flight.getFlightScheduleID());
 
                             System.out.println("Select preferred cabin class for return flight F/J/W/Y> ");
                             String preferredCabin = sc.nextLine();// select cabin
@@ -657,4 +665,20 @@ public class MainApp {
         }
     }
 
+    private void retrieveFaresForFlightSchedule(Long flightScheduleId) {
+        try {
+
+            ejb.session.ws.HolidayReservationWebService_Service service8 = new ejb.session.ws.HolidayReservationWebService_Service();
+            ejb.session.ws.HolidayReservationWebService port8 = service8.getHolidayReservationWebServicePort();
+            // TODO process result here
+            java.util.List<ejb.session.ws.RemoteFare> result = port8.retrieveAllFaresForFlightSchedule(flightScheduleId);
+            System.out.println("Fares: ");
+            for (ejb.session.ws.RemoteFare fare : result) {
+                System.out.println("ID: " + fare.getFareId() + " , fare basis code: " + fare.getFareBasisCode() + " , amount: $" + fare.getFareAmount());
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+    }
 }
