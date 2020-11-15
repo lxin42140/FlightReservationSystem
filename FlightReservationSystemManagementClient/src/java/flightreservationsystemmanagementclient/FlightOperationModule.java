@@ -431,7 +431,8 @@ public class FlightOperationModule {
         } while (createMoreFlightSchedule);
 
         try {
-            flightSchedulePlanSessionBeanRemote.createNewNonRecurrentFlightSchedulePlan(flightSchedules, fares, flightNumber, doCreateReturnFlightSchedule, layoverDuration);
+            long id = flightSchedulePlanSessionBeanRemote.createNewNonRecurrentFlightSchedulePlan(flightSchedules, fares, flightNumber, doCreateReturnFlightSchedule, layoverDuration);
+            System.out.println("Success!" + id);
         } catch (FlightNotFoundException | CreateNewFlightSchedulePlanException ex) {
             System.out.println(ex.getMessage());
         }
@@ -468,7 +469,8 @@ public class FlightOperationModule {
         } while (recurrentDaysFrequency <= 0);
 
         try {
-            flightSchedulePlanSessionBeanRemote.createRecurrentNDaysFlightSchedulePlan(endDate, recurrentDaysFrequency, baseFlightSchedule, fares, flightNumber, doCreateReturnFlightSchedule, layoverDuration);
+            Long id = flightSchedulePlanSessionBeanRemote.createRecurrentNDaysFlightSchedulePlan(endDate, recurrentDaysFrequency, baseFlightSchedule, fares, flightNumber, doCreateReturnFlightSchedule, layoverDuration);
+            System.out.println("Success!" + id);
         } catch (FlightNotFoundException | CreateNewFlightSchedulePlanException ex) {
             System.out.println(ex.getMessage());
         }
@@ -534,7 +536,7 @@ public class FlightOperationModule {
         Integer minute = 0;
 
         do {
-            System.out.print("Enter departure hour > ");
+            System.out.print("Enter departure hour (24 hour format)> ");
             hour = Integer.parseInt(scanner.nextLine());
             System.out.print("Enter departure minute > ");
             minute = Integer.parseInt(scanner.nextLine());
@@ -549,7 +551,8 @@ public class FlightOperationModule {
         baseFlightSchedule.setEstimatedFlightDurationMinute(minute);
 
         try {
-            flightSchedulePlanSessionBeanRemote.createRecurrentWeeklyFlightSchedulePlan(startDayOfWeek, hour, minute, startDate, endDate, baseFlightSchedule, fares, flightNumber, doCreateReturnFlightSchedule, layoverDuration);
+            long id = flightSchedulePlanSessionBeanRemote.createRecurrentWeeklyFlightSchedulePlan(startDayOfWeek, hour, minute, startDate, endDate, baseFlightSchedule, fares, flightNumber, doCreateReturnFlightSchedule, layoverDuration);
+            System.out.println("Success!" + id);
         } catch (FlightNotFoundException | CreateNewFlightSchedulePlanException ex) {
             System.out.println(ex.getMessage());
         }

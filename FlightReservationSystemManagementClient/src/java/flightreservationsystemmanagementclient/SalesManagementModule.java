@@ -179,14 +179,12 @@ public class SalesManagementModule {
                 } while (selectedOption <= 0 || selectedOption > option);
 
 //                List<FlightReservationEntity> reservationList = flightReservationSessionBeanRemote.viewFlightReservationsByFlightScheduleId(optionsList.get(selectedOption - 1));
-                
                 //flight schedule:
                 //1. For each cabin class, 
                 //      Flight reservation id
                 //      seat number
                 //      passenger name
                 //      fare basis code
-                
 //                for (FlightReservationEntity reservation : reservationList) {
 //                    List<PassengerEntity> passengerList = reservation.getPassengers();
 //                    for (PassengerEntity passenger : passengerList) {
@@ -194,7 +192,6 @@ public class SalesManagementModule {
 //                    }
 //                }
                 //incomplete
-
             }
 
         } catch (FlightNotFoundException ex) {
