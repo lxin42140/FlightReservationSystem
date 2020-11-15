@@ -161,23 +161,6 @@ public class HolidayReservationWebService {
         return results;
     }
 
-//    @WebMethod(operationName = "createPassenger")
-//    public RemotePassenger createPassenger(
-//            @WebParam(name = "firstName") String firstName,
-//            @WebParam(name = "lastName") String lastName,
-//            @WebParam(name = "passportNumber") String passportNumber) {
-//        return new RemotePassenger(firstName, lastName, passportNumber);
-//    }
-//
-//    @WebMethod(operationName = "createCreditCard")
-//    public RemoteCreditCard createCreditCard(
-//            @WebParam(name = "cardNumber") String cardNumber,
-//            @WebParam(name = "firstName") String firstName,
-//            @WebParam(name = "lastName") String lastName,
-//            @WebParam(name = "dateOfExpiry") Date dateOfExpiry,
-//            @WebParam(name = "cvc") String cvc) {
-//        return new RemoteCreditCard(cardNumber, firstName, lastName, dateOfExpiry, cvc);
-//    }
     @WebMethod(operationName = "reserveFlight")
     public Long reserveFlight(
             @WebParam(name = "toFlightSchedules") List<Long> toFlightSchedules,
@@ -222,26 +205,6 @@ public class HolidayReservationWebService {
                 passenger.getSeats().addAll(seats);
             }
 
-//            List<SeatEntity> seats = new ArrayList<>();
-//            for (String seat : selectedSeats) {
-//                String[] seatDetails = seat.split(" ");
-//                for (PassengerEntity   )
-//            }
-            // create passengers with their chosen seats
-//            List<PassengerEntity> passengers = new ArrayList<>();
-//            Set<Map.Entry<List<String>, List<Long>>> entrySet = passengersAndSeats.entrySet();
-//            for (Entry<List<String>, List<Long>> entry : entrySet) {
-//                List<String> passengerDetails = entry.getKey();
-//                List<Long> chosenSeats = entry.getValue();
-//
-//                PassengerEntity passenger = new PassengerEntity(passengerDetails.get(0), passengerDetails.get(1), passengerDetails.get(2));
-//
-//                List<SeatEntity> seats = new ArrayList<>();
-//                for (Long id : chosenSeats) {
-//                    seats.add(seatInventorySessionBeanLocal.retrieveSeatById(id));
-//                }
-//                passenger.getSeats().addAll(seats);
-//            }
             SimpleDateFormat format = new SimpleDateFormat("dd/MM");
 //            CreditCardEntity creditCardEntity = new CreditCardEntity(creditCard.getCardNumber(), creditCard.getFirstName(), creditCard.getLastName(), creditCard.getDateOfExpiry(), creditCard.getCvc());
             CreditCardEntity creditCardEntity = new CreditCardEntity(creditCard.get(0), creditCard.get(1), creditCard.get(2), format.parse(creditCard.get(3)), creditCard.get(4));
