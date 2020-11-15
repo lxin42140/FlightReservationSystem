@@ -571,7 +571,7 @@ public class MainApp {
                     } else {
                         System.out.println("\tPrice per passenger: " + fareForSingleCabin);
                         totalAmount = fareForSingleCabin * numberOfPassengers;
-                        System.out.println("\tTotal amount for " + numberOfPassengers + " passengers: " + totalAmount);
+                        System.out.println("\tTotal amount for " + numberOfPassengers + " passengers: " + totalAmount + "\n");
                     }
                 } //END ELSE
             } //END FOR
@@ -587,6 +587,7 @@ public class MainApp {
 
         //create list of passengers
         List<PassengerEntity> passengers = new ArrayList<>();
+        HashMap<Long, HashMap<CabinClassEnum, List<SeatEntity>>> map = new HashMap<>();
         for (int i = 1; i <= numberOfPassengers; i++) {
             PassengerEntity passenger = new PassengerEntity();
             //firstname, lastname, passport number
@@ -633,9 +634,28 @@ public class MainApp {
                     chooseCabinClass = CabinClassEnum.valueOf(cabinClassResponse);
                 }
 
-                List<SeatEntity> seatsForCabin = seatInventorySessionBeanRemote.retrieveAllAvailableSeatsFromFlightScheduleAndCabin(flightSchedule.getFlightScheduleId(), chooseCabinClass);
-                List<String> seatNumbers = seatsForCabin.stream().map(x -> x.getSeatNumber()).collect(Collectors.toList());
+                if (!map.containsKey(flightSchedule.getFlightScheduleId())) {
+                    List<SeatEntity> seatsForCabin = seatInventorySessionBeanRemote.retrieveAllAvailableSeatsFromFlightScheduleAndCabin(flightSchedule.getFlightScheduleId(), chooseCabinClass);
+                    HashMap<CabinClassEnum, List<SeatEntity>> subMap = new HashMap<>();
+//                    List<String> seatNumbers = seatsForCabin.stream().map(x -> x.getSeatNumber()).collect(Collectors.toList());
+                    subMap.put(chooseCabinClass, seatsForCabin);
+                    map.put(flightSchedule.getFlightScheduleId(), subMap);
+                } else {
+                    HashMap<CabinClassEnum, List<SeatEntity>> subMap = map.get(flightSchedule.getFlightScheduleId());
+                    if (!subMap.containsKey(chooseCabinClass)) {
+                        List<SeatEntity> seatsForCabin = seatInventorySessionBeanRemote.retrieveAllAvailableSeatsFromFlightScheduleAndCabin(flightSchedule.getFlightScheduleId(), chooseCabinClass);
+//                        List<String> seatNumbers = seatsForCabin.stream().map(x -> x.getSeatNumber()).collect(Collectors.toList());
+                        subMap.put(chooseCabinClass, seatsForCabin);
+                        map.put(flightSchedule.getFlightScheduleId(), subMap);
+                    }
+                    
+                }
+//                List<SeatEntity> seatsForCabin = seatInventorySessionBeanRemote.retrieveAllAvailableSeatsFromFlightScheduleAndCabin(flightSchedule.getFlightScheduleId(), chooseCabinClass);
+//                List<String> seatNumbers = seatsForCabin.stream().map(x -> x.getSeatNumber()).collect(Collectors.toList());
 
+                List<SeatEntity> seatsForCabin = map.get(flightSchedule.getFlightScheduleId()).get(chooseCabinClass);
+                List<String> seatNumbers = seatsForCabin.stream().map(x -> x.getSeatNumber()).collect(Collectors.toList());
+                
                 seatsForCabin.forEach(a -> System.out.print(a.getSeatNumber() + " "));
                 System.out.println("");
 
@@ -655,7 +675,6 @@ public class MainApp {
                 seatNumbers.remove(seatNumber);
                 passenger.getSeats().add(selectedSeat);
             }
-
             passenger.setFirstName(firstName);
             passenger.setLastName(lastName);
             passenger.setPassportNumber(passportNumber);
@@ -738,14 +757,14 @@ public class MainApp {
             System.out.println("Total amount paid: " + flightReservation.getTotalAmount() + "\n");
         }
     }
-    
+
     private void viewFlightReservationDetails() {
         Scanner scanner = new Scanner(System.in);
         viewAllFlightReservations();
         System.out.println("Enter Flight Reservation Id> ");
         Long reservationId = Long.parseLong(scanner.nextLine().trim());
         viewFlightReservationDetails(reservationId);
-        
+
     }
 
     private void viewFlightReservationDetails(Long flightReservationId) {
@@ -759,23 +778,19 @@ public class MainApp {
             System.out.println("Departing on " + flightSchedule.getDepartureDate());
             System.out.println("Estimated arrival time is " + flightSchedule.getArrivalDateTime() + "\n");
 
-            HashMap<String, SeatEntity> hashMap = new HashMap<>();
             for (PassengerEntity passenger : flightReservation.getPassengers()) {
-//                System.out.println("\tPassenger: " + passenger.getFirstName() + " " + passenger.getLastName());
+                System.out.println("\tPassenger: " + passenger.getFirstName() + " " + passenger.getLastName());
                 for (SeatEntity seat : passenger.getSeats()) {
+                    System.out.println("Seat: " + seat.getFlightSchedule().getFlightScheduleId());
+                    System.out.println("Flight: " + flightSchedule.getFlightScheduleId());
                     if (seat.getFlightSchedule().getFlightScheduleId().equals(flightSchedule.getFlightScheduleId())) {
-                        hashMap.put(seat.getSeatNumber(), seat);
-//                        System.out.println("\tCabin class: " + seat.getCabinClassEnum().toString());
-//                        System.out.println("\tSeat number: " + seat.getSeatNumber());
+                        System.out.println("\tCabin class: " + seat.getCabinClassEnum().toString());
+                        System.out.println("\tSeat number: " + seat.getSeatNumber());
                         break;
                     }
                 }
             }
-//            for (Map.Entry<String, SeatEntity> map : hashMap.entrySet()) {
-//                System.out.print("Seat number: " + map.getValue().getSeatNumber() + ", ");
-//                System.out.print("Passenger: " + map.getValue().getPassenger().getFirstName() + " " + map.getValue().getPassenger().getLastName() + ", ");
-//                System.out.println("Fare basis code: " + map.getValue().getFareBasisCode());
-//            }
+
         }
         System.out.println("TOTAL AMOUNT PAID: " + flightReservation.getTotalAmount());
     }
