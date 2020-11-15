@@ -5,10 +5,15 @@
  */
 package holidayreservationsystemclient;
 
+import ejb.session.ws.CreateNewFlightReservationException_Exception;
 import ejb.session.ws.FlightScheduleNotFoundException_Exception;
+import ejb.session.ws.InvalidLoginCredentialsException_Exception;
+import ejb.session.ws.NoMatchingFlightsException_Exception;
+import ejb.session.ws.PartnerNotFoundException_Exception;
 import ejb.session.ws.RemoteFlightSchedule;
 import ejb.session.ws.RemotePassenger;
 import ejb.session.ws.RemoteSeat;
+import ejb.session.ws.SearchFlightFailedException_Exception;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -16,6 +21,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
+import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
@@ -51,9 +57,7 @@ public class MainApp {
 
                 if (response == 1) {
                     doLogin();
-                    if (this.username == null || this.password == null) {
-                        System.out.println("Invalid login!");
-                    } else {
+                    if (this.username != null && this.password != null) {
                         System.out.println("Welcome ! " + username);
                         menuMain();
                     }
@@ -87,7 +91,13 @@ public class MainApp {
             if (doLogin(username, password)) {
                 this.username = username;
                 this.password = password;
+            } else {
+                System.out.println("Invalid login!");
             }
+        } else {
+            this.username = null;
+            this.password = null;
+            System.out.println("Invalid login!");
         }
     }
 
@@ -249,13 +259,12 @@ public class MainApp {
 
     private boolean doLogin(String username, String password) {
         boolean result = false;
-        try {
-            ejb.session.ws.HolidayReservationWebService_Service service1 = new ejb.session.ws.HolidayReservationWebService_Service();
-            ejb.session.ws.HolidayReservationWebService port1 = service1.getHolidayReservationWebServicePort();
-            // TODO process result here
-            result = port1.login(username, password);
-        } catch (Exception ex) {
-        }
+
+        ejb.session.ws.HolidayReservationWebService_Service service1 = new ejb.session.ws.HolidayReservationWebService_Service();
+        ejb.session.ws.HolidayReservationWebService port1 = service1.getHolidayReservationWebServicePort();
+        // TODO process result here
+        result = port1.login(username, password);
+
         return result;
     }
 
@@ -389,7 +398,7 @@ public class MainApp {
                 reserveFlight(toFlightSchedules, new ArrayList<>(), passengers, seats, creditCard);
             }
 
-        } catch (Exception ex) {
+        } catch (DatatypeConfigurationException | FlightScheduleNotFoundException_Exception | NoMatchingFlightsException_Exception | NumberFormatException | SearchFlightFailedException_Exception ex) {
             System.out.println(ex.getMessage());
         }
     }
@@ -571,7 +580,7 @@ public class MainApp {
 
                 reserveFlight(toFlightSchedules, returnFlightSchedules, passengers, seats, creditCard);
             }
-        } catch (Exception ex) {
+        } catch (DatatypeConfigurationException | FlightScheduleNotFoundException_Exception | NoMatchingFlightsException_Exception | NumberFormatException | SearchFlightFailedException_Exception ex) {
             System.out.println(ex.getMessage());
         }
     }
@@ -589,23 +598,20 @@ public class MainApp {
             // TODO process result here
             long id = port3.reserveFlight(toFlightSchedules, returnFlightSchedules, passengers, seats, username, password, creditCard);
             System.out.println(id);
-        } catch (Exception ex) {
+        } catch (CreateNewFlightReservationException_Exception ex) {
             System.out.println(ex.getMessage());
         }
     }
 
     private void retrieveAllAirports() {
-        try {
-            ejb.session.ws.HolidayReservationWebService_Service service4 = new ejb.session.ws.HolidayReservationWebService_Service();
-            ejb.session.ws.HolidayReservationWebService port4 = service4.getHolidayReservationWebServicePort();
-            // TODO process result here
-            java.util.List<ejb.session.ws.RemoteAirport> result = port4.retrieveAllAirports();
-            System.out.println("Airports:");
-            for (ejb.session.ws.RemoteAirport airport : result) {
-                System.out.println("ID: " + airport.getId() + " , IATA code: " + airport.getIataCode());
-            }
-        } catch (Exception ex) {
-            System.out.println(ex.getMessage());
+
+        ejb.session.ws.HolidayReservationWebService_Service service4 = new ejb.session.ws.HolidayReservationWebService_Service();
+        ejb.session.ws.HolidayReservationWebService port4 = service4.getHolidayReservationWebServicePort();
+        // TODO process result here
+        java.util.List<ejb.session.ws.RemoteAirport> result = port4.retrieveAllAirports();
+        System.out.println("Airports:");
+        for (ejb.session.ws.RemoteAirport airport : result) {
+            System.out.println("ID: " + airport.getId() + " , IATA code: " + airport.getIataCode());
         }
     }
 
@@ -627,7 +633,7 @@ public class MainApp {
             for (ejb.session.ws.RemoteReservation reservation : result) {
                 System.out.println("ID: " + reservation.getId() + ", total amount: $" + reservation.getTotalAmount());
             }
-        } catch (Exception ex) {
+        } catch (InvalidLoginCredentialsException_Exception | PartnerNotFoundException_Exception ex) {
             System.out.println(ex.getMessage());
         }
     }
@@ -637,31 +643,28 @@ public class MainApp {
         Scanner sc = new Scanner(System.in);
         System.out.println("Enter reservation id> ");
         Long reservationId = Long.parseLong(sc.nextLine());
-        try {
-            ejb.session.ws.HolidayReservationWebService_Service service7 = new ejb.session.ws.HolidayReservationWebService_Service();
-            ejb.session.ws.HolidayReservationWebService port7 = service7.getHolidayReservationWebServicePort();
-            // TODO process result here
-            ejb.session.ws.RemoteReservationDetails result = port7.retrieveReservations(reservationId);
-            System.out.println("Total amount: $" + result.getTotalAmount());
-            List<RemoteFlightSchedule> itinery = result.getItinery();
-            System.out.println("Itinery: ");
-            for (RemoteFlightSchedule flight : itinery) {
-                System.out.println("ID: " + flight.getFlightScheduleID() + ", flight number: " + flight.getFlightNumber() + ", departure date: " + flight.getDepartureDate() + ", arrival date: " + flight.getArrivalDate());
-            }
 
-            List<RemotePassenger> passengers = result.getPassengers();
-            List<RemoteSeat> seats = result.getSeats();
-            System.out.println("Passengers:");
-            for (RemotePassenger passenger : passengers) {
-                System.out.println("Name: " + passenger.getFirstName() + " " + passenger.getLastName() + ", passport number: " + passenger.getPassportNumber());
-                for (RemoteSeat seat : seats) {
-                    if (seat.getPassengerId() == passenger.getId()) {
-                        System.out.println("Cabin class: " + seat.getCabinClass() + ", seat number: " + seat.getSeatNumber());
-                    }
+        ejb.session.ws.HolidayReservationWebService_Service service7 = new ejb.session.ws.HolidayReservationWebService_Service();
+        ejb.session.ws.HolidayReservationWebService port7 = service7.getHolidayReservationWebServicePort();
+        // TODO process result here
+        ejb.session.ws.RemoteReservationDetails result = port7.retrieveReservations(reservationId);
+        System.out.println("Total amount: $" + result.getTotalAmount());
+        List<RemoteFlightSchedule> itinery = result.getItinery();
+        System.out.println("Itinery: ");
+        for (RemoteFlightSchedule flight : itinery) {
+            System.out.println("ID: " + flight.getFlightScheduleID() + ", flight number: " + flight.getFlightNumber() + ", departure date: " + flight.getDepartureDate() + ", arrival date: " + flight.getArrivalDate());
+        }
+
+        List<RemotePassenger> passengers = result.getPassengers();
+        List<RemoteSeat> seats = result.getSeats();
+        System.out.println("Passengers:");
+        for (RemotePassenger passenger : passengers) {
+            System.out.println("Name: " + passenger.getFirstName() + " " + passenger.getLastName() + ", passport number: " + passenger.getPassportNumber());
+            for (RemoteSeat seat : seats) {
+                if (seat.getPassengerId() == passenger.getId()) {
+                    System.out.println("Cabin class: " + seat.getCabinClass() + ", seat number: " + seat.getSeatNumber());
                 }
             }
-        } catch (Exception ex) {
-            ex.printStackTrace();
         }
     }
 
@@ -676,9 +679,8 @@ public class MainApp {
             for (ejb.session.ws.RemoteFare fare : result) {
                 System.out.println("ID: " + fare.getFareId() + " , fare basis code: " + fare.getFareBasisCode() + " , amount: $" + fare.getFareAmount());
             }
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (FlightScheduleNotFoundException_Exception ex) {
+            System.out.println(ex.getMessage());
         }
-
     }
 }
