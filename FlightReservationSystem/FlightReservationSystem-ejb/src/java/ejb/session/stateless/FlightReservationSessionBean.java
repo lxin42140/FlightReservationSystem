@@ -11,6 +11,7 @@ import entity.FlightReservationEntity;
 import entity.FlightScheduleEntity;
 import entity.PassengerEntity;
 import entity.UserEntity;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import javax.ejb.EJB;

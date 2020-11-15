@@ -25,4 +25,5 @@ public interface FareEntitySessionBeanRemote {
     
     public FareEntity updateFareAmount(Long flightScheduleId, Long fareId, BigDecimal updatedFareAmount) throws FlightSchedulePlanNotFoundException, UpdateFlightSchedulePlanFailedException;
 
+    public FareEntity retrieveFareFromFareBasisCode(String fareBasisCode);
 }

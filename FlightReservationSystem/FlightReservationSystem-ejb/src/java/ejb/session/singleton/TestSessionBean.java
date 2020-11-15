@@ -116,7 +116,7 @@
 //            //
 ////            createFlightSchedulePlan();
 ////            updateFlightSchedulePlan();
-//            viewAllFlightSchedulePlans();
+////            viewAllFlightSchedulePlans();
 ////            deleteFlightSchedulePlan();
 ////            updateFlightSchedulePlanEntity();
 //            //
@@ -125,7 +125,7 @@
 //            //
 //
 ////            viewAllFlightReservation();
-////            makeReservation();
+//            makeReservation();
 //
 //        } catch (Exception ex) {
 //            System.out.println(ex);
@@ -365,8 +365,8 @@
 ////            flightSchedulePlanSessionBeanRemote.createRecurrentFlightSchedulePlan(inputDateFormat.parse("5/11/2020 00:00:00"), 1, base, fares1, "ML003", Boolean.TRUE);
 ////            flightSchedulePlanSessionBeanRemote.createRecurrentFlightSchedulePlan(inputDateFormat.parse("5/11/2020 00:00:00"), 1, base, fares1, "ML001", Boolean.TRUE);
 ////            flightSchedulePlanSessionBeanRemote.createRecurrentFlightSchedulePlan(inputDateFormat.parse("3/11/2020 00:00:00"), 1, base, fares1, "ML005", Boolean.TRUE);
-//            flightSchedulePlanSessionBeanRemote.createRecurrentFlightSchedulePlan(inputDateFormat.parse("6/11/2020 00:00:00"), 2, base, fares1, "ML001", Boolean.TRUE, 8);
-//            flightSchedulePlanSessionBeanRemote.createRecurrentFlightSchedulePlan(inputDateFormat.parse("30/12/2020 00:00:00"), 10, base, fares1, "ML003", Boolean.TRUE, 8);
+////            flightSchedulePlanSessionBeanRemote.createRecurrentFlightSchedulePlan(inputDateFormat.parse("6/11/2020 00:00:00"), 2, base, fares1, "ML001", Boolean.TRUE, 8);
+////            flightSchedulePlanSessionBeanRemote.createRecurrentFlightSchedulePlan(inputDateFormat.parse("30/12/2020 00:00:00"), 10, base, fares1, "ML003", Boolean.TRUE, 8);
 //
 //        } catch (Exception ex) {
 //            System.out.println(ex);
@@ -596,8 +596,8 @@
 //                System.out.println("===");
 //            }
 //
-//            CreditCardEntity creditCard = new CreditCardEntity("11111", "Li", "Xin", inputDateFormat.parse("01/12/2020"), "333");
-//            PassengerEntity passenger = new PassengerEntity("asdsd", "sdsda", "xxxx");
+//            CreditCardEntity creditCard = new CreditCardEntity("11122", "Li", "Xin", inputDateFormat.parse("01/12/2020"), "333");
+//            PassengerEntity passenger = new PassengerEntity("asds", "sdsa", "xxx");
 //            List<PassengerEntity> passengers = new ArrayList<>();
 //            passengers.add(passenger);
 //            List<SeatEntity> seats = seatInventorySessionBeanRemote.retrieveAllAvailableSeatsFromFlightScheduleAndCabin(3l, CabinClassEnum.F);
@@ -605,6 +605,7 @@
 //            passenger.getSeats().add(seat1);
 //
 //            flightReservationSessionBeanRemote.createNewFlightReservation(searchOneWayFlights.get(1), passengers, creditCard, customerEntity);
+//            System.out.print("Success!");
 //        } catch (Exception ex) {
 //            System.out.println(ex.getMessage());
 //        }

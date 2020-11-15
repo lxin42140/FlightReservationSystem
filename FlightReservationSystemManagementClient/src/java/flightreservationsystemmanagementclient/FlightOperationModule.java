@@ -283,7 +283,7 @@ public class FlightOperationModule {
             System.out.println("3: Update Aircraft Configuration");
             System.out.println("4: Back");
             System.out.print("> ");
-            response = scanner.nextInt();
+            response = Integer.parseInt(scanner.nextLine().trim());
             if (response <= 0 || response > 3) {
                 System.out.println("Invalid response! Enter 1-4");
             }
@@ -648,6 +648,21 @@ public class FlightOperationModule {
         System.out.println("*** Flight Planning Module: View Flight Schedule Plan Details ***\n");
         Scanner scanner = new Scanner(System.in);
 
+        List<FlightSchedulePlanEntity> flightSchedulePlans = flightSchedulePlanSessionBeanRemote.retrieveAllFlightSchedulePlans();
+
+        for (FlightSchedulePlanEntity flightSchedulePlan : flightSchedulePlans) {
+            System.out.print("Flight Schedule Plan Id: " + flightSchedulePlan.getFlightSchedulePlanId() + ", ");
+            System.out.print("Flight number: " + flightSchedulePlan.getFlight().getFlightNumber() + ", ");
+            System.out.println("First departure date/time: " + flightSchedulePlan.getFlightSchedules().get(0).getDepartureDate());
+            if (flightSchedulePlan.getReturnFlightSchedulePlan() != null) {
+                FlightSchedulePlanEntity returnFlightSchedulePlan = flightSchedulePlan.getReturnFlightSchedulePlan();
+                System.out.print("Return Flight Schedule Plan Id: " + returnFlightSchedulePlan.getFlightSchedulePlanId() + ", ");
+                System.out.print("Return Flight number: " + returnFlightSchedulePlan.getFlight().getFlightNumber() + ", ");
+                System.out.println("First departure date/time: " + returnFlightSchedulePlan.getFlightSchedules().get(0).getDepartureDate());
+            }
+            System.out.print("-----------------------\n");
+        }
+
         System.out.print("Enter Flight Schedule Plan Id> ");
         Long flightSchedulePlanId = scanner.nextLong();
 
@@ -740,42 +755,97 @@ public class FlightOperationModule {
                     return;
                 }
                 updateRemoveFlightSchedules(flightSchedulePlan);
+                break;
             case (2):
                 if (!flightSchedulePlan.getFlightSchedulePlanType().equals(FlightSchedulePlanTypeEnum.MANUAL)) {
                     System.out.println("Unsupported operation for selected flight schedule plan!");
                     return;
                 }
                 updateAddFlightSchedules(flightSchedulePlan);
+                break;
             case (3):
                 if (!flightSchedulePlan.getFlightSchedulePlanType().equals(FlightSchedulePlanTypeEnum.MANUAL)) {
                     System.out.println("Unsupported operation for selected flight schedule plan!");
                     return;
                 }
                 updateFlightScheduleDetails(flightSchedulePlan);
+                break;
             case (4):
                 if (!flightSchedulePlan.getFlightSchedulePlanType().equals(FlightSchedulePlanTypeEnum.RECURRENTNDAYS)) {
                     System.out.println("Unsupported operation for selected flight schedule plan!");
                     return;
                 }
                 updateRecurrentParametersForFlightSchedulePlan(flightSchedulePlan);
+                break;
             case (5):
                 if (!flightSchedulePlan.getFlightSchedulePlanType().equals(FlightSchedulePlanTypeEnum.RECURRENTWEEKLY)) {
                     System.out.println("Unsupported operation for selected flight schedule plan!");
                     return;
                 }
+                Integer startDayOfWeek = 0;
 
+                do {
+                    System.out.println("Enter new start day of week (1 for Sunday, 7 for Saturday)> ");
+                    startDayOfWeek = Integer.parseInt(scanner.nextLine().trim());
+                    if (startDayOfWeek <= 0 || startDayOfWeek > 7) {
+                        System.out.println("Invalid response! Start day of week must be between 1-7!");
+                    }
+                } while (startDayOfWeek <= 0 || startDayOfWeek > 7);
+
+                try {
+                    flightSchedulePlanSessionBeanRemote.updateRecurrentWeeklyFlightSchedulePlanDayOfWeek(flightSchedulePlan.getFlightSchedulePlanId(), startDayOfWeek);
+                    System.out.println("FLIGHT SCHEDULE PLAN START DAY OF WEEK UPDATED SUCCESSFULLY!\n");
+                } catch (UpdateFlightSchedulePlanFailedException ex) {
+                    System.out.println(ex.getMessage() + "\n");
+                }
+                break;
             case (6):
                 if (!flightSchedulePlan.getFlightSchedulePlanType().equals(FlightSchedulePlanTypeEnum.RECURRENTWEEKLY)) {
                     System.out.println("Unsupported operation for selected flight schedule plan!");
                     return;
                 }
+                String inputStartDate = "";
+                String inputEndDate = "";
+                Boolean dateStartCheck = false;
+                Boolean dateEndCheck = false;
+                Date newWeeklyStartDate = null;
+                Date newWeeklyEndDate = null;
 
+                do {
+                    try {
+                        System.out.print("Enter new start date> ");
+
+                        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+                        inputStartDate = scanner.nextLine().trim();
+                        newWeeklyStartDate = format.parse(inputStartDate);
+                        dateStartCheck = true;
+                    } catch (ParseException ex) {
+                        System.out.println("Wrong format for date!");
+                    }
+                } while (!dateStartCheck);
+
+                do {
+                    try {
+                        System.out.print("Enter new end date> ");
+
+                        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+                        inputEndDate = scanner.nextLine().trim();
+                        newWeeklyEndDate = format.parse(inputEndDate);
+                        dateEndCheck = true;
+                    } catch (ParseException ex) {
+                        System.out.println("Wrong format for date!");
+                    }
+                } while (!dateEndCheck);
+                break;
             case (7):
                 updateFareAmount(flightSchedulePlan);
+                break;
             case (8):
                 addFare(flightSchedulePlan);
+                break;
             case (9):
                 removeFare(flightSchedulePlan);
+                break;
             default:
                 break;
         }

@@ -71,7 +71,7 @@ public class SalesManagementModule {
                 }
             }
 
-            if (response == 4) {
+            if (response == 3) {
                 break;
             }
         }

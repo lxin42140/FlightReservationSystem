@@ -16,6 +16,9 @@ import java.util.List;
 import java.util.Set;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -32,6 +35,9 @@ import util.exception.UpdateFlightSchedulePlanFailedException;
  */
 @Stateless
 public class FareEntitySessionBean implements FareEntitySessionBeanRemote, FareEntitySessionBeanLocal {
+
+    @PersistenceContext(unitName = "FlightReservationSystem-ejbPU")
+    private EntityManager em;
 
     @EJB
     private FlightSchedulePlanSessionBeanLocal flightSchedulePlanSessionBeanLocal;
@@ -67,7 +73,7 @@ public class FareEntitySessionBean implements FareEntitySessionBeanRemote, FareE
         if (updatedFareAmount.doubleValue() <= 0) {
             throw new UpdateFlightSchedulePlanFailedException("Fare amount must be more than zero!");
         }
-        
+
         try {
             FlightSchedulePlanEntity flightSchedulePlan = flightSchedulePlanSessionBeanLocal.retrieveFlightSchedulePlanById(flightScheduleId);
 
@@ -82,6 +88,14 @@ public class FareEntitySessionBean implements FareEntitySessionBeanRemote, FareE
         }
 
         return null;
+    }
+
+    @Override
+    public FareEntity retrieveFareFromFareBasisCode(String fareBasisCode) {
+        Query query = em.createQuery("SELECT f from FareEntity f WHERE f.fareBasisCode =:inFareBasisCode");
+        query.setParameter("inFareBasisCode", fareBasisCode);
+
+        return (FareEntity) query.getSingleResult();
     }
 
     private void validateFields(FareEntity fare) throws CreateNewFareException {

@@ -7,6 +7,7 @@ package flightreservationsystemreservationclient;
 
 import ejb.session.stateless.AirportEntitySessionBeanRemote;
 import ejb.session.stateless.CustomerSessionBeanRemote;
+import ejb.session.stateless.FareEntitySessionBeanRemote;
 import ejb.session.stateless.FlightReservationSessionBeanRemote;
 import ejb.session.stateless.FlightSearchSessionBeanRemote;
 import ejb.session.stateless.SeatInventorySessionBeanRemote;
@@ -66,6 +67,7 @@ public class MainApp {
             SeatInventorySessionBeanRemote seatInventorySessionBeanRemote,
             FlightReservationSessionBeanRemote flightReservationSessionBeanRemote,
             AirportEntitySessionBeanRemote airportEntitySessionBeanRemote) {
+
         this.customerSessionBeanRemote = customerSessionBeanRemote;
         this.flightSearchSessionBeanRemote = flightSearchSessionBeanRemote;
         this.seatInventorySessionBeanRemote = seatInventorySessionBeanRemote;
@@ -88,8 +90,7 @@ public class MainApp {
             while (response < 1 || response > 4) {
                 System.out.print("> ");
 
-                response = scanner.nextInt();
-                scanner.nextLine();
+                response = Integer.parseInt(scanner.nextLine().trim());
 
                 if (response == 1) {
                     registerAsCustomer();
@@ -252,6 +253,7 @@ public class MainApp {
                 } else if (response == 2) {
                     viewAllFlightReservations();
                 } else if (response == 3) {
+                    viewFlightReservationDetails();
                     break;
                 } else if (response == 4) {
                     break;
@@ -283,7 +285,9 @@ public class MainApp {
         Integer option = 0;
         do {
             System.out.print("> ");
+
             option = Integer.parseInt(scanner.nextLine());
+
             if (option <= 0 || option > 2) {
                 System.out.println("Invalid response! Choose either 1 or 2\n");
             }
@@ -333,7 +337,9 @@ public class MainApp {
         Integer numberOfPassengers = 0;
         do {
             System.out.print("Enter number of passengers> ");
+
             numberOfPassengers = Integer.parseInt(scanner.nextLine());
+
             if (numberOfPassengers <= 0) {
                 System.out.println("Invalid response! Number of passengers must be greater than 0");
             }
@@ -390,7 +396,7 @@ public class MainApp {
                 System.out.println("2: Back");
                 do {
                     System.out.print("> ");
-                    response = scanner.nextInt();
+                    response = Integer.parseInt(scanner.nextLine().trim());
                     if (response <= 0 || response > 2) {
                         System.out.println("Invalid response! Enter 1/2");
                     }
@@ -402,34 +408,22 @@ public class MainApp {
                     Integer chooseOption = 0;
                     do {
                         System.out.print("Select a Flight Schedule option> ");
-                        chooseOption = scanner.nextInt();
+                        chooseOption = Integer.parseInt(scanner.nextLine().trim());
                         if (chooseOption <= 0 || chooseOption > oneWayFlights.size()) {
                             System.out.println("Invalid option! Choose again.");
                         }
                     } while (chooseOption <= 0 || chooseOption > oneWayFlights.size());
-                    scanner.nextLine();
-
-                    String cabinClassResponse = "";
-                    if (preferredCabinClass == null) {
-                        do {
-                            System.out.println("Select a cabin class> ");
-                            cabinClassResponse = scanner.nextLine().trim();
-                            if (!cabinClassResponse.equals("F") && !cabinClassResponse.equals("J") && !cabinClassResponse.equals("W") && !cabinClassResponse.equals("Y")) {
-                                System.out.println("Invalid response! Enter F/J/W/Y");
-                            }
-                        } while (!cabinClassResponse.equals("F") && !cabinClassResponse.equals("J") && !cabinClassResponse.equals("W") && !cabinClassResponse.equals("Y"));
-                        preferredCabinClass = CabinClassEnum.valueOf(cabinClassResponse);
-                    }
 
                     reserveFlight(oneWayFlights.get(chooseOption), preferredCabinClass, numberOfPassengers);
                     //print message
                 }
 
             } else { //if two way flight
-                HashMap<Integer, List<FlightScheduleEntity>> toFlight = flightSearchSessionBeanRemote.searchTwoWaysFlights(departureAirportId, arrivalAirportId, departureDate, returnDate, numberOfPassengers, preferDirectFlight, preferredCabinClass).get(0);
+                List<HashMap<Integer, List<FlightScheduleEntity>>> bothFlights = flightSearchSessionBeanRemote.searchTwoWaysFlights(departureAirportId, arrivalAirportId, departureDate, returnDate, numberOfPassengers, preferDirectFlight, preferredCabinClass);
+                HashMap<Integer, List<FlightScheduleEntity>> toFlight = bothFlights.get(0);
                 this.printAvailableFlights(toFlight, preferredCabinClass, numberOfPassengers, false);
 
-                HashMap<Integer, List<FlightScheduleEntity>> returnFlight = flightSearchSessionBeanRemote.searchTwoWaysFlights(departureAirportId, arrivalAirportId, departureDate, returnDate, numberOfPassengers, preferDirectFlight, preferredCabinClass).get(1);
+                HashMap<Integer, List<FlightScheduleEntity>> returnFlight = bothFlights.get(1);
                 this.printAvailableFlights(returnFlight, preferredCabinClass, numberOfPassengers, true);
 
                 Integer response = 0;
@@ -437,7 +431,7 @@ public class MainApp {
                 System.out.println("2: Back");
                 do {
                     System.out.print("> ");
-                    response = scanner.nextInt();
+                    response = Integer.parseInt(scanner.nextLine().trim());
                     if (response <= 0 || response > 2) {
                         System.out.println("Invalid response! Enter 1/2");
                     }
@@ -449,7 +443,7 @@ public class MainApp {
                     Integer chooseToFlightOption = 0;
                     do {
                         System.out.print("Select a Flight Schedule option> ");
-                        chooseToFlightOption = scanner.nextInt();
+                        chooseToFlightOption = Integer.parseInt(scanner.nextLine().trim());
                         if (chooseToFlightOption <= 0 || chooseToFlightOption > toFlight.size()) {
                             System.out.println("Invalid option! Choose again.");
                         }
@@ -458,23 +452,11 @@ public class MainApp {
                     Integer chooseReturnFlightOption = 0;
                     do {
                         System.out.print("Select a Return Flight Schedule option> ");
-                        chooseReturnFlightOption = scanner.nextInt();
+                        chooseReturnFlightOption = Integer.parseInt(scanner.nextLine().trim());
                         if (chooseReturnFlightOption <= 0 || chooseReturnFlightOption > toFlight.size()) {
                             System.out.println("Invalid option! Choose again.");
                         }
                     } while (chooseReturnFlightOption <= 0 || chooseReturnFlightOption > toFlight.size());
-
-                    String cabinClassResponse = "";
-                    if (preferredCabinClass == null) {
-                        do {
-                            System.out.println("Select a cabin class> ");
-                            cabinClassResponse = scanner.nextLine().trim();
-                            if (!cabinClassResponse.equals("F") && !cabinClassResponse.equals("J") && !cabinClassResponse.equals("W") && !cabinClassResponse.equals("Y")) {
-                                System.out.println("Invalid response! Enter F/J/W/Y");
-                            }
-                        } while (!cabinClassResponse.equals("F") && !cabinClassResponse.equals("J") && !cabinClassResponse.equals("W") && !cabinClassResponse.equals("Y"));
-                        preferredCabinClass = CabinClassEnum.valueOf(cabinClassResponse);
-                    }
 
                     List<FlightScheduleEntity> combinedItinerary = new ArrayList<>();
                     for (FlightScheduleEntity flightSchedule : toFlight.get(chooseToFlightOption)) {
@@ -510,7 +492,7 @@ public class MainApp {
                 if (isReturn) {
                     System.out.print("Return Flight ");
                 }
-                System.out.println("Option #" + map.getKey());
+                System.out.println("OPTION #" + map.getKey());
                 Double pricePerPassenger = 0.0;
                 Double totalAmount = 0.0;
 
@@ -519,9 +501,8 @@ public class MainApp {
                     if (isReturn) {
                         System.out.print("Return ");
                     }
-                    System.out.println("Flight Schedule Id: " + flightSchedule.getFlightScheduleId() + " Flight Number: " + flightSchedule.getFlightSchedulePlan().getFlight().getFlightNumber());
-                    System.out.println("\tDeparture date: " + flightSchedule.getDepartureDate().toString().substring(0, 10)); //need to change this
-                    System.out.println("\tDeparture time: " + flightSchedule.getDepartureDate().toString().substring(10));
+                    System.out.println("Flight Schedule Id: " + flightSchedule.getFlightScheduleId() + ", Flight Number: " + flightSchedule.getFlightSchedulePlan().getFlight().getFlightNumber());
+                    System.out.println("\tDeparture date: " + flightSchedule.getDepartureDate());
                     //print avail seats
                     SeatInventory seats = seatInventorySessionBeanRemote.viewSeatsInventoryByFlightScheduleId(flightSchedule.getFlightScheduleId());
                     //if user has chosen a cabin class
@@ -558,8 +539,7 @@ public class MainApp {
                             System.out.print("Return ");
                         }
                         System.out.println("Flight Schedule Id: " + connectingFlight.getFlightScheduleId());
-                        System.out.println("\tDeparture date: " + connectingFlight.getDepartureDate().toString().substring(0, 10)); //need to change this
-                        System.out.println("\tDeparture time: " + connectingFlight.getDepartureDate().toString().substring(10));
+                        System.out.println("\tDeparture date: " + connectingFlight.getDepartureDate().toString());
 
                         SeatInventory seats = seatInventorySessionBeanRemote.viewSeatsInventoryByFlightScheduleId(connectingFlight.getFlightScheduleId());
 
@@ -569,12 +549,13 @@ public class MainApp {
                             fareForSingleCabin += getLowestAmountForCabin(connectingFlight.getFlightSchedulePlan().getFares(), preferredCabinClass);
                         } else { //if user did not choose a cabin class
                             for (Map.Entry<CabinClassEnum, Integer[]> seatsMap : seats.getCabinSeatsInventory().entrySet()) {
-                                System.out.println("\tNumber of available seats for cabin class " + seatsMap.getKey().toString() + ": " + seatsMap.getValue()[2]);
-
-                                if (fareMap.containsKey(seatsMap.getKey())) {
-                                    fareMap.put(seatsMap.getKey(), fareMap.get(seatsMap.getKey()) + getLowestAmountForCabin(connectingFlight.getFlightSchedulePlan().getFares(), seatsMap.getKey()));
-                                } else {
-                                    fareMap.put(seatsMap.getKey(), getLowestAmountForCabin(connectingFlight.getFlightSchedulePlan().getFares(), seatsMap.getKey()));
+                                if (!(seatsMap.getValue()[2] == null)) {
+                                    System.out.println("\tNumber of available seats for cabin class " + seatsMap.getKey().toString() + ": " + seatsMap.getValue()[2]);
+                                    if (fareMap.containsKey(seatsMap.getKey())) {
+                                        fareMap.put(seatsMap.getKey(), fareMap.get(seatsMap.getKey()) + getLowestAmountForCabin(connectingFlight.getFlightSchedulePlan().getFares(), seatsMap.getKey()));
+                                    } else {
+                                        fareMap.put(seatsMap.getKey(), getLowestAmountForCabin(connectingFlight.getFlightSchedulePlan().getFares(), seatsMap.getKey()));
+                                    }
                                 }
                             }
                         }
@@ -637,6 +618,44 @@ public class MainApp {
                 }
             } while (passportNumber.length() <= 0 || passportNumber.length() > 10);
 
+            for (FlightScheduleEntity flightSchedule : flightSchedules) {
+
+                String cabinClassResponse = "";
+                CabinClassEnum chooseCabinClass = null;
+                if (preferredCabinClass == null) {
+                    do {
+                        System.out.print("Select a cabin class> ");
+                        cabinClassResponse = scanner.nextLine().trim();
+                        if (!cabinClassResponse.equals("F") && !cabinClassResponse.equals("J") && !cabinClassResponse.equals("W") && !cabinClassResponse.equals("Y")) {
+                            System.out.println("Invalid response! Enter F/J/W/Y");
+                        }
+                    } while (!cabinClassResponse.equals("F") && !cabinClassResponse.equals("J") && !cabinClassResponse.equals("W") && !cabinClassResponse.equals("Y"));
+                    chooseCabinClass = CabinClassEnum.valueOf(cabinClassResponse);
+                }
+
+                List<SeatEntity> seatsForCabin = seatInventorySessionBeanRemote.retrieveAllAvailableSeatsFromFlightScheduleAndCabin(flightSchedule.getFlightScheduleId(), chooseCabinClass);
+                List<String> seatNumbers = seatsForCabin.stream().map(x -> x.getSeatNumber()).collect(Collectors.toList());
+
+                seatsForCabin.forEach(a -> System.out.print(a.getSeatNumber() + " "));
+                System.out.println("");
+
+//                for (PassengerEntity passenger : passengers) {
+                System.out.print("Select a seat for flight " + flightSchedule.getFlightSchedulePlan().getFlight().getFlightNumber() + "> ");
+                String seatNumber = scanner.nextLine().trim();
+
+                SeatEntity selectedSeat = null;
+                for (SeatEntity seat : seatsForCabin) {
+                    if (seat.getSeatNumber().equals(seatNumber)) {
+                        selectedSeat = seat;
+                        break;
+                    }
+                }
+
+                seatsForCabin.remove(selectedSeat);
+                seatNumbers.remove(seatNumber);
+                passenger.getSeats().add(selectedSeat);
+            }
+
             passenger.setFirstName(firstName);
             passenger.setLastName(lastName);
             passenger.setPassportNumber(passportNumber);
@@ -644,36 +663,6 @@ public class MainApp {
         }
 
         try {
-            for (FlightScheduleEntity flightSchedule : flightSchedules) {
-
-                List<SeatEntity> seatsForCabin = seatInventorySessionBeanRemote.retrieveAllAvailableSeatsFromFlightScheduleAndCabin(flightSchedule.getFlightScheduleId(), preferredCabinClass);
-                List<String> seatNumbers = seatsForCabin.stream().map(x -> x.getSeatNumber()).collect(Collectors.toList());
-
-                seatsForCabin.forEach(a -> System.out.print(a.getSeatNumber() + " "));
-                System.out.println("");
-
-                for (PassengerEntity passenger : passengers) {
-                    String seatNumber = "";
-                    SeatEntity selectedSeat = null;
-                    do {
-                        System.out.print("Select a seat for " + passenger.getFirstName() + " " + passenger.getLastName() + "> ");
-                        seatNumber = scanner.nextLine().trim();
-                        if (!seatNumbers.contains(seatNumber)) {
-                            System.out.println("Seat number not available! Choose another seat");
-                        }
-                        for (SeatEntity seat : seatsForCabin) {
-                            if (seat.getSeatNumber().equals(seatNumber)) {
-                                selectedSeat = seat;
-                                break;
-                            }
-                        }
-                    } while (selectedSeat == null);
-                    seatsForCabin.remove(selectedSeat);
-                    seatNumbers.remove(seatNumber);
-                    passenger.getSeats().add(selectedSeat);
-                }
-            }
-
             CreditCardEntity creditCard = new CreditCardEntity();
             String ccFirstName = "";
             String ccLastName = "";
@@ -739,6 +728,7 @@ public class MainApp {
         } catch (CreateNewFlightReservationException ex) {
             System.out.println(ex.getMessage());
         }
+
     }
 
     private void viewAllFlightReservations() {
@@ -748,8 +738,18 @@ public class MainApp {
             System.out.println("Total amount paid: " + flightReservation.getTotalAmount() + "\n");
         }
     }
+    
+    private void viewFlightReservationDetails() {
+        Scanner scanner = new Scanner(System.in);
+        viewAllFlightReservations();
+        System.out.println("Enter Flight Reservation Id> ");
+        Long reservationId = Long.parseLong(scanner.nextLine().trim());
+        viewFlightReservationDetails(reservationId);
+        
+    }
 
     private void viewFlightReservationDetails(Long flightReservationId) {
+
         FlightReservationEntity flightReservation = flightReservationSessionBeanRemote.viewFlightReservationByFlightReservationId(flightReservationId);
 
         System.out.println("Itinerary:");
@@ -759,17 +759,23 @@ public class MainApp {
             System.out.println("Departing on " + flightSchedule.getDepartureDate());
             System.out.println("Estimated arrival time is " + flightSchedule.getArrivalDateTime() + "\n");
 
+            HashMap<String, SeatEntity> hashMap = new HashMap<>();
             for (PassengerEntity passenger : flightReservation.getPassengers()) {
-                System.out.println("\tPassenger: " + passenger.getFirstName() + " " + passenger.getLastName());
+//                System.out.println("\tPassenger: " + passenger.getFirstName() + " " + passenger.getLastName());
                 for (SeatEntity seat : passenger.getSeats()) {
                     if (seat.getFlightSchedule().getFlightScheduleId().equals(flightSchedule.getFlightScheduleId())) {
-                        System.out.println("\tCabin class: " + seat.getCabinClassEnum().toString());
-                        System.out.println("\tSeat number: " + seat.getSeatNumber());
+                        hashMap.put(seat.getSeatNumber(), seat);
+//                        System.out.println("\tCabin class: " + seat.getCabinClassEnum().toString());
+//                        System.out.println("\tSeat number: " + seat.getSeatNumber());
                         break;
                     }
                 }
-
             }
+//            for (Map.Entry<String, SeatEntity> map : hashMap.entrySet()) {
+//                System.out.print("Seat number: " + map.getValue().getSeatNumber() + ", ");
+//                System.out.print("Passenger: " + map.getValue().getPassenger().getFirstName() + " " + map.getValue().getPassenger().getLastName() + ", ");
+//                System.out.println("Fare basis code: " + map.getValue().getFareBasisCode());
+//            }
         }
         System.out.println("TOTAL AMOUNT PAID: " + flightReservation.getTotalAmount());
     }
