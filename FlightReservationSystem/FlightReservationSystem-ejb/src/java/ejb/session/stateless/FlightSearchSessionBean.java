@@ -96,13 +96,13 @@ public class FlightSearchSessionBean implements FlightSearchSessionBeanRemote, F
 
         for (List<FlightScheduleEntity> itinery : toFlights) {
             for (FlightScheduleEntity flightSchedule : itinery) {
-                em.detach(flightSchedule.getSeatInventory());
+                em.detach(flightSchedule);
             }
         }
 
         for (List<FlightScheduleEntity> itinery : returnFlights) {
             for (FlightScheduleEntity flightSchedule : itinery) {
-                em.detach(flightSchedule.getSeatInventory());
+                em.detach(flightSchedule);
             }
         }
 
