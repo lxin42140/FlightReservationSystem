@@ -571,7 +571,7 @@ public class MainApp {
                     } else {
                         System.out.println("\tPrice per passenger: " + fareForSingleCabin);
                         totalAmount = fareForSingleCabin * numberOfPassengers;
-                        System.out.println("\tTotal amount for " + numberOfPassengers + " passengers: " + totalAmount);
+                        System.out.println("\tTotal amount for " + numberOfPassengers + " passengers: " + totalAmount + "\n");
                     }
                 } //END ELSE
             } //END FOR
@@ -759,14 +759,16 @@ public class MainApp {
             System.out.println("Departing on " + flightSchedule.getDepartureDate());
             System.out.println("Estimated arrival time is " + flightSchedule.getArrivalDateTime() + "\n");
 
-            HashMap<String, SeatEntity> hashMap = new HashMap<>();
+//            HashMap<String, SeatEntity> hashMap = new HashMap<>();
             for (PassengerEntity passenger : flightReservation.getPassengers()) {
-//                System.out.println("\tPassenger: " + passenger.getFirstName() + " " + passenger.getLastName());
+                System.out.println("\tPassenger: " + passenger.getFirstName() + " " + passenger.getLastName());
                 for (SeatEntity seat : passenger.getSeats()) {
+                    System.out.println("Seat: " + seat.getFlightSchedule().getFlightScheduleId());
+                    System.out.println("Flight: " + flightSchedule.getFlightScheduleId());
                     if (seat.getFlightSchedule().getFlightScheduleId().equals(flightSchedule.getFlightScheduleId())) {
-                        hashMap.put(seat.getSeatNumber(), seat);
-//                        System.out.println("\tCabin class: " + seat.getCabinClassEnum().toString());
-//                        System.out.println("\tSeat number: " + seat.getSeatNumber());
+//                        hashMap.put(seat.getSeatNumber(), seat);
+                        System.out.println("\tCabin class: " + seat.getCabinClassEnum().toString());
+                        System.out.println("\tSeat number: " + seat.getSeatNumber());
                         break;
                     }
                 }
