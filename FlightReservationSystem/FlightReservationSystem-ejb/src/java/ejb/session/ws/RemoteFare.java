@@ -26,6 +26,11 @@ public class RemoteFare implements Serializable {
         this.fareAmount = fareAmount;
     }
 
+    public RemoteFare(String fareBasisCode, double fareAmount) {
+        this.fareBasisCode = fareBasisCode;
+        this.fareAmount = fareAmount;
+    }
+
     public Long getFareId() {
         return fareId;
     }

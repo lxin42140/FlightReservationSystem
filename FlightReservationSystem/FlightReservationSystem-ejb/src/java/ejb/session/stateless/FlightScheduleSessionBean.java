@@ -191,10 +191,10 @@ public class FlightScheduleSessionBean implements FlightScheduleSessionBeanRemot
 //    }
 
     @Override
-    public HashMap<CabinClassEnum, Double> getHighestFaresForCabin(Long flightScheduleId) throws FlightScheduleNotFoundException {
+    public HashMap<CabinClassEnum, FareEntity> getHighestFaresForCabin(Long flightScheduleId) throws FlightScheduleNotFoundException {
         FlightScheduleEntity flightSchedule = this.retrieveFlightScheduleById(flightScheduleId);
         List<FareEntity> fares = flightSchedule.getFlightSchedulePlan().getFares();
-        HashMap<CabinClassEnum, Double> results = new HashMap<>();
+        HashMap<CabinClassEnum, FareEntity> results = new HashMap<>();
 
         HashSet<CabinClassEnum> cabinClasses = new HashSet<>();
 
@@ -209,7 +209,7 @@ public class FlightScheduleSessionBean implements FlightScheduleSessionBeanRemot
         return results;
     }
 
-    private double findHighestFareForCabin(List<FareEntity> fares, CabinClassEnum cabinClassEnum) {
+    private FareEntity findHighestFareForCabin(List<FareEntity> fares, CabinClassEnum cabinClassEnum) {
         FareEntity highestFare = fares.get(0);
 
         for (FareEntity fare : fares) {
@@ -225,7 +225,7 @@ public class FlightScheduleSessionBean implements FlightScheduleSessionBeanRemot
             }
         }
 
-        return highestFare.getFareAmount().doubleValue();
+        return highestFare;
     }
 
     @Override

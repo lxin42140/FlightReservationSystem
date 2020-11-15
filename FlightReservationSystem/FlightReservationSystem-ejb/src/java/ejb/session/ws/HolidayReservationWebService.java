@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import javax.ejb.EJB;
 import javax.jws.WebService;
@@ -231,12 +232,16 @@ public class HolidayReservationWebService {
     public List<RemoteFare> retrieveAllFaresForFlightSchedule(
             @WebParam(name = "flightScheduleId") Long flightScheduleId
     ) throws FlightScheduleNotFoundException {
-        FlightScheduleEntity flight = flightScheduleSessionBeanLocal.retrieveFlightScheduleById(flightScheduleId);
-        List<FareEntity> fares = flight.getFlightSchedulePlan().getFares();
+
         List<RemoteFare> remoteFares = new ArrayList<>();
-        for (FareEntity fare : fares) {
-            remoteFares.add(new RemoteFare(fare.getFareId(), fare.getFareBasisCode(), fare.getFareAmount().doubleValue()));
+
+        HashMap<CabinClassEnum, FareEntity> highestFaresForCabin = flightScheduleSessionBeanLocal.getHighestFaresForCabin(flightScheduleId);
+        Set<Map.Entry<CabinClassEnum, FareEntity>> entrySet = highestFaresForCabin.entrySet();
+        for (Entry<CabinClassEnum, FareEntity> set : entrySet) {
+            remoteFares.add(new RemoteFare(set.getValue().getFareId(), set.getValue().getFareBasisCode(), set.getValue().getFareAmount().doubleValue()));
+
         }
+
         return remoteFares;
     }
 
