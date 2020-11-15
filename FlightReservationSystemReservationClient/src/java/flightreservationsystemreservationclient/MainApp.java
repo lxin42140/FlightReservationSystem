@@ -5,10 +5,12 @@
  */
 package flightreservationsystemreservationclient;
 
+import ejb.session.stateless.AirportEntitySessionBeanRemote;
 import ejb.session.stateless.CustomerSessionBeanRemote;
 import ejb.session.stateless.FlightReservationSessionBeanRemote;
 import ejb.session.stateless.FlightSearchSessionBeanRemote;
 import ejb.session.stateless.SeatInventorySessionBeanRemote;
+import entity.AirportEntity;
 import entity.CreditCardEntity;
 import entity.CustomerEntity;
 import entity.FareEntity;
@@ -34,9 +36,7 @@ import util.exception.CustomerNotFoundException;
 import util.exception.FlightScheduleNotFoundException;
 import util.exception.InvalidLoginCredentialsException;
 import util.exception.NoMatchingFlightsException;
-import util.exception.ReserveSeatException;
 import util.exception.SearchFlightFailedException;
-import util.exception.SeatNotFoundException;
 
 /**
  *
@@ -52,17 +52,25 @@ public class MainApp {
     private SeatInventorySessionBeanRemote seatInventorySessionBeanRemote;
     @EJB
     private FlightReservationSessionBeanRemote flightReservationSessionBeanRemote;
+    @EJB
+    private AirportEntitySessionBeanRemote airportEntitySessionBeanRemote;
 
     private CustomerEntity customerEntity;
 
     public MainApp() {
     }
 
-    public MainApp(CustomerSessionBeanRemote customerSessionBeanRemote, FlightSearchSessionBeanRemote flightSearchSessionBeanRemote, SeatInventorySessionBeanRemote seatInventorySessionBeanRemote, FlightReservationSessionBeanRemote flightReservationSessionBeanRemote) {
+    public MainApp(
+            CustomerSessionBeanRemote customerSessionBeanRemote,
+            FlightSearchSessionBeanRemote flightSearchSessionBeanRemote,
+            SeatInventorySessionBeanRemote seatInventorySessionBeanRemote,
+            FlightReservationSessionBeanRemote flightReservationSessionBeanRemote,
+            AirportEntitySessionBeanRemote airportEntitySessionBeanRemote) {
         this.customerSessionBeanRemote = customerSessionBeanRemote;
         this.flightSearchSessionBeanRemote = flightSearchSessionBeanRemote;
         this.seatInventorySessionBeanRemote = seatInventorySessionBeanRemote;
         this.flightReservationSessionBeanRemote = flightReservationSessionBeanRemote;
+        this.airportEntitySessionBeanRemote = airportEntitySessionBeanRemote;
     }
 
     public void runApp() {
@@ -206,23 +214,20 @@ public class MainApp {
         String password = "";
 
         System.out.println("*** Flight Reservation System :: Login ***\n");
-        System.out.print("Enter username> ");
+        System.out.println("Enter username> ");
         username = scanner.nextLine().trim();
-        System.out.print("Enter password> ");
+        System.out.println("Enter password> ");
         password = scanner.nextLine().trim();
 
-        if (username.length() > 0 && password.length() > 0) {
-            try {
-                customerEntity = customerSessionBeanRemote.retrieveCustomerByUsernameAndPassword(username, password);
-                System.out.println("You are login as " + customerEntity.getFirstName() + " " + customerEntity.getLastName() + ".\n");
-            } catch (CustomerNotFoundException ex) {
-                throw new CustomerNotFoundException(ex.getMessage());
-            } catch (InvalidLoginCredentialsException ex) {
-                throw new InvalidLoginCredentialsException(ex.getMessage());
-            }
-        } else {
-            throw new InvalidLoginCredentialsException("InvalidLoginCredentialsException: Enter username and/or password!");
+        try {
+            customerEntity = customerSessionBeanRemote.retrieveCustomerByUsernameAndPassword(username, password);
+            System.out.println("You are login as " + customerEntity.getFirstName() + " " + customerEntity.getLastName() + ".\n");
+        } catch (CustomerNotFoundException ex) {
+            throw new CustomerNotFoundException(ex.getMessage());
+        } catch (InvalidLoginCredentialsException ex) {
+            throw new InvalidLoginCredentialsException(ex.getMessage());
         }
+
     }
 
     private void menuMain() {
@@ -240,8 +245,7 @@ public class MainApp {
             while (response < 1 || response > 4) {
                 System.out.print("> ");
 
-                response = scanner.nextInt();
-                scanner.nextLine();
+                response = Integer.parseInt(scanner.nextLine());
 
                 if (response == 1) {
                     searchFlight();
@@ -262,6 +266,13 @@ public class MainApp {
         }
     }
 
+    public void printAirports() {
+        List<AirportEntity> airports = airportEntitySessionBeanRemote.retrieveAllAirports();
+        for (AirportEntity airport : airports) {
+            System.out.println("ID: " + airport.getAirportId() + ", IATA code: " + airport.getIataAirlineCode());
+        }
+    }
+
     public void searchFlight() {
         System.out.println("*** Flight Reservation System Reservation :: Search Flights ***\n");
         Scanner scanner = new Scanner(System.in);
@@ -272,20 +283,20 @@ public class MainApp {
         Integer option = 0;
         do {
             System.out.print("> ");
-            option = scanner.nextInt();
+            option = Integer.parseInt(scanner.nextLine());
             if (option <= 0 || option > 2) {
                 System.out.println("Invalid response! Choose either 1 or 2\n");
             }
         } while (option <= 0 || option > 2);
 
-        Long departureAirportId = 0L;
+        printAirports();
+
         System.out.print("Enter Departure Airport Id> ");
-        departureAirportId = scanner.nextLong();
+        Long departureAirportId = Long.parseLong(scanner.nextLine());
 
         System.out.print("Enter Arrival Airport Id> ");
-        Long arrivalAirportId = scanner.nextLong();
+        Long arrivalAirportId = Long.parseLong(scanner.nextLine());
 
-        scanner.nextLine();
         SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
         String date = "";
         Boolean dateCheck = false;
@@ -322,7 +333,7 @@ public class MainApp {
         Integer numberOfPassengers = 0;
         do {
             System.out.print("Enter number of passengers> ");
-            numberOfPassengers = scanner.nextInt();
+            numberOfPassengers = Integer.parseInt(scanner.nextLine());
             if (numberOfPassengers <= 0) {
                 System.out.println("Invalid response! Number of passengers must be greater than 0");
             }
@@ -337,7 +348,7 @@ public class MainApp {
 
         do {
             System.out.print("> ");
-            directFlightResponse = scanner.nextInt();
+            directFlightResponse = Integer.parseInt(scanner.nextLine());
             if (directFlightResponse <= 0 || directFlightResponse > 3) {
                 System.out.println("Invalid response! Choose option 1 to 3\n");
             }
@@ -351,7 +362,6 @@ public class MainApp {
             preferDirectFlight = null;
         }
 
-        scanner.nextLine();
         String inputCabinClass = "";
         CabinClassEnum preferredCabinClass = null;
         do {
@@ -638,30 +648,9 @@ public class MainApp {
 
                 List<SeatEntity> seatsForCabin = seatInventorySessionBeanRemote.retrieveAllAvailableSeatsFromFlightScheduleAndCabin(flightSchedule.getFlightScheduleId(), preferredCabinClass);
                 List<String> seatNumbers = seatsForCabin.stream().map(x -> x.getSeatNumber()).collect(Collectors.toList());
-//                seatNumbers.sort((a, b) -> {
-//                    String firstPrefix = a.substring(0, a.length() - 1);
-//                    String firstSuffix = a.substring(a.length() - 1);
-//                    String secondPrefix = b.substring(0, b.length() - 1);
-//                    String secondSuffix = b.substring(b.length() - 1);
-//
-//                    if (firstPrefix.hashCode() == secondPrefix.hashCode()) {
-//                        return firstSuffix.hashCode() - secondSuffix.hashCode();
-//                    } else {
-//                        return firstPrefix.hashCode() - secondPrefix.hashCode();
-//                    }
-//                });
+
                 seatsForCabin.forEach(a -> System.out.print(a.getSeatNumber() + " "));
                 System.out.println("");
-//                for (int i = 0; i < seatNumbers.size(); i++) {
-//                    System.out.print(seatsForCabin) + " ");
-//                    if (i != seatNumbers.size() - 1) {
-//                        String currSeatSuffix = seatNumbers.get(i).substring(seatNumbers.get(i).length() - 1);
-//                        String nextSeatSuffix = seatNumbers.get(i + 1).substring(seatNumbers.get(i + 1).length() - 1);
-//                        if (currSeatSuffix.hashCode() > nextSeatSuffix.hashCode()) {
-//                            System.out.println("");
-//                        }
-//                    }
-//            }
 
                 for (PassengerEntity passenger : passengers) {
                     String seatNumber = "";

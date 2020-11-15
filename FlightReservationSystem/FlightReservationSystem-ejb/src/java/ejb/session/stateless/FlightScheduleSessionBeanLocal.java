@@ -8,8 +8,10 @@ package ejb.session.stateless;
 import entity.FlightEntity;
 import entity.FlightScheduleEntity;
 import entity.FlightSchedulePlanEntity;
+import java.util.HashMap;
 import java.util.List;
 import javax.ejb.Local;
+import util.enumeration.CabinClassEnum;
 import util.exception.CreateNewFlightScheduleException;
 import util.exception.FlightScheduleNotFoundException;
 
@@ -28,4 +30,8 @@ public interface FlightScheduleSessionBeanLocal {
 
     // local interface only
     public FlightScheduleEntity createReturnFlightSchedule(FlightScheduleEntity flightSchedule, Integer layoverPeriodForReturnFlight);
+
+    public HashMap<CabinClassEnum, Double> getLowestFaresForCabin(Long flightScheduleId) throws FlightScheduleNotFoundException;
+
+    public HashMap<CabinClassEnum, Double> getHighestFaresForCabin(Long flightScheduleId) throws FlightScheduleNotFoundException;
 }

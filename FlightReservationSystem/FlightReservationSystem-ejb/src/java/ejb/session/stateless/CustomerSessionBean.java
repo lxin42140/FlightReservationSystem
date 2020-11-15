@@ -70,6 +70,10 @@ public class CustomerSessionBean implements CustomerSessionBeanRemote, CustomerS
 
     @Override
     public CustomerEntity retrieveCustomerByUsernameAndPassword(String username, String password) throws CustomerNotFoundException, InvalidLoginCredentialsException {
+        if (username == null || username.isEmpty() || password == null || password.isEmpty()) {
+            throw new InvalidLoginCredentialsException("InvalidLoginCredentialsException: Invalid username or password");
+        }
+        
         Query query = em.createQuery("SELECT c from CustomerEntity c WHERE c.userName =:inUsername");
         query.setParameter("inUsername", username);
 

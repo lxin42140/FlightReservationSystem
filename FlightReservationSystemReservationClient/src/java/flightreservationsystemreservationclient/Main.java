@@ -5,8 +5,10 @@
  */
 package flightreservationsystemreservationclient;
 
+import ejb.session.stateless.AirportEntitySessionBeanRemote;
 import ejb.session.stateless.CustomerSessionBeanRemote;
 import ejb.session.stateless.FlightReservationSessionBeanRemote;
+import ejb.session.stateless.FlightScheduleSessionBeanRemote;
 import ejb.session.stateless.FlightSearchSessionBeanRemote;
 import ejb.session.stateless.SeatInventorySessionBeanRemote;
 import javax.ejb.EJB;
@@ -16,6 +18,12 @@ import javax.ejb.EJB;
  * @author Li Xin
  */
 public class Main {
+
+//    @EJB
+//    private static FlightScheduleSessionBeanRemote flightScheduleSessionBeanRemote;
+
+    @EJB
+    private static AirportEntitySessionBeanRemote airportEntitySessionBeanRemote;
     @EJB
     private static CustomerSessionBeanRemote customerSessionBeanRemote;
     @EJB
@@ -29,8 +37,15 @@ public class Main {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        MainApp mainApp = new MainApp(customerSessionBeanRemote, flightSearchSessionBeanRemote, seatInventorySessionBeanRemote, flightReservationSessionBeanRemote);
+        MainApp mainApp = new MainApp(
+                customerSessionBeanRemote,
+                flightSearchSessionBeanRemote,
+                seatInventorySessionBeanRemote,
+                flightReservationSessionBeanRemote,
+                airportEntitySessionBeanRemote
+//                flightScheduleSessionBeanRemote
+        );
         mainApp.runApp();
     }
-    
+
 }

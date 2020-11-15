@@ -5,11 +5,15 @@
  */
 package ejb.session.stateless;
 
+import entity.FareEntity;
 import entity.FlightEntity;
 import entity.FlightScheduleEntity;
 import entity.FlightSchedulePlanEntity;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.ejb.EJB;
@@ -20,9 +24,11 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import util.enumeration.CabinClassEnum;
 import util.exception.CreateNewFlightScheduleException;
 import util.exception.CreateNewSeatInventoryException;
 import util.exception.FlightScheduleNotFoundException;
+import util.exception.FlightSchedulePlanNotFoundException;
 
 /**
  *
@@ -153,6 +159,111 @@ public class FlightScheduleSessionBean implements FlightScheduleSessionBeanRemot
         }
 
         return flightScheduleEntity;
+    }
+
+//    @Override
+//    public BigDecimal getLowestFareForCabin(Long flightSchedulePlanId, String cabinClass) throws FlightSchedulePlanNotFoundException {
+//        FlightSchedulePlanEntity flightSchedulePlan = this.retrieveFlightSchedulePlanById(flightSchedulePlanId);
+//
+//        if (cabinClass == null || cabinClass.isEmpty()) {
+//            throw new FlightSchedulePlanNotFoundException("Please select cabin class!");
+//        }
+//
+//        CabinClassEnum selectedCabinClass = CabinClassEnum.valueOf(cabinClass);
+//
+//        List<FareEntity> fares = flightSchedulePlan.getFares();
+//        FareEntity cheapestFare = fares.get(0);
+//
+//        for (FareEntity fare : fares) {
+//            if (fare.getCabinClass().equals(selectedCabinClass)) {
+//                cheapestFare = fare;
+//                break;
+//            }
+//        }
+//
+//        for (FareEntity fare : fares) {
+//            if (fare.getCabinClass().equals(selectedCabinClass) && fare.getFareAmount().compareTo(cheapestFare.getFareAmount()) < 0) {
+//                cheapestFare = fare;
+//            }
+//        }
+//
+//        return cheapestFare.getFareAmount();
+//    }
+
+    @Override
+    public HashMap<CabinClassEnum, Double> getHighestFaresForCabin(Long flightScheduleId) throws FlightScheduleNotFoundException {
+        FlightScheduleEntity flightSchedule = this.retrieveFlightScheduleById(flightScheduleId);
+        List<FareEntity> fares = flightSchedule.getFlightSchedulePlan().getFares();
+        HashMap<CabinClassEnum, Double> results = new HashMap<>();
+
+        HashSet<CabinClassEnum> cabinClasses = new HashSet<>();
+
+        for (FareEntity fare : fares) {
+            cabinClasses.add(fare.getCabinClass());
+        }
+
+        for (CabinClassEnum cabinClass : cabinClasses) {
+            results.put(cabinClass, findHighestFareForCabin(fares, cabinClass));
+        }
+
+        return results;
+    }
+
+    private double findHighestFareForCabin(List<FareEntity> fares, CabinClassEnum cabinClassEnum) {
+        FareEntity highestFare = fares.get(0);
+
+        for (FareEntity fare : fares) {
+            if (fare.getCabinClass().equals(cabinClassEnum)) {
+                highestFare = fare;
+                break;
+            }
+        }
+
+        for (FareEntity fare : fares) {
+            if (fare.getCabinClass().equals(cabinClassEnum) && fare.getFareAmount().compareTo(highestFare.getFareAmount()) > 0) {
+                highestFare = fare;
+            }
+        }
+
+        return highestFare.getFareAmount().doubleValue();
+    }
+
+    @Override
+    public HashMap<CabinClassEnum, Double> getLowestFaresForCabin(Long flightScheduleId) throws FlightScheduleNotFoundException {
+        FlightScheduleEntity flightSchedule = this.retrieveFlightScheduleById(flightScheduleId);
+        List<FareEntity> fares = flightSchedule.getFlightSchedulePlan().getFares();
+        HashMap<CabinClassEnum, Double> results = new HashMap<>();
+
+        HashSet<CabinClassEnum> cabinClasses = new HashSet<>();
+
+        for (FareEntity fare : fares) {
+            cabinClasses.add(fare.getCabinClass());
+        }
+
+        for (CabinClassEnum cabinClass : cabinClasses) {
+            results.put(cabinClass, findLowestFareForCabin(fares, cabinClass));
+        }
+
+        return results;
+    }
+
+    private double findLowestFareForCabin(List<FareEntity> fares, CabinClassEnum cabinClassEnum) {
+        FareEntity lowestFare = fares.get(0);
+
+        for (FareEntity fare : fares) {
+            if (fare.getCabinClass().equals(cabinClassEnum)) {
+                lowestFare = fare;
+                break;
+            }
+        }
+
+        for (FareEntity fare : fares) {
+            if (fare.getCabinClass().equals(cabinClassEnum) && fare.getFareAmount().compareTo(lowestFare.getFareAmount()) < 0) {
+                lowestFare = fare;
+            }
+        }
+
+        return lowestFare.getFareAmount().doubleValue();
     }
 
 }
