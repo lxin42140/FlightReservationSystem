@@ -56,10 +56,10 @@ public class FlightReservationSessionBean implements FlightReservationSessionBea
     }
 
     @Override
-    public List<FlightReservationEntity> viewFlightReservationByCustomer(Long customerId) {
+    public List<FlightReservationEntity> viewFlightReservationByUser(Long userId) {
 
         Query query = em.createQuery("SELECT r FROM FlightReservationEntity r WHERE r.user.userId = :inUserId");
-        query.setParameter("inUserId", customerId);
+        query.setParameter("inUserId", userId);
 
         List<FlightReservationEntity> flightReservationEntity = (List<FlightReservationEntity>) query.getResultList();
 

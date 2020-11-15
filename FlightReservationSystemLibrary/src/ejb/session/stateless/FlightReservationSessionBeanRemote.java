@@ -22,8 +22,8 @@ import util.exception.CreateNewFlightReservationException;
 public interface FlightReservationSessionBeanRemote {
 
     public FlightReservationEntity viewFlightReservationByFlightReservationId(Long flightReservationId);
-
-    public List<FlightReservationEntity> viewFlightReservationByCustomer(Long customerId);
+    
+    public List<FlightReservationEntity> viewFlightReservationByUser(Long customerId);
 
     public Long createNewFlightReservation(List<FlightScheduleEntity> itinery, List<PassengerEntity> passengers, CreditCardEntity creditCardEntity, UserEntity user) throws CreateNewFlightReservationException;
 }

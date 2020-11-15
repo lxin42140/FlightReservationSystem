@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.FlightScheduleEntity;
+import entity.SeatEntity;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -50,7 +51,6 @@ public class FlightSearchSessionBean implements FlightSearchSessionBeanRemote, F
 //        if (preferredCabinClassString != null || !preferredCabinClassString.isEmpty()) {
 //            preferredCabinClass = CabinClassEnum.valueOf(preferredCabinClassString);
 //        }
-
         List<List<FlightScheduleEntity>> toFlights = new ArrayList<>();
         List<List<FlightScheduleEntity>> returnFlights = new ArrayList<>();
 
@@ -94,6 +94,22 @@ public class FlightSearchSessionBean implements FlightSearchSessionBeanRemote, F
             throw new NoMatchingFlightsException("NoMatchingFlightsException: No available return flights that match the requirements!");
         }
 
+        for (List<FlightScheduleEntity> itinery : toFlights) {
+            for (FlightScheduleEntity flightSchedule : itinery) {
+                for (SeatEntity seat : flightSchedule.getSeatInventory()) {
+                    em.detach(seat);
+                }
+            }
+        }
+
+        for (List<FlightScheduleEntity> itinery : returnFlights) {
+            for (FlightScheduleEntity flightSchedule : itinery) {
+                for (SeatEntity seat : flightSchedule.getSeatInventory()) {
+                    em.detach(seat);
+                }
+            }
+        }
+
         List<HashMap<Integer, List<FlightScheduleEntity>>> searchResult = new ArrayList<>();
         HashMap<Integer, List<FlightScheduleEntity>> toFlightSearchResults = new HashMap<>();
         HashMap<Integer, List<FlightScheduleEntity>> returnFlightSearchResults = new HashMap<>();
@@ -107,13 +123,12 @@ public class FlightSearchSessionBean implements FlightSearchSessionBeanRemote, F
         searchResult.add(returnFlightSearchResults);
 
         return searchResult;
-
     }
 
     // enter null for preferredCabinClass if there is no preference
     // enter null for preferDirectFlight if there is no preference
     @Override
-    public HashMap<Integer, List<FlightScheduleEntity>> searchOneWayFlights(Long departureAirportId, Long arrivalAirportId, Date departureDate, Integer numberOfPassengers, Boolean preferDirectFlight,  CabinClassEnum preferredCabinClass) throws NoMatchingFlightsException, SearchFlightFailedException {
+    public HashMap<Integer, List<FlightScheduleEntity>> searchOneWayFlights(Long departureAirportId, Long arrivalAirportId, Date departureDate, Integer numberOfPassengers, Boolean preferDirectFlight, CabinClassEnum preferredCabinClass) throws NoMatchingFlightsException, SearchFlightFailedException {
         if (null == departureAirportId || null == arrivalAirportId || null == departureDate || numberOfPassengers == null || numberOfPassengers <= 0) {
             throw new SearchFlightFailedException("SearchFlightFailedException: Invalid one or more search parameters!");
         }
@@ -122,7 +137,6 @@ public class FlightSearchSessionBean implements FlightSearchSessionBeanRemote, F
 //        if (preferredCabinClassString != null || !preferredCabinClassString.isEmpty()) {
 //            preferredCabinClass = CabinClassEnum.valueOf(preferredCabinClassString);
 //        }
-
         HashMap<Integer, List<FlightScheduleEntity>> searchResult = new HashMap<>();
         List<List<FlightScheduleEntity>> oneWayFlights = new ArrayList<>();
 
@@ -145,6 +159,14 @@ public class FlightSearchSessionBean implements FlightSearchSessionBeanRemote, F
         }
         if (oneWayFlights.isEmpty()) {
             throw new NoMatchingFlightsException("NoMatchingFlightsException: No available flights that match the requirements!");
+        }
+
+        for (List<FlightScheduleEntity> itinery : oneWayFlights) {
+            for (FlightScheduleEntity flightSchedule : itinery) {
+                for (SeatEntity seat : flightSchedule.getSeatInventory()) {
+                    em.detach(seat);
+                }
+            }
         }
 
         for (int i = 0; i < oneWayFlights.size(); i++) {
