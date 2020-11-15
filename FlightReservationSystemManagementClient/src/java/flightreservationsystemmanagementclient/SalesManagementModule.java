@@ -9,11 +9,9 @@ import ejb.session.stateless.FlightReservationSessionBeanRemote;
 import ejb.session.stateless.FlightSessionBeanRemote;
 import ejb.session.stateless.SeatInventorySessionBeanRemote;
 import entity.FlightEntity;
-import entity.FlightReservationEntity;
 import entity.FlightScheduleEntity;
 import entity.FlightSchedulePlanEntity;
-import entity.PassengerEntity;
-import java.util.ArrayList;
+import entity.SeatEntity;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,6 +77,27 @@ public class SalesManagementModule {
         }
     }
 
+    private void viewFlightSchedules(List<FlightSchedulePlanEntity> flightSchedulePlans) {
+        for (FlightSchedulePlanEntity flightSchedulePlan : flightSchedulePlans) {
+            System.out.println("Flight Schedule Plan Id: " + flightSchedulePlan.getFlightSchedulePlanId());
+
+            List<FlightScheduleEntity> flightSchedules = flightSchedulePlan.getFlightSchedules();
+            for (FlightScheduleEntity flightSchedule : flightSchedules) {
+                System.out.println("\tFlight Schedule Id " + flightSchedule.getFlightScheduleId() + ", Departure date: " + flightSchedule.getDepartureDate());
+            }
+
+            if (flightSchedulePlan.getReturnFlightSchedulePlan() != null) {
+                FlightSchedulePlanEntity returFlightSchedulePlan = flightSchedulePlan.getReturnFlightSchedulePlan();
+                System.out.println("Return Flight Schedule Plan Id: " + returFlightSchedulePlan.getFlightSchedulePlanId());
+
+                List<FlightScheduleEntity> returnFlightSchedules = returFlightSchedulePlan.getFlightSchedules();
+                for (FlightScheduleEntity flightSchedule : returnFlightSchedules) {
+                    System.out.println("\tFlight Schedule Id " + flightSchedule.getFlightScheduleId() + ", Departure date: " + flightSchedule.getDepartureDate());
+                }
+            }
+        }
+    }
+
     private void viewSeatsInventory() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("*** Sales Managemnet Module: View Seats Inventory ***\n");
@@ -94,32 +113,12 @@ public class SalesManagementModule {
             if (flightSchedulePlans.isEmpty()) { //no flight schedules
                 System.out.println("Flight has no flight schedules!");
             } else {
-                System.out.println("Select option to view Seat Inventory of Flight Schedule:\n");
-                Integer option = 0;
-                List<Long> optionsList = new ArrayList<>();
-                Integer selectedOption = 0;
+                viewFlightSchedules(flightSchedulePlans);
 
-                for (FlightSchedulePlanEntity flightSchedulePlan : flightSchedulePlans) {
-                    System.out.println("Flight Schedule Plan Id: " + flightSchedulePlan.getFlightSchedulePlanId());
+                System.out.println("Enter flight schedule ID to view its seat inventory> ");
+                Long selectedOption = Long.parseLong(scanner.nextLine());
 
-                    List<FlightScheduleEntity> flightSchedules = flightSchedulePlan.getFlightSchedules();
-                    for (FlightScheduleEntity flightSchedule : flightSchedules) {
-                        option++;
-                        System.out.println("\t" + option + ": Flight Schedule Id " + flightSchedule.getFlightScheduleId());
-                        optionsList.add(flightSchedule.getFlightScheduleId());
-                    }
-                }
-                System.out.print("\n");
-
-                do {
-                    System.out.print("Select option>");
-                    selectedOption = scanner.nextInt();
-                    if (selectedOption <= 0 || selectedOption > option) {
-                        System.out.println("Invalid option! Input an option between 1 and " + option);
-                    }
-                } while (selectedOption <= 0 || selectedOption > option);
-
-                SeatInventory seatInventory = seatInventorySessionBeanRemote.viewSeatsInventoryByFlightScheduleId(optionsList.get(selectedOption - 1));
+                SeatInventory seatInventory = seatInventorySessionBeanRemote.viewSeatsInventoryByFlightScheduleId(selectedOption);
 
                 System.out.println("Total number of available seats acroass all cabins: " + seatInventory.getTotalAvailSeats());
                 System.out.println("Total number of reserved seats acroass all cabins: " + seatInventory.getTotalReservedSeats());
@@ -128,6 +127,9 @@ public class SalesManagementModule {
                 HashMap<CabinClassEnum, Integer[]> map = seatInventory.getCabinSeatsInventory();
 
                 for (Map.Entry<CabinClassEnum, Integer[]> entry : map.entrySet()) {
+                    if (entry.getValue()[0] == null) {
+                        continue;
+                    }
                     System.out.println("Number of available seats for cabin " + entry.getKey().toString() + ": " + entry.getValue()[0]);
                     System.out.println("Number of reserved seats for cabin " + entry.getKey().toString() + ": " + entry.getValue()[1]);
                     System.out.println("Number of balance seats for cabin " + entry.getKey().toString() + ": " + entry.getValue()[2] + "\n");
@@ -141,7 +143,7 @@ public class SalesManagementModule {
 
     private void viewFlightReservations() {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("*** Sales Managemnet Module: View Seats Inventory ***\n");
+        System.out.println("*** Sales Managemnet Module: Flight Reservations ***\n");
         System.out.print("Enter flight number>");
         String flightNumber = scanner.nextLine().trim();
 
@@ -153,49 +155,26 @@ public class SalesManagementModule {
             if (flightSchedulePlans.isEmpty()) { //no flight schedules
                 System.out.println("Flight has no flight schedules!");
             } else {
-                System.out.println("Select option to view Seat Inventory of Flight Schedule:\n");
-                Integer option = 0;
-                List<Long> optionsList = new ArrayList<>();
-                Integer selectedOption = 0;
+                viewFlightSchedules(flightSchedulePlans);
 
-                for (FlightSchedulePlanEntity flightSchedulePlan : flightSchedulePlans) {
-                    System.out.println("Flight Schedule Plan Id: " + flightSchedulePlan.getFlightSchedulePlanId());
+                System.out.println("Enter flight schedule ID to view its reservations> ");
+                Long selectedOption = Long.parseLong(scanner.nextLine());
 
-                    List<FlightScheduleEntity> flightSchedules = flightSchedulePlan.getFlightSchedules();
-                    for (FlightScheduleEntity flightSchedule : flightSchedules) {
-                        option++;
-                        System.out.println("\t" + option + ": Flight Schedule Id " + flightSchedule.getFlightScheduleId());
-                        optionsList.add(flightSchedule.getFlightScheduleId());
-                    }
-                }
-                System.out.print("\n");
-
-                do {
-                    System.out.print("Select option>");
-                    selectedOption = scanner.nextInt();
-                    if (selectedOption <= 0 || selectedOption > option) {
-                        System.out.println("Invalid option! Input an option between 1 and " + option);
-                    }
-                } while (selectedOption <= 0 || selectedOption > option);
-
-//                List<FlightReservationEntity> reservationList = flightReservationSessionBeanRemote.viewFlightReservationsByFlightScheduleId(optionsList.get(selectedOption - 1));
-                //flight schedule:
-                //1. For each cabin class, 
-                //      Flight reservation id
-                //      seat number
-                //      passenger name
-                //      fare basis code
-//                for (FlightReservationEntity reservation : reservationList) {
-//                    List<PassengerEntity> passengerList = reservation.getPassengers();
-//                    for (PassengerEntity passenger : passengerList) {
-//                        System.out.println("Passenger name: " + passenger.getFirstName() + " " + passenger.getLastName());
-//                    }
-//                }
-                //incomplete
+                List<SeatEntity> reservedSeats = seatInventorySessionBeanRemote.retrieveReservedSeatsByFlightScheduleId(selectedOption);
+                printReservedSeats(reservedSeats);
             }
 
         } catch (FlightNotFoundException ex) {
             System.out.println(ex.getMessage());
+        }
+    }
+
+    private void printReservedSeats(List<SeatEntity> reservedSeats) {
+        for (SeatEntity seat : reservedSeats) {
+            System.out.println("cabin class: " + seat.getCabinClassEnum()
+                    + ", seat number: " + seat.getSeatNumber()
+                    + ", passenger name: " + seat.getPassenger().getFirstName() + " " + seat.getPassenger().getLastName()
+                    + " , fare basis code: " + seat.getFareBasisCode());
         }
     }
 }

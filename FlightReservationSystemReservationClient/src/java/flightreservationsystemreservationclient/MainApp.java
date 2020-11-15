@@ -761,7 +761,7 @@ public class MainApp {
     }
 
     private void viewFlightReservationDetails(Long flightReservationId) {
-        FlightReservationEntity flightReservation = flightReservationSessionBeanRemote.viewFlightReservationsByFlightScheduleId(flightReservationId);
+        FlightReservationEntity flightReservation = flightReservationSessionBeanRemote.viewFlightReservationByFlightReservationId(flightReservationId);
 
         System.out.println("Itinerary:");
         for (FlightScheduleEntity flightSchedule : flightReservation.getFlightSchedules()) {

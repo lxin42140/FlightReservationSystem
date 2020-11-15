@@ -38,4 +38,6 @@ public interface SeatInventorySessionBeanLocal {
 
     public void reserveSeatsForPartner(PassengerEntity passenger) throws ReserveSeatException;
 
+    public List<SeatEntity> retrieveReservedSeatsByFlightScheduleId(Long flightScheduleId);
+
 }
