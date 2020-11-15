@@ -6,9 +6,11 @@
 package flightreservationsystemmanagementclient;
 
 import ejb.session.stateless.AircraftConfigurationSessionBeanRemote;
+import ejb.session.stateless.AircraftTypeSessionBeanRemote;
 import ejb.session.stateless.AirportEntitySessionBeanRemote;
 import ejb.session.stateless.FlightRouteSessionBeanRemote;
 import entity.AircraftConfigurationEntity;
+import entity.AircraftTypeEntity;
 import entity.AirportEntity;
 import entity.CabinConfigurationEntity;
 import entity.FlightRouteEntity;
@@ -39,14 +41,17 @@ public class FlightPlanningModule {
     private FlightRouteSessionBeanRemote flightRouteSessionBeanRemote;
     @EJB
     private AirportEntitySessionBeanRemote airportEntitySessionBeanRemote;
+    @EJB
+    private AircraftTypeSessionBeanRemote aircraftTypeSessionBeanRemote;
 
     public FlightPlanningModule() {
     }
 
-    public FlightPlanningModule(AircraftConfigurationSessionBeanRemote aircraftConfigurationSessionBeanRemote, FlightRouteSessionBeanRemote flightRouteSessionBeanRemote, AirportEntitySessionBeanRemote airportEntitySessionBeanRemote) {
+    public FlightPlanningModule(AircraftConfigurationSessionBeanRemote aircraftConfigurationSessionBeanRemote, FlightRouteSessionBeanRemote flightRouteSessionBeanRemote, AirportEntitySessionBeanRemote airportEntitySessionBeanRemote, AircraftTypeSessionBeanRemote aircraftTypeSessionBeanRemote) {
         this.aircraftConfigurationSessionBeanRemote = aircraftConfigurationSessionBeanRemote;
         this.flightRouteSessionBeanRemote = flightRouteSessionBeanRemote;
         this.airportEntitySessionBeanRemote = airportEntitySessionBeanRemote;
+        this.aircraftTypeSessionBeanRemote = aircraftTypeSessionBeanRemote;
     }
 
     public void flightPlanningMenu(EmployeeAccessRightEnum employeeAccessRightEnum) {
@@ -141,6 +146,13 @@ public class FlightPlanningModule {
         System.out.print("Enter Aircraft Configuration name> ");
         aircraftConfiguration.setAircraftConfigurationName(scanner.nextLine().trim());
 
+        System.out.println("=====List of Aircraft Types=====");
+        List<AircraftTypeEntity> aircraftTypes = aircraftTypeSessionBeanRemote.retrieveAllAircraftTypes();
+        for (AircraftTypeEntity aircraftType : aircraftTypes) {
+            System.out.println("Aircraft Type Id " + aircraftType.getAricraftId() + ": " + aircraftType.getAricraftTypeName());
+        }
+        System.out.println("================================");
+
         System.out.print("Enter Aircraft Type Id> ");
         aircraftTypeId = scanner.nextLong();
 
@@ -195,7 +207,7 @@ public class FlightPlanningModule {
         System.out.print("Enter number of rows> ");
         cabinConfigurationEntity.setNumberOfRows(scanner.nextLong());
 
-        System.out.print("Enter number of seats abreast (must be between 7-10)> ");
+        System.out.print("Enter number of seats abreast> ");
         numberOfSeatsAbreast = scanner.nextLong();
         cabinConfigurationEntity.setNumberOfSeatsAbreast(numberOfSeatsAbreast);
 

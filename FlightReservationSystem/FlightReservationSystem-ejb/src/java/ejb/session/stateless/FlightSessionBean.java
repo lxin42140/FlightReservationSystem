@@ -272,7 +272,10 @@ public class FlightSessionBean implements FlightSessionBeanRemote, FlightSession
 
     @Override
     public void deleteFlightByFlightNumber(String flightNumber) throws FlightNotFoundException, FlightInUseException {
-        FlightEntity flightEntity = em.find(FlightEntity.class, flightNumber);
+        Query query = em.createQuery("SELECT f FROM FlightEntity f WHERE f.flightNumber =:inFlightNumber");
+        query.setParameter("inFlightNumber", flightNumber);
+        FlightEntity flight = (FlightEntity)query.getSingleResult();
+        FlightEntity flightEntity = em.find(FlightEntity.class, flight.getFlightId());
 
         if (flightEntity == null) {
             throw new FlightNotFoundException("FlightNotFoundException: Flight number " + flightNumber + " does not exist!");

@@ -97,7 +97,7 @@ public class SeatInventorySessionBean implements SeatInventorySessionBeanRemote,
 
     @Override
     public List<SeatEntity> retrieveReservedSeatsByFlightScheduleId(Long flightScheduleId) {
-        Query query = em.createQuery("select s from SeatEntity s where s.flightSchedule.flightScheduleId :=inFlightScheduleID AND s.passenger != null order by s.cabinClassEnum");
+        Query query = em.createQuery("select s from SeatEntity s where s.flightSchedule.flightScheduleId :=inFlightScheduleID AND s.passenger IS NOT null order by s.cabinClassEnum");
         query.setParameter("inFlightScheduleID", flightScheduleId);
 
         return (List<SeatEntity>) query.getResultList();

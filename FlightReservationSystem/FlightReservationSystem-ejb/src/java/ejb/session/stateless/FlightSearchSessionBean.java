@@ -46,6 +46,11 @@ public class FlightSearchSessionBean implements FlightSearchSessionBeanRemote, F
             throw new SearchFlightFailedException("SearchFlightFailedException: Invalid one or more search parameters!");
         }
 
+//        CabinClassEnum preferredCabinClass = null;
+//        if (preferredCabinClassString != null || !preferredCabinClassString.isEmpty()) {
+//            preferredCabinClass = CabinClassEnum.valueOf(preferredCabinClassString);
+//        }
+
         List<List<FlightScheduleEntity>> toFlights = new ArrayList<>();
         List<List<FlightScheduleEntity>> returnFlights = new ArrayList<>();
 
@@ -103,112 +108,20 @@ public class FlightSearchSessionBean implements FlightSearchSessionBeanRemote, F
 
         return searchResult;
 
-//        return generateReturnFlights(toFlights, returnDate, numberOfPassengers, preferredCabinClass);
     }
 
-//    private List<HashMap<Integer, List<FlightScheduleEntity>>> generateReturnFlights(List<List<FlightScheduleEntity>> toFlights, Date returnDate, Integer numberOfPassengers, CabinClassEnum preferredCabinClass) throws NoMatchingFlightsException {
-//        GregorianCalendar cal = new GregorianCalendar();
-//        cal.setTime(returnDate);
-//        cal.add(GregorianCalendar.HOUR_OF_DAY, 3 * 24);
-//        Date afterLimit = cal.getTime(); // get limit date for 3 days after the required departure date
-//
-//        cal.setTime(returnDate);
-//        cal.add(GregorianCalendar.HOUR_OF_DAY, -3 * 24);
-//        Date earlierLimit = cal.getTime(); // get limit date for 3 days prior the required departure date 
-//
-//        HashMap<Integer, List<List<FlightScheduleEntity>>> results = new HashMap<>();
-//        List<List<FlightScheduleEntity>> returnFlights = new ArrayList<>();
-//
-//        Iterator<List<FlightScheduleEntity>> routeIterator = toFlights.iterator();
-//
-//        while (routeIterator.hasNext()) {
-//            List<FlightScheduleEntity> route = routeIterator.next();
-//
-//            boolean hasReturnFlight = true;
-//            for (FlightScheduleEntity toFlightSchedule : route) {
-//                FlightScheduleEntity returnFlightSchedule = toFlightSchedule.getReturnFlightSchedule(); // get return flight schedule
-//
-//                // make sure return flight schedule exists
-//                if (returnFlightSchedule == null) {
-//                    hasReturnFlight = false;
-//                    break;
-//                }
-//
-//                try {
-//                    // make sure return flight schedule has enough seats
-//                    SeatInventory seatInventory = seatInventorySessionBeanLocal.viewSeatsInventoryByFlightScheduleId(returnFlightSchedule.getFlightScheduleId());
-//
-//                    // not enough seats for return flight 
-//                    if (seatInventory.getTotalAvailSeats() < numberOfPassengers) {
-//                        hasReturnFlight = false;
-//                        break;
-//                    }
-//
-//                    // not enogh seats for the preferred cabin
-//                    if (preferredCabinClass != null) {
-//                        HashMap<CabinClassEnum, Integer[]> cabinSeatsInventory = seatInventory.getCabinSeatsInventory();
-//                        if (cabinSeatsInventory.get(preferredCabinClass)[2] < numberOfPassengers) {
-//                            hasReturnFlight = false;
-//                            break;
-//                        }
-//                    }
-//                } catch (FlightScheduleNotFoundException ex) {
-//                    hasReturnFlight = false;
-//                    break;
-//                }
-//
-//            }
-//
-//            // to flight routes do not have return flight schedules
-//            if (!hasReturnFlight) {
-//                System.out.println("inside here");
-//                routeIterator.remove();
-//            } else {
-//                System.out.println("else");
-//                FlightScheduleEntity firstToFlightSchedule = route.get(0);
-//                // if arrival date of the return schedule is beyond the 3 days window
-//                if (firstToFlightSchedule.getReturnFlightSchedule().getDepartureDate().compareTo(earlierLimit) < 0 || firstToFlightSchedule.getReturnFlightSchedule().getDepartureDate().compareTo(afterLimit) > 0) {
-//                    routeIterator.remove();
-//                } else {
-//
-//                    List<FlightScheduleEntity> returnRoutes = new ArrayList<>();
-//                    // add return flight schedules in reverse order
-//                    for (int i = route.size() - 1; i >= 0; i--) {
-//                        returnRoutes.add(route.get(i).getReturnFlightSchedule());
-//                    }
-//
-//                    returnFlights.add(returnRoutes);
-//                }
-//            }
-//        }
-//
-//        if (toFlights.isEmpty() || returnFlights.isEmpty()) {
-//            System.out.println("toFlight(): " + toFlights.isEmpty());
-//            System.out.println("returnFlights: " + returnFlights.isEmpty());
-//            throw new NoMatchingFlightsException("NoMatchingFlightsException: No available two way flights that match the requirements!");
-//        }
-//
-//        List<HashMap<Integer, List<FlightScheduleEntity>>> searchResult = new ArrayList<>();
-//        HashMap<Integer, List<FlightScheduleEntity>> toFlightSearchResults = new HashMap<>();
-//        HashMap<Integer, List<FlightScheduleEntity>> returnFlightSearchResults = new HashMap<>();
-//
-//        for (int i = 0; i < toFlights.size(); i++) {
-//            toFlightSearchResults.put(i + 1, toFlights.get(i));
-//            returnFlightSearchResults.put(i + 1, returnFlights.get(i));
-//        }
-//
-//        searchResult.add(toFlightSearchResults);
-//        searchResult.add(returnFlightSearchResults);
-//
-//        return searchResult;
-//    }
     // enter null for preferredCabinClass if there is no preference
     // enter null for preferDirectFlight if there is no preference
     @Override
-    public HashMap<Integer, List<FlightScheduleEntity>> searchOneWayFlights(Long departureAirportId, Long arrivalAirportId, Date departureDate, Integer numberOfPassengers, Boolean preferDirectFlight, CabinClassEnum preferredCabinClass) throws NoMatchingFlightsException, SearchFlightFailedException {
+    public HashMap<Integer, List<FlightScheduleEntity>> searchOneWayFlights(Long departureAirportId, Long arrivalAirportId, Date departureDate, Integer numberOfPassengers, Boolean preferDirectFlight,  CabinClassEnum preferredCabinClass) throws NoMatchingFlightsException, SearchFlightFailedException {
         if (null == departureAirportId || null == arrivalAirportId || null == departureDate || numberOfPassengers == null || numberOfPassengers <= 0) {
             throw new SearchFlightFailedException("SearchFlightFailedException: Invalid one or more search parameters!");
         }
+
+//        CabinClassEnum preferredCabinClass = null;
+//        if (preferredCabinClassString != null || !preferredCabinClassString.isEmpty()) {
+//            preferredCabinClass = CabinClassEnum.valueOf(preferredCabinClassString);
+//        }
 
         HashMap<Integer, List<FlightScheduleEntity>> searchResult = new HashMap<>();
         List<List<FlightScheduleEntity>> oneWayFlights = new ArrayList<>();

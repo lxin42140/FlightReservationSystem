@@ -8,6 +8,7 @@ package ejb.session.stateless;
 import entity.FareEntity;
 import entity.FlightScheduleEntity;
 import entity.FlightSchedulePlanEntity;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
