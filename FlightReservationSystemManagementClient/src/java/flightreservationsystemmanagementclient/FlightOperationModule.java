@@ -28,14 +28,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.InputMismatchException;
 import java.util.List;
-import java.util.Random;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.ejb.EJB;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import util.enumeration.CabinClassEnum;
 import util.enumeration.FlightSchedulePlanTypeEnum;
 import util.exception.AircraftConfigurationNotFoundException;
@@ -98,7 +92,6 @@ public class FlightOperationModule {
             System.out.println("1: Create new Flight");
             System.out.println("2: View All Flights");
             System.out.println("3: View Flight Details\n");
-
             System.out.println("4: Create Flight Schedule Plan");
             System.out.println("5: View All Flight Schedule Plans");
             System.out.println("6: View Flight Schedule Plan Details\n");
@@ -360,7 +353,7 @@ public class FlightOperationModule {
             System.out.println(ex.getMessage());
             return;
         }
-        List<CabinConfigurationEntity> cabinList = flight.getAircraftConfiguration().getCabinConfigurations();
+//        List<CabinConfigurationEntity> cabinList = flight.getAircraftConfiguration().getCabinConfigurations();
 
         boolean isCreatingFare = true;
         String createMoreFare = "";
@@ -391,7 +384,6 @@ public class FlightOperationModule {
                 System.out.println("Invalid response! Enter 1-4");
             }
         } while (response <= 0 || response > 4);
-        scanner.nextLine();
 
         String returnSchedulePlanResponse = "";
         if (flight.getReturnFlight() != null) {

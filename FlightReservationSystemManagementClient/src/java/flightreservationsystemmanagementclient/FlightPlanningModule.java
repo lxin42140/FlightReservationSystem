@@ -15,13 +15,8 @@ import entity.FlightRouteEntity;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import javax.ejb.EJB;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import util.enumeration.CabinClassEnum;
 import util.enumeration.EmployeeAccessRightEnum;
 import util.exception.AircraftConfigurationNotFoundException;
@@ -332,6 +327,10 @@ public class FlightPlanningModule {
         List<FlightRouteEntity> flightRoutes = flightRouteSessionBeanRemote.retrieveAllFlightRoutes();
         for (FlightRouteEntity flightRoute : flightRoutes) {
             System.out.println("ID: " + flightRoute.getFlightRouteId() + ", Origin: " + flightRoute.getOriginAirport().getIataAirlineCode() + ", Destination: " + flightRoute.getDestinationAirport().getIataAirlineCode());
+            if (flightRoute.getReturnFlightRoute() != null) {
+                FlightRouteEntity returnFlightRoute = flightRoute.getReturnFlightRoute();
+                System.out.println("\tReturn ID: " + returnFlightRoute.getFlightRouteId() + ", Origin: " + returnFlightRoute.getOriginAirport().getIataAirlineCode() + ", Destination: " + returnFlightRoute.getDestinationAirport().getIataAirlineCode());
+            }
         }
     }
 
