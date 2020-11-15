@@ -7,7 +7,6 @@ package ejb.session.stateless;
 
 import entity.AircraftConfigurationEntity;
 import entity.FlightScheduleEntity;
-import entity.PassengerEntity;
 import entity.SeatEntity;
 import java.util.List;
 import javax.ejb.Remote;
@@ -15,8 +14,6 @@ import pojo.SeatInventory;
 import util.enumeration.CabinClassEnum;
 import util.exception.CreateNewSeatInventoryException;
 import util.exception.FlightScheduleNotFoundException;
-import util.exception.ReserveSeatException;
-import util.exception.SeatNotFoundException;
 
 /**
  *
@@ -34,5 +31,7 @@ public interface SeatInventorySessionBeanRemote {
 //    public SeatEntity retrieveSeatFromFlightSchedule(Long flightScheduleId, CabinClassEnum cabinClassEnum, Long rowNumber, Character rowLetter) throws SeatNotFoundException;
 //    public SeatEntity retrieveAvailableSeatFromFlightScheduleAndCabin(Long flightScheduleId, CabinClassEnum cabinClassEnum, String seatNumber) throws SeatNotFoundException, ReserveSeatException;
     public List<SeatEntity> retrieveAllAvailableSeatsFromFlightScheduleAndCabin(Long flightScheduleId, CabinClassEnum cabinClassEnum);
+
+    public List<SeatEntity> retrieveReservedSeatsByFlightScheduleId(Long flightScheduleId);
 
 }

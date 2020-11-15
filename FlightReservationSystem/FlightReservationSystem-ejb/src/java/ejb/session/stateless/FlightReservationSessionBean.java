@@ -47,55 +47,12 @@ public class FlightReservationSessionBean implements FlightReservationSessionBea
     private EntityManager em;
 
     @Override
-    public FlightReservationEntity viewFlightReservationsByReservationId(Long flightReservationId) {
+    public FlightReservationEntity viewFlightReservationByFlightReservationId(Long flightReservationId) {
 
         Query query = em.createQuery("SELECT r FROM FlightReservationEntity r WHERE r.flightReservationId = :inFlightReservationId");
         query.setParameter("inFlightReservationId", flightReservationId);
 
         return (FlightReservationEntity) query.getSingleResult();
-
-//        FlightScheduleEntity flightSchedule = flightScheduleSessionBeanLocal.retrieveFlightScheduleById(flightScheduleId);
-//        // get a list of seats that are booked
-//        List<SeatEntity> reservedSeats = new ArrayList<>();
-//
-//        for (SeatEntity seat : flightSchedule.getSeatInventory()) {
-//            if (seat.getPassenger() != null) {
-//                reservedSeats.add(seat);
-//            }
-//        }
-//
-//        // sort base on cabin class
-//        reservedSeats.sort(((SeatEntity a, SeatEntity b) -> {
-//            return a.getCabinClassEnum().compareTo(b.getCabinClassEnum());
-//        }));
-//
-//        // sort base on seat number
-//        reservedSeats.sort(((SeatEntity a, SeatEntity b) -> {
-//            return a.getSeatNumber().compareTo(b.getSeatNumber());
-//        }));
-//
-//        return reservedSeats;
-    }
-    
-    public List<FlightReservationEntity> viewFlightReservationsByFlightScheduleId(Long flightScheduleId) {
-
-        Query query = em.createQuery("SELECT r FROM FlightReservationEntity r");
-        List<FlightReservationEntity> resultsList = query.getResultList();
-        
-        List<FlightReservationEntity> finalList = new ArrayList<>();
-        
-        for (FlightReservationEntity reservation : resultsList) {
-            List<FlightScheduleEntity> list = reservation.getFlightSchedules();
-            for (FlightScheduleEntity flightSchedule : list) {
-                if (flightSchedule.getFlightScheduleId().equals(flightScheduleId)) {
-                    finalList.add(reservation);
-                }
-            }
-        }
-        
-        return finalList;
-
-//        return (FlightReservationEntity) query.getSingleResult();
     }
 
     @Override

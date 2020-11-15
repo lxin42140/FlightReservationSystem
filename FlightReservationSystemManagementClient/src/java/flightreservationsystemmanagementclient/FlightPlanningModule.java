@@ -326,6 +326,10 @@ public class FlightPlanningModule {
         List<FlightRouteEntity> flightRoutes = flightRouteSessionBeanRemote.retrieveAllFlightRoutes();
         for (FlightRouteEntity flightRoute : flightRoutes) {
             System.out.println("ID: " + flightRoute.getFlightRouteId() + ", Origin: " + flightRoute.getOriginAirport().getIataAirlineCode() + ", Destination: " + flightRoute.getDestinationAirport().getIataAirlineCode());
+            if (flightRoute.getReturnFlightRoute() != null) {
+                FlightRouteEntity returnFlightRoute = flightRoute.getReturnFlightRoute();
+                System.out.println("\tReturn ID: " + returnFlightRoute.getFlightRouteId() + ", Origin: " + returnFlightRoute.getOriginAirport().getIataAirlineCode() + ", Destination: " + returnFlightRoute.getDestinationAirport().getIataAirlineCode());
+            }
         }
     }
 
