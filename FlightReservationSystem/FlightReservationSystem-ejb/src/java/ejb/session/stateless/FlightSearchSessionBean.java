@@ -102,9 +102,7 @@ public class FlightSearchSessionBean implements FlightSearchSessionBeanRemote, F
 
         for (List<FlightScheduleEntity> itinery : returnFlights) {
             for (FlightScheduleEntity flightSchedule : itinery) {
-                for (SeatEntity seat : flightSchedule.getSeatInventory()) {
-                    em.detach(flightSchedule.getSeatInventory());
-                }
+                em.detach(flightSchedule.getSeatInventory());
             }
         }
 
@@ -161,9 +159,7 @@ public class FlightSearchSessionBean implements FlightSearchSessionBeanRemote, F
 
         for (List<FlightScheduleEntity> itinery : oneWayFlights) {
             for (FlightScheduleEntity flightSchedule : itinery) {
-                for (SeatEntity seat : flightSchedule.getSeatInventory()) {
-                    em.detach(flightSchedule.getSeatInventory());
-                }
+                em.detach(flightSchedule.getSeatInventory());
             }
         }
 
