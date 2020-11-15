@@ -40,4 +40,6 @@ public interface SeatInventorySessionBeanLocal {
 
     public List<SeatEntity> retrieveReservedSeatsByFlightScheduleId(Long flightScheduleId);
 
+    public SeatEntity retrieveSeatById(Long seatId) throws SeatNotFoundException;
+
 }

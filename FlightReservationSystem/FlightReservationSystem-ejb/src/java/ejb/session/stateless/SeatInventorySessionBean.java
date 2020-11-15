@@ -48,6 +48,15 @@ public class SeatInventorySessionBean implements SeatInventorySessionBeanRemote,
     @PersistenceContext(unitName = "FlightReservationSystem-ejbPU")
     private EntityManager em;
 
+    public SeatEntity retrieveSeatById(Long seatId) throws SeatNotFoundException {
+        SeatEntity seat = em.find(SeatEntity.class, seatId);
+
+        if (seat == null) {
+            throw new SeatNotFoundException("SeatNotFoundException: Seat not found!");
+        }
+        return seat;
+    }
+
     @Override
     public void createSeatInventoryForFlightSchedule(FlightScheduleEntity flightScheduleEntity, AircraftConfigurationEntity aircraftConfigurationEntity) throws CreateNewSeatInventoryException {
 

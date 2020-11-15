@@ -742,7 +742,7 @@ public class MainApp {
     }
 
     private void viewAllFlightReservations() {
-        List<FlightReservationEntity> flightReservations = flightReservationSessionBeanRemote.viewFlightReservationByCustomer(customerEntity.getUserId());
+        List<FlightReservationEntity> flightReservations = flightReservationSessionBeanRemote.viewFlightReservationByUser(customerEntity.getUserId());
         for (FlightReservationEntity flightReservation : flightReservations) {
             System.out.println("Flight reservation Id: " + flightReservation.getFlightReservationId());
             System.out.println("Total amount paid: " + flightReservation.getTotalAmount() + "\n");
