@@ -21,7 +21,9 @@ import util.exception.CreateNewFlightReservationException;
 @Local
 public interface FlightReservationSessionBeanLocal {
 
-    public FlightReservationEntity viewFlightReservationsByFlightScheduleId(Long flightReservationId);
+    public FlightReservationEntity viewFlightReservationsByReservationId(Long flightReservationId);
+    
+    public List<FlightReservationEntity> viewFlightReservationsByFlightScheduleId(Long flightScheduleId);
     
     public List<FlightReservationEntity> viewFlightReservationByCustomer(Long customerId);
 

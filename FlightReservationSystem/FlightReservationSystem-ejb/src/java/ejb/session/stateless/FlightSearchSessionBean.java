@@ -84,11 +84,9 @@ public class FlightSearchSessionBean implements FlightSearchSessionBeanRemote, F
         }
 
         if (toFlights.isEmpty()) {
-//            System.out.println("is toFlights true here? " + toFlights.isEmpty());
             throw new NoMatchingFlightsException("NoMatchingFlightsException: No available flights that match the requirements!");
         } else if (returnFlights.isEmpty()) {
             throw new NoMatchingFlightsException("NoMatchingFlightsException: No available return flights that match the requirements!");
-
         }
 
         List<HashMap<Integer, List<FlightScheduleEntity>>> searchResult = new ArrayList<>();
@@ -223,7 +221,6 @@ public class FlightSearchSessionBean implements FlightSearchSessionBeanRemote, F
 
             oneWayFlights.addAll(oneTransistFlights);
             oneWayFlights.addAll(twoTransistFlights);
-
         } else { // retrieve both connecting and direct
             List<List<FlightScheduleEntity>> directFlights = searchDirectFlightSchedules(departureAirportId, arrivalAirportId, departureDate, numberOfPassengers, preferredCabinClass);
             List<List<FlightScheduleEntity>> oneTransistFlights = searchOneTransistConnectingFlights(departureAirportId, arrivalAirportId, departureDate, numberOfPassengers, preferredCabinClass);
@@ -233,7 +230,6 @@ public class FlightSearchSessionBean implements FlightSearchSessionBeanRemote, F
             oneWayFlights.addAll(oneTransistFlights);
             oneWayFlights.addAll(twoTransistFlights);
         }
-
         if (oneWayFlights.isEmpty()) {
             throw new NoMatchingFlightsException("NoMatchingFlightsException: No available flights that match the requirements!");
         }

@@ -9,9 +9,7 @@ import entity.CreditCardEntity;
 import entity.CustomerEntity;
 import entity.FlightReservationEntity;
 import entity.FlightScheduleEntity;
-import entity.PartnerEntity;
 import entity.PassengerEntity;
-import entity.SeatEntity;
 import entity.UserEntity;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +26,6 @@ import javax.validation.ValidatorFactory;
 import util.exception.CreateNewCreditCardException;
 import util.exception.CreateNewFlightReservationException;
 import util.exception.CreateNewPassengerException;
-import util.exception.FlightScheduleNotFoundException;
 
 /**
  *
@@ -50,15 +47,14 @@ public class FlightReservationSessionBean implements FlightReservationSessionBea
     private EntityManager em;
 
     @Override
-    public FlightReservationEntity viewFlightReservationsByFlightScheduleId(Long flightReservationId) {
-        
+    public FlightReservationEntity viewFlightReservationsByReservationId(Long flightReservationId) {
+
         Query query = em.createQuery("SELECT r FROM FlightReservationEntity r WHERE r.flightReservationId = :inFlightReservationId");
         query.setParameter("inFlightReservationId", flightReservationId);
-        
+
         return (FlightReservationEntity) query.getSingleResult();
 
 //        FlightScheduleEntity flightSchedule = flightScheduleSessionBeanLocal.retrieveFlightScheduleById(flightScheduleId);
-
 //        // get a list of seats that are booked
 //        List<SeatEntity> reservedSeats = new ArrayList<>();
 //
@@ -80,6 +76,27 @@ public class FlightReservationSessionBean implements FlightReservationSessionBea
 //
 //        return reservedSeats;
     }
+    
+    public List<FlightReservationEntity> viewFlightReservationsByFlightScheduleId(Long flightScheduleId) {
+
+        Query query = em.createQuery("SELECT r FROM FlightReservationEntity r");
+        List<FlightReservationEntity> resultsList = query.getResultList();
+        
+        List<FlightReservationEntity> finalList = new ArrayList<>();
+        
+        for (FlightReservationEntity reservation : resultsList) {
+            List<FlightScheduleEntity> list = reservation.getFlightSchedules();
+            for (FlightScheduleEntity flightSchedule : list) {
+                if (flightSchedule.getFlightScheduleId().equals(flightScheduleId)) {
+                    finalList.add(reservation);
+                }
+            }
+        }
+        
+        return finalList;
+
+//        return (FlightReservationEntity) query.getSingleResult();
+    }
 
     @Override
     public List<FlightReservationEntity> viewFlightReservationByCustomer(Long customerId) {
@@ -88,7 +105,7 @@ public class FlightReservationSessionBean implements FlightReservationSessionBea
         query.setParameter("inUserId", customerId);
 
         List<FlightReservationEntity> flightReservationEntity = (List<FlightReservationEntity>) query.getResultList();
-        
+
         return flightReservationEntity;
     }
 
@@ -131,7 +148,7 @@ public class FlightReservationSessionBean implements FlightReservationSessionBea
 
             // associate selected seats of each passenger with the passenger and the passenger with flight reservation
             passengerSessionBeanLocal.addPassengersToReservation(passengers, newFlightReservation, user instanceof CustomerEntity);
-            
+
             validate(newFlightReservation);
 
             em.persist(newFlightReservation);

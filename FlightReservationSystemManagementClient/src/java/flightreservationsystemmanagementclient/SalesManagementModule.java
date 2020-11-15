@@ -13,6 +13,7 @@ import entity.FlightReservationEntity;
 import entity.FlightScheduleEntity;
 import entity.FlightSchedulePlanEntity;
 import entity.PassengerEntity;
+import entity.SeatEntity;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -73,7 +74,7 @@ public class SalesManagementModule {
                 }
             }
 
-            if (response == 4) {
+            if (response == 3) {
                 break;
             }
         }
@@ -153,7 +154,7 @@ public class SalesManagementModule {
             if (flightSchedulePlans.isEmpty()) { //no flight schedules
                 System.out.println("Flight has no flight schedules!");
             } else {
-                System.out.println("Select option to view Seat Inventory of Flight Schedule:\n");
+                System.out.println("Select option to view Reservation of Flight Schedule:\n");
                 Integer option = 0;
                 List<Long> optionsList = new ArrayList<>();
                 Integer selectedOption = 0;
@@ -178,7 +179,20 @@ public class SalesManagementModule {
                     }
                 } while (selectedOption <= 0 || selectedOption > option);
 
-//                List<FlightReservationEntity> reservationList = flightReservationSessionBeanRemote.viewFlightReservationsByFlightScheduleId(optionsList.get(selectedOption - 1));
+                Long flightScheduleId = optionsList.get(selectedOption - 1);
+                List<FlightReservationEntity> reservationList = flightReservationSessionBeanRemote.viewFlightReservationsByFlightScheduleId(flightScheduleId);
+                
+                for (FlightReservationEntity reservation : reservationList) {
+                    for (PassengerEntity passenger : reservation.getPassengers()) {
+                        System.out.print("Name: " + passenger.getFirstName() + " " + passenger.getLastName() + ", ");
+                        for (SeatEntity seat : passenger.getSeats()) {
+                            if (seat.getFlightSchedule().getFlightScheduleId().equals(flightScheduleId)) {
+                                System.out.println("Seat number: " + seat.getSeatNumber() + ", Fare Basis Code: " + seat.getFareBasisCode());
+                                break;
+                            }
+                        }
+                    }
+                }
                 
                 //flight schedule:
                 //1. For each cabin class, 
@@ -186,15 +200,6 @@ public class SalesManagementModule {
                 //      seat number
                 //      passenger name
                 //      fare basis code
-                
-//                for (FlightReservationEntity reservation : reservationList) {
-//                    List<PassengerEntity> passengerList = reservation.getPassengers();
-//                    for (PassengerEntity passenger : passengerList) {
-//                        System.out.println("Passenger name: " + passenger.getFirstName() + " " + passenger.getLastName());
-//                    }
-//                }
-                //incomplete
-
             }
 
         } catch (FlightNotFoundException ex) {

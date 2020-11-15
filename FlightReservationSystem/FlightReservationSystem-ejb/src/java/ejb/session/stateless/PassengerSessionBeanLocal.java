@@ -20,4 +20,6 @@ public interface PassengerSessionBeanLocal {
 
     public void addPassengersToReservation(List<PassengerEntity> passengers, FlightReservationEntity flightReservation, boolean isCustomerReservation) throws CreateNewPassengerException;
 
+    public PassengerEntity createNewPassenger(String firstName, String lastName, String passportNumber);
+
 }
